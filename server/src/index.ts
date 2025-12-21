@@ -1,88 +1,52 @@
-import express from "express";
-import dotenv from "dotenv";
+import express, { type Request, type Response, type Express } from "express";
+import "dotenv/config";
 import cors from "cors";
-import { PrismaClient } from "@prisma/client";
+import { authMiddleware } from "./middleware/auth";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import eventRoutes from "./routes/events";
 import goalRoutes from "./routes/goals";
 import aiRoutes from "./routes/ai";
-import subRoute from "./routes/notis";
-import pino from "pino";
+import subRoute from "./routes/notification";
+import { logger } from "./utils/logger.utils";
+import { shutdown } from "./lib/prisma";
+import { errorHandler } from "./utils/error.util";
 
-// Load environment variables
-dotenv.config();
+const app: Express = express();
+const CLIENT: string = process.env.CLIENT_URL || "http://localhost:5173";
+const corsOptions = {
+  origin: [CLIENT],
+  optionsSuccessStatus: 200,
+};
 
-// Initialize Prisma client
-const prisma = new PrismaClient();
-
-// Create Express app
-const app = express();
-const port = process.env.PORT || 3000;
-const URL = process.env.CLIENT_URL || "http://localhost:5173";
-// Middleware
 app.use(express.json());
-app.use(express.static("public"));
+app.use(cors(corsOptions));
+errorHandler(app);
 
-app.use(
-  cors({
-    origin: URL,
-    credentials: true,
-  })
-);
-
-export const logger = pino({
-  transport: {
-    target: "pino-pretty",
-    options: {
-      colorize: true,
-    },
-  },
-});
-
-// Routes
 app.use("/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/events", eventRoutes);
-app.use("/api/goals", goalRoutes);
-app.use("/api/ai", aiRoutes);
-app.use("/api/notis", subRoute);
+app.use("/api/users", authMiddleware, userRoutes);
+app.use("/api/events", authMiddleware, eventRoutes);
+app.use("/api/goals", authMiddleware, goalRoutes);
+app.use("/api/ai", authMiddleware, aiRoutes);
+app.use("/api/notification", authMiddleware, subRoute);
 
-// Health check endpoint
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
+app.get("/api/health", (req: Request, res: Response) => {
+  res.status(200).json({
+    date: new Date().toISOString(),
+    data: {
+      ip: req.ip,
+      host: req.hostname,
+    },
+  });
 });
 
-// Global error handler
-app.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error(err.stack);
-    res.status(500).json({
-      message: "An unexpected error occurred",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
-    });
-  }
-);
+shutdown();
 
-// Start server
-app.listen(port, () => {
+const port: Number = Number(process.env.PORT) || 3000;
+app.listen(port, (err?: Error | null) => {
+  if (err) {
+    logger.error(`Error starting server: ${err}`);
+    process.exit(1);
+  }
   logger.info(`Server running on port ${port}`);
 });
-
-// Handle graceful shutdown
-process.on("SIGINT", async () => {
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-process.on("SIGTERM", async () => {
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-export { prisma };

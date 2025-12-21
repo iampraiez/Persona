@@ -45,12 +45,12 @@ const Benefit: React.FC<BenefitProps> = ({
       ref={benefitRef}
       style={{ animationDelay: `${delay}s`, animationFillMode: "forwards" }}
     >
-      <div className="flex-shrink-0 w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-xl">
+      <div className="flex-shrink-0 w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center text-accent font-bold text-xl">
         {number}
       </div>
       <div>
         <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-300">{description}</p>
+        <p className="text-foreground/70">{description}</p>
       </div>
     </div>
   );
@@ -65,6 +65,9 @@ const BenefitsSection: React.FC = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("fade-in");
+            entry.target.querySelectorAll(".opacity-0").forEach((el) =>
+              el.classList.add("fade-in")
+            );
           }
         });
       },
@@ -110,8 +113,8 @@ const BenefitsSection: React.FC = () => {
   ];
 
   return (
-    <section id="benefits" className="py-20" ref={sectionRef}>
-      <div className="container">
+    <section id="benefits" className="py-24" ref={sectionRef}>
+      <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Image/Visual */}
           <div
@@ -120,7 +123,7 @@ const BenefitsSection: React.FC = () => {
           >
             <div className="relative">
               <div className="bg-gradient-to-br from-violet-500/10 to-indigo-500/10 dark:from-violet-500/5 dark:to-indigo-500/5 rounded-2xl p-8 shadow-xl">
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-float">
+                <div className="bg-card rounded-xl shadow-lg p-6 animate-float">
                   <h3 className="font-semibold text-lg mb-6">
                     Goal Progress: Learn Spanish
                   </h3>
@@ -132,9 +135,9 @@ const BenefitsSection: React.FC = () => {
                         </span>
                         <span className="text-sm font-medium">70%</span>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                      <div className="w-full bg-secondary rounded-full h-2.5">
                         <div
-                          className="bg-violet-600 h-2.5 rounded-full"
+                          className="bg-accent h-2.5 rounded-full"
                           style={{ width: "70%" }}
                         ></div>
                       </div>
@@ -142,13 +145,13 @@ const BenefitsSection: React.FC = () => {
 
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 text-xs">
+                        <div className="flex-shrink-0 w-6 h-6 bg-success/20 rounded-full flex items-center justify-center text-success text-xs">
                           ✓
                         </div>
                         <span className="text-sm">Master 500 common words</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 text-xs">
+                        <div className="flex-shrink-0 w-6 h-6 bg-success/20 rounded-full flex items-center justify-center text-success text-xs">
                           ✓
                         </div>
                         <span className="text-sm">
@@ -156,7 +159,7 @@ const BenefitsSection: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 text-xs">
+                        <div className="flex-shrink-0 w-6 h-6 bg-success/20 rounded-full flex items-center justify-center text-success text-xs">
                           ✓
                         </div>
                         <span className="text-sm">
@@ -164,7 +167,7 @@ const BenefitsSection: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center text-violet-600 dark:text-violet-400 text-xs">
+                        <div className="flex-shrink-0 w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center text-accent text-xs">
                           →
                         </div>
                         <span className="text-sm">
@@ -172,8 +175,8 @@ const BenefitsSection: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-400 text-xs"></div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex-shrink-0 w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-foreground/30 text-xs"></div>
+                        <span className="text-sm text-foreground/50">
                           Read a simple book in Spanish
                         </span>
                       </div>
@@ -182,13 +185,13 @@ const BenefitsSection: React.FC = () => {
                 </div>
 
                 {/* Stats cards */}
-                <div className="absolute -top-6 -right-6 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-lg text-sm">
-                  <div className="font-semibold text-violet-600">
+                <div className="absolute -top-6 -right-6 bg-card rounded-lg px-4 py-2 shadow-lg text-sm">
+                  <div className="font-semibold text-accent">
                     7 days ahead of schedule
                   </div>
                 </div>
-                <div className="absolute -bottom-5 -left-5 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-lg text-sm">
-                  <div className="font-semibold text-emerald-600">
+                <div className="absolute -bottom-5 -left-5 bg-card rounded-lg px-4 py-2 shadow-lg text-sm">
+                  <div className="font-semibold text-success">
                     85% completion rate
                   </div>
                 </div>
@@ -205,7 +208,7 @@ const BenefitsSection: React.FC = () => {
               Transform How You Manage Your Time
             </h2>
             <p
-              className="text-lg text-gray-600 dark:text-gray-300 mb-10 opacity-0"
+              className="text-lg text-foreground/70 mb-10 opacity-0"
               style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
             >
               TimeForge helps you take control of your schedule and achieve your

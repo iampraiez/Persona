@@ -5,7 +5,7 @@ import FeaturesSection from "../components/landing/FeaturesSection";
 import BenefitsSection from "../components/landing/BenefitsSection";
 import CTASection from "../components/landing/CTASection";
 import Footer from "../components/landing/Footer";
-import "./index.css";
+import "../index.css";
 
 const LandingPage: React.FC = () => {
   return (

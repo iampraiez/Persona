@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../store/auth.store.";
 import { API_URL } from "../config";
 import { motion } from "framer-motion";
 

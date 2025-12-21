@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useThemeStore } from "../../store/theme.store";
 
 const Navbar: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, toggleTheme } = useThemeStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
@@ -14,22 +15,8 @@ const Navbar: React.FC = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-
-    if (
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      setDarkMode(true);
-      document.documentElement.classList.add("dark");
-    }
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark");
-  };
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -39,11 +26,11 @@ const Navbar: React.FC = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm"
+          ? "bg-background/90 backdrop-blur-md shadow-sm border-b border-border"
           : "bg-transparent"
       }`}
     >
-      <div className="px-4 mx-auto max-w-7xl flex justify-between items-center py-4">
+      <div className="container mx-auto px-6 flex justify-between items-center py-4">
         <div className="flex justify-center">
           <div className="flex items-center space-x-2">
             <svg
@@ -52,7 +39,7 @@ const Navbar: React.FC = () => {
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="text-violet-600"
+              className="text-accent"
             >
               <path
                 d="M12 8V12L14.5 14.5"
@@ -70,7 +57,7 @@ const Navbar: React.FC = () => {
               />
             </svg>
             <h1 className="text-2xl font-bold">
-              <span className="text-violet-600">Time</span>
+              <span className="text-accent">Time</span>
               <span>forge</span>
             </h1>
           </div>
@@ -79,13 +66,13 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center space-x-8">
           <a
             href="#features"
-            className="font-medium hover:text-violet-600 transition-colors"
+            className="font-medium hover:text-accent transition-colors"
           >
             Features
           </a>
           <a
             href="#benefits"
-            className="font-medium hover:text-violet-600 transition-colors"
+            className="font-medium hover:text-accent transition-colors"
           >
             Benefits
           </a>
@@ -96,14 +83,14 @@ const Navbar: React.FC = () => {
             Testimonials
           </a> */}
           <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            onClick={toggleTheme}
+            className="p-2 rounded-full hover:bg-secondary transition-colors"
             aria-label="Toggle dark mode"
           >
-            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
           <button
-            className="bg-violet-600 hover:bg-violet-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            className="btn btn-accent"
             onClick={() => navigate("/login")}
           >
             Get Started
@@ -112,15 +99,15 @@ const Navbar: React.FC = () => {
 
         <div className="flex items-center md:hidden">
           <button
-            onClick={toggleDarkMode}
-            className="p-2 mr-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            onClick={toggleTheme}
+            className="p-2 mr-2 rounded-full hover:bg-secondary transition-colors"
             aria-label="Toggle dark mode"
           >
-            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
           <button
             onClick={toggleMobileMenu}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-full hover:bg-secondary transition-colors"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -129,32 +116,25 @@ const Navbar: React.FC = () => {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-800 shadow-lg">
+        <div className="md:hidden bg-card shadow-lg border-b border-border">
           <div className="px-4 mx-auto max-w-7xl py-4 flex flex-col space-y-4">
             <a
               href="#features"
-              className="font-medium py-2 hover:text-violet-600 transition-colors"
+              className="font-medium py-2 hover:text-accent transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Features
             </a>
             <a
               href="#benefits"
-              className="font-medium py-2 hover:text-violet-600 transition-colors"
+              className="font-medium py-2 hover:text-accent transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Benefits
             </a>
-            {/* <a
-              href="#testimonials"
-              className="font-medium py-2 hover:text-violet-600 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Testimonials
-            </a> */}
             <a
               href="/login"
-              className="bg-violet-600 hover:bg-violet-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-center"
+              className="btn btn-accent w-full"
               onClick={() => setMobileMenuOpen(false)}
             >
               Get Started

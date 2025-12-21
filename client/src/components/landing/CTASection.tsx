@@ -9,6 +9,9 @@ const CTASection: React.FC = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("fade-in");
+            entry.target.querySelectorAll(".opacity-0").forEach((el) =>
+              el.classList.add("fade-in")
+            );
           }
         });
       },
@@ -27,9 +30,9 @@ const CTASection: React.FC = () => {
   }, []);
 
   return (
-    <section id="signup" className="py-20" ref={ctaRef}>
-      <div className="container">
-        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-3xl p-8 md:p-12 shadow-xl text-white text-center">
+    <section id="signup" className="py-24" ref={ctaRef}>
+      <div className="container mx-auto px-6">
+        <div className="bg-gradient-to-r from-accent to-accent/80 rounded-3xl p-8 md:p-12 shadow-xl text-accent-foreground text-center">
           <div className="max-w-3xl mx-auto">
             <h2
               className="text-3xl md:text-4xl font-bold mb-4 opacity-0"
@@ -49,10 +52,10 @@ const CTASection: React.FC = () => {
               className="flex flex-col sm:flex-row justify-center gap-4 opacity-0"
               style={{ animationDelay: "0.3s", animationFillMode: "forwards" }}
             >
-              <button className="bg-white text-violet-700 hover:bg-gray-100 font-medium py-3 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+              <button className="btn btn-secondary !bg-background !text-foreground">
                 Start 14-Day Free Trial
               </button>
-              <button className="bg-transparent border border-white text-white hover:bg-white/10 font-medium py-3 px-8 rounded-lg transition-all duration-300">
+              <button className="btn border border-accent-foreground text-accent-foreground hover:bg-accent-foreground/10">
                 Request Demo
               </button>
             </div>

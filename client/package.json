@@ -1,16 +1,13 @@
 {
-  "name": "ai-timeboard",
+  "name": "Persona",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "start": "vite",
     "build": "tsc && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "server": "cd server && npm run dev",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\""
+    "preview": "vite preview"
   },
   "dependencies": {
     "axios": "^1.6.7",

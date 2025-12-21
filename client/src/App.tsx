@@ -8,8 +8,6 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "react-query";
-
-// Pages
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Timetable from "./pages/Timetable";
@@ -17,14 +15,11 @@ import Goals from "./pages/Goals";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import LandingPage from "./pages/LandingPage";
-
-// Components
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Store
-import { useAuthStore } from "./store/authStore";
-import { useThemeStore } from "./store/themeStore";
+import { useAuthStore } from "./store/auth.store.";
+import { useThemeStore } from "./store/theme.store";
 
 const queryClient = new QueryClient({
   defaultOptions: {

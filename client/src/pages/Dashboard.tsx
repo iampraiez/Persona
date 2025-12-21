@@ -12,7 +12,7 @@ import {
   InfoIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import runDailyNotifications from "../store/notis";
+import runDailyNotifications from "../store/notis.store";
 import axios from "axios";
 import { API_URL } from "../config";
 import "../index.css";
@@ -251,7 +251,7 @@ const Dashboard = () => {
   return (
     <ErrorBoundary>
       <div>
-        <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-bold mb-6">
           Dashboard
         </h1>
 
@@ -274,11 +274,11 @@ const Dashboard = () => {
               className="col-span-1 bg-card rounded-lg shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-accent" />
                   Today's Schedule
                 </h2>
-                <span className="text-sm text-foreground/70 dark:text-gray-300">
+                <span className="text-sm text-foreground/70">
                   {format(new Date(), "EEEE, MMMM d")}
                 </span>
               </div>
@@ -292,21 +292,21 @@ const Dashboard = () => {
                     >
                       <div className="min-w-[40px] flex flex-col items-center">
                         <Clock className="h-5 w-5 text-accent mb-1" />
-                        <span className="text-xs text-foreground/70 dark:text-gray-300">
+                        <span className="text-xs text-foreground/70">
                           {format(new Date(event.startTime), "HH:mm")}
                         </span>
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white">
+                        <h3 className="font-medium">
                           {event.title}
                         </h3>
                         {event.description && (
-                          <p className="text-sm text-foreground/70 dark:text-gray-300 mt-1">
+                          <p className="text-sm text-foreground/70 mt-1">
                             {event.description}
                           </p>
                         )}
                       </div>
-                      <div className="ml-auto text-sm text-foreground/60 dark:text-gray-300">
+                      <div className="ml-auto text-sm text-foreground/60">
                         {new Date(event.startTime).toLocaleDateString("en-US", {
                           weekday: "short",
                         })}
@@ -316,7 +316,7 @@ const Dashboard = () => {
                 ) : (
                   <div className="p-3 rounded-md bg-secondary">
                     <div className="flex justify-center items-center text-center">
-                      <h3 className="font-medium text-gray-900 dark:text-white">
+                      <h3 className="font-medium">
                         No active events
                       </h3>
                     </div>
@@ -340,7 +340,7 @@ const Dashboard = () => {
               className="col-span-1 bg-card rounded-lg shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
                   <Target className="h-5 w-5 text-accent" />
                   Active Goals
                 </h2>
@@ -368,7 +368,7 @@ const Dashboard = () => {
                         className="p-3 bg-secondary rounded-md"
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-medium text-gray-900 dark:text-white">
+                          <h3 className="font-medium">
                             {goal.title}
                           </h3>
                           <span className="text-xs px-2 py-1 bg-accent/20 text-accent rounded-full">
@@ -383,7 +383,7 @@ const Dashboard = () => {
                           ></div>
                         </div>
 
-                        <div className="mt-3 text-sm text-foreground/70 dark:text-gray-300">
+                        <div className="mt-3 text-sm text-foreground/70">
                           {sortStepsByTitleNumber(goal.steps).find(
                             (step) => !step.isCompleted
                           )?.title || "All steps completed!"}
@@ -394,7 +394,7 @@ const Dashboard = () => {
                 ) : (
                   <div className="p-3 bg-secondary rounded-md">
                     <div className="flex justify-center items-center text-center">
-                      <h3 className="font-medium text-gray-900 dark:text-white">
+                      <h3 className="font-medium">
                         No active goals
                       </h3>
                     </div>
@@ -417,7 +417,7 @@ const Dashboard = () => {
               className="col-span-1 bg-card rounded-lg shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
                   <Activity className="h-5 w-5 text-accent" />
                   AI Insights
                 </h2>
@@ -437,10 +437,10 @@ const Dashboard = () => {
                         {suggestion.type === "focus" && (
                           <Activity className="h-5 w-5 text-accent shrink-0" />
                         )}
-                        {suggestion.type === "description" && (
+                        {/* {suggestion.type === "description" && (
                           <InfoIcon className="h-5 w-5 text-accent shrink-0" />
-                        )}
-                        <p className="text-sm text-foreground/70 dark:text-gray-300">
+                        )} */}
+                        <p className="text-sm text-foreground/70">
                           {suggestion.message}
                         </p>
                       </div>
@@ -449,7 +449,7 @@ const Dashboard = () => {
                 ) : (
                   <div className="p-3 bg-secondary rounded-md">
                     <div className="flex justify-center items-center text-center">
-                      <h3 className="font-medium text-gray-900 dark:text-white">
+                      <h3 className="font-medium">
                         No AI insights
                       </h3>
                     </div>
@@ -477,10 +477,10 @@ const Dashboard = () => {
               className="col-span-1 md:col-span-2 lg:col-span-3 bg-card rounded-lg shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold">
                   Weekly Summary
                 </h2>
-                <span className="text-sm text-foreground/70 dark:text-gray-300">
+                <span className="text-sm text-foreground/70">
                   {format(new Date(), "MMMM d, yyyy")}
                 </span>
               </div>
@@ -488,15 +488,15 @@ const Dashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-secondary p-4 rounded-md">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                    <h3 className="text-sm font-medium">
                       Events Completed
                     </h3>
                     <CheckCircle className="h-5 w-5 text-success" />
                   </div>
-                  <p className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold mt-2">
                     {totalCompleted}/{totalEvents}
                   </p>
-                  <p className="text-xs text-foreground/70 dark:text-gray-300 mt-1">
+                  <p className="text-xs text-foreground/70 mt-1">
                     {totalEvents > 0
                       ? ((totalCompleted / totalEvents) * 100).toFixed(0)
                       : 0}
@@ -506,15 +506,15 @@ const Dashboard = () => {
 
                 <div className="bg-secondary p-4 rounded-md">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                    <h3 className="text-sm font-medium">
                       Special Events
                     </h3>
                     <AlertCircle className="h-5 w-5 text-warning" />
                   </div>
-                  <p className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold mt-2">
                     {specialEventsData.length}
                   </p>
-                  <p className="text-xs text-foreground/70 dark:text-gray-300 mt-1">
+                  <p className="text-xs text-foreground/70 mt-1">
                     {specialEventsData.length > 0
                       ? `${specialEventsData.length} this week`
                       : "No special events"}
@@ -523,15 +523,15 @@ const Dashboard = () => {
 
                 <div className="bg-secondary p-4 rounded-md">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                    <h3 className="text-sm font-medium">
                       Goal Progress
                     </h3>
                     <Target className="h-5 w-5 text-accent" />
                   </div>
                   <p className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">
-                    {Math.round(percentage)}%
+                    {/* {Math.round(percentage)}% */}
                   </p>
-                  <p className="text-xs text-foreground/70 dark:text-gray-300 mt-1">
+                  <p className="text-xs text-foreground/70 mt-1">
                     On track for completion
                   </p>
                 </div>

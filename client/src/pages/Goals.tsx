@@ -315,11 +315,11 @@ const Goals: React.FC = () => {
   return (
     <div className="min-h-screen" ref={modalRef}>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-bold">
           Goals
         </h1>
         <button
-          className="btn btn-accent flex items-center gap-2 text-gray-900 dark:text-white bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600"
+          className="btn btn-accent flex items-center gap-2"
           onClick={() => setShowNewGoalModal(true)}
         >
           <Plus className="h-5 w-5" />
@@ -355,29 +355,29 @@ const Goals: React.FC = () => {
                 key={goal.id}
                 layout
                 animate={{ height: "auto" }}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden"
+                className="bg-card rounded-lg shadow-sm overflow-hidden"
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      <h2 className="text-xl font-semibold">
                         {goal.title}
                       </h2>
-                      <p className="text-gray-600 dark:text-gray-300 mt-1">
+                      <p className="text-foreground/70 mt-1">
                         {goal.description}
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-sm font-medium">
+                      <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-medium">
                         {progressPercentage}%
                       </span>
                       <div className="relative">
-                        <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <button className="p-2 rounded-full hover:bg-secondary">
                           <MoreHorizontal
                             onClick={() => {
                               toggleExpandOption(`${goal.id}`);
                             }}
-                            className="h-5 w-5 text-gray-600 dark:text-gray-400"
+                            className="h-5 w-5 text-foreground/70"
                           />
                         </button>
                         <AnimatePresence>
@@ -387,25 +387,25 @@ const Goals: React.FC = () => {
                               initial={{ opacity: 0, y: -5 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -5 }}
-                              className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700"
+                              className="absolute right-0 mt-2 w-44 bg-card rounded-md shadow-lg z-50 border border-border"
                             >
                               <button
                                 onClick={() => handleReset(`${goal.id}`)}
-                                className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                                className="w-full text-left flex items-center px-4 py-2 text-sm hover:bg-secondary rounded-md"
                               >
                                 <RotateCcw className="h-4 w-4 mr-2" />
                                 Reset Goal
                               </button>
                               <button
                                 onClick={() => handleEdit(`${goal.id}`)}
-                                className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                                className="w-full text-left flex items-center px-4 py-2 text-sm hover:bg-secondary rounded-md"
                               >
                                 <Pencil className="h-4 w-4 mr-2" />
                                 Edit Goal
                               </button>
                               <button
                                 onClick={() => handleDelete(`${goal.id}`)}
-                                className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                                className="w-full text-left flex items-center px-4 py-2 text-sm text-destructive hover:bg-secondary rounded-md"
                               >
                                 <Trash className="h-4 w-4 mr-2" />
                                 Delete Goal
@@ -419,22 +419,22 @@ const Goals: React.FC = () => {
 
                   <div className="space-y-4">
                     <div>
-                      <div className="flex justify-between text-sm mb-1 text-gray-600 dark:text-gray-300">
+                      <div className="flex justify-between text-sm mb-1 text-foreground/70">
                         <span>Progress</span>
                         <span>
                           {completedSteps}/{goal.steps.length} steps
                         </span>
                       </div>
-                      <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-violet-600 dark:bg-violet-500 rounded-full transition-all duration-500"
+                          className="h-full bg-accent rounded-full transition-all duration-500"
                           style={{ width: `${progressPercentage}%` }}
                         ></div>
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex justify-between text-sm mb-1 text-gray-600 dark:text-gray-300">
+                      <div className="flex justify-between text-sm mb-1 text-foreground/70">
                         <span>Time</span>
                         <span>
                           {remainingDays > 0
@@ -442,14 +442,14 @@ const Goals: React.FC = () => {
                             : "Deadline passed"}
                         </span>
                       </div>
-                      <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${
                             timePercentage > 75
-                              ? "bg-red-600 dark:bg-red-500"
+                              ? "bg-destructive"
                               : timePercentage > 50
-                              ? "bg-yellow-600 dark:bg-yellow-500"
-                              : "bg-green-600 dark:bg-green-500"
+                              ? "bg-warning"
+                              : "bg-success"
                           }`}
                           style={{ width: `${timePercentage}%` }}
                         ></div>
@@ -458,7 +458,7 @@ const Goals: React.FC = () => {
                   </div>
 
                   <button
-                    className="w-full mt-4 flex items-center justify-center p-2 text-sm rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
+                    className="w-full mt-4 flex items-center justify-center p-2 text-sm rounded-md bg-secondary hover:bg-secondary/80"
                     onClick={() =>
                       toggleExpandGoal(isExpanded ? null : `${goal.id}`)
                     }
@@ -477,9 +477,9 @@ const Goals: React.FC = () => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="bg-gray-100 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 px-6 py-4"
+                    className="bg-secondary/50 border-t border-border px-6 py-4"
                   >
-                    <h3 className="text-sm font-medium mb-4 text-gray-900 dark:text-white">
+                    <h3 className="text-sm font-medium mb-4">
                       Steps
                     </h3>
                     <div className="space-y-3">
@@ -488,17 +488,17 @@ const Goals: React.FC = () => {
                           key={step.id}
                           className={`p-3 rounded-md flex items-start gap-3 ${
                             step.isCompleted
-                              ? "bg-green-100 dark:bg-green-900/30"
-                              : "bg-gray-200 dark:bg-gray-700"
+                              ? "bg-success/20"
+                              : "bg-secondary"
                           }`}
                         >
                           <div className="flex-shrink-0 mt-0.5">
                             {step.isCompleted ? (
-                              <div className="w-5 h-5 rounded-full bg-green-600 dark:bg-green-500 flex items-center justify-center">
-                                <Check className="h-3 w-3 text-white" />
+                              <div className="w-5 h-5 rounded-full bg-success flex items-center justify-center">
+                                <Check className="h-3 w-3 text-success-foreground" />
                               </div>
                             ) : (
-                              <div className="w-5 h-5 rounded-full border-2 border-gray-400 dark:border-gray-500 flex items-center justify-center text-xs text-gray-900 dark:text-white">
+                              <div className="w-5 h-5 rounded-full border-2 border-border flex items-center justify-center text-xs">
                                 {index + 1}
                               </div>
                             )}
@@ -507,7 +507,7 @@ const Goals: React.FC = () => {
                             <div className="flex items-start justify-between">
                               <div>
                                 <h4
-                                  className={`font-medium text-gray-900 dark:text-white ${
+                                  className={`font-medium ${
                                     step.isCompleted
                                       ? "line-through opacity-70"
                                       : ""
@@ -516,12 +516,12 @@ const Goals: React.FC = () => {
                                   {step.title}
                                 </h4>
                                 {step.description && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                  <p className="text-sm text-foreground/70 mt-1">
                                     {step.description}
                                   </p>
                                 )}
                               </div>
-                              <div className="flex items-center text-xs text-gray-600 dark:text-gray-300">
+                              <div className="flex items-center text-xs text-foreground/70">
                                 <Clock className="h-3 w-3 mr-1" />
                                 <span>
                                   {format(new Date(step.dueDate), "MMM d")}
@@ -532,7 +532,7 @@ const Goals: React.FC = () => {
                               <div className="mt-2">
                                 <button
                                   onClick={() => completeStep(step.id)}
-                                  className="text-xs px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50"
+                                  className="text-xs px-3 py-1 rounded-full bg-accent/10 text-accent hover:bg-accent/20"
                                 >
                                   Mark Complete
                                 </button>
@@ -548,8 +548,8 @@ const Goals: React.FC = () => {
             );
           })
         ) : (
-          <div className="p-3 rounded-md bg-white dark:bg-gray-800 text-center">
-            <h3 className="font-medium text-gray-900 dark:text-white">
+          <div className="p-3 rounded-md bg-card text-center">
+            <h3 className="font-medium">
               No goals found
             </h3>
           </div>
@@ -562,14 +562,14 @@ const Goals: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
+            className="bg-card rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold">
                 {newGoal.id ? "Edit Goal" : "New Goal"}
               </h2>
               <button
-                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                className="p-1 rounded-full hover:bg-secondary"
                 onClick={() => {
                   setShowNewGoalModal(false);
                   setNewGoal({
@@ -584,18 +584,18 @@ const Goals: React.FC = () => {
                   setSteps([]);
                 }}
               >
-                <X className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <X className="h-5 w-5 text-foreground/70" />
               </button>
             </div>
 
             <form className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium mb-1">
                   Goal Title
                 </label>
                 <input
                   type="text"
-                  className="input w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="input w-full"
                   placeholder="What do you want to achieve?"
                   value={newGoal.title}
                   onChange={(e) =>
@@ -604,11 +604,11 @@ const Goals: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium mb-1">
                   Description (optional)
                 </label>
                 <textarea
-                  className="input w-full h-24 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="input w-full h-24"
                   placeholder="Describe your goal in detail"
                   value={newGoal.description}
                   onChange={(e) =>
@@ -620,12 +620,12 @@ const Goals: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium mb-1">
                   Time Frame (days)
                 </label>
                 <input
                   type="number"
-                  className="input w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="input w-full"
                   placeholder="30"
                   min="1"
                   value={newGoal.totalDays || ""}
@@ -637,17 +637,17 @@ const Goals: React.FC = () => {
                   }
                 />
               </div>
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                <h3 className="text-sm font-medium mb-3 text-gray-900 dark:text-white">
+              <div className="border-t border-border pt-4 mt-4">
+                <h3 className="text-sm font-medium mb-3">
                   Steps
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-xs text-foreground/70 mb-4">
                   You can define your own steps or let the AI generate 10 steps
                   for you.
                 </p>
                 <button
                   type="button"
-                  className="w-full btn bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 mb-4"
+                  className="w-full btn bg-accent/10 text-accent hover:bg-accent/20 mb-4"
                   onClick={() =>
                     generateSteps(
                       newGoal.title || newGoal.description || "",
@@ -666,16 +666,16 @@ const Goals: React.FC = () => {
                   {steps.map((step, index) => (
                     <div
                       key={step.id}
-                      className="p-3 bg-gray-200 dark:bg-gray-700 rounded-md"
+                      className="p-3 bg-secondary rounded-md"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        <span className="text-sm font-medium">
                           Step {index + 1}
                         </span>
                         {steps.length > 1 && (
                           <button
                             type="button"
-                            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                            className="text-destructive hover:text-destructive/80"
                             onClick={() => removeStep(index)}
                           >
                             <X className="h-4 w-4" />
@@ -684,7 +684,7 @@ const Goals: React.FC = () => {
                       </div>
                       <input
                         type="text"
-                        className="input w-full text-sm mb-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="input w-full text-sm mb-2"
                         placeholder={`Step ${index + 1} title`}
                         value={step.title}
                         onChange={(e) =>
@@ -692,7 +692,7 @@ const Goals: React.FC = () => {
                         }
                       />
                       <textarea
-                        className="input w-full text-sm mb-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="input w-full text-sm mb-2"
                         placeholder={`Step ${index + 1} description (optional)`}
                         value={step.description}
                         onChange={(e) =>
@@ -701,7 +701,7 @@ const Goals: React.FC = () => {
                       />
                       <input
                         type="date"
-                        className="input w-full text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="input w-full text-sm"
                         value={formatDateToYMD(step.dueDate)}
                         onChange={(e) =>
                           updateStep(
@@ -716,7 +716,7 @@ const Goals: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  className="w-full mt-3 p-2 text-sm rounded-md border border-dashed border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full mt-3 p-2 text-sm rounded-md border border-dashed border-border hover:bg-secondary"
                   onClick={addStep}
                 >
                   + Add Step
@@ -725,14 +725,14 @@ const Goals: React.FC = () => {
               <div className="flex justify-end space-x-2 pt-4">
                 <button
                   type="button"
-                  className="btn bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
+                  className="btn bg-secondary hover:bg-secondary/80"
                   onClick={() => setShowNewGoalModal(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn bg-violet-600 dark:bg-violet-500 hover:bg-violet-700 dark:hover:bg-violet-600 text-white"
+                  className="btn btn-accent"
                   onClick={(e) =>
                     newGoal.id ? handleUpdateGoal(e) : handleCreateGoal(e)
                   }

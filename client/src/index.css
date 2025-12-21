@@ -5,58 +5,57 @@
 @tailwind utilities;
 
 :root {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --accent: 261 73% 63%;
-  --accent-foreground: 210 40% 98%;
+  --background: 224 71.4% 4.1%;
+  --foreground: 210 20% 98%;
+  --card: 224 71.4% 4.1%;
+  --card-foreground: 210 20% 98%;
+  --popover: 224 71.4% 4.1%;
+  --popover-foreground: 210 20% 98%;
+  --primary: 263.4 70% 50.4%;
+  --primary-foreground: 210 20% 98%;
+  --secondary: 215 27.9% 16.9%;
+  --secondary-foreground: 210 20% 98%;
+  --accent: 263.4 70% 50.4%;
+  --accent-foreground: 210 20% 98%;
   --destructive: 0 62.8% 50.6%;
-  --destructive-foreground: 210 40% 98%;
-  --success: 142.1 76.2% 36.3%;
-  --success-foreground: 355.7 100% 97.3%;
-  --warning: 32 94% 60%;
-  --warning-foreground: 355.7 100% 97.3%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 48%;
-  --radius: 0.5rem;
+  --destructive-foreground: 210 20% 98%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144.4 61.4% 91.2%;
+  --warning: 47.9 95.8% 53.1%;
+  --warning-foreground: 26 83.3% 14.1%;
+  --border: 215 27.9% 16.9%;
+  --input: 215 27.9% 16.9%;
+  --ring: 263.4 70% 50.4%;
+  --radius: 0.75rem;
 }
 
 .light {
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 224 71.4% 4.1%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 224 71.4% 4.1%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --accent: 262 83.3% 57.8%;
-  --accent-foreground: 210 40% 98%;
+  --popover-foreground: 224 71.4% 4.1%;
+  --primary: 262.1 83.3% 57.8%;
+  --primary-foreground: 210 20% 98%;
+  --secondary: 220 14.3% 95.9%;
+  --secondary-foreground: 220.9 39.3% 11%;
+  --accent: 262.1 83.3% 57.8%;
+  --accent-foreground: 210 20% 98%;
   --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 210 20% 98%;
   --success: 142.1 76.2% 36.3%;
   --success-foreground: 355.7 100% 97.3%;
   --warning: 38 92% 50%;
   --warning-foreground: 48 96% 89%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
-  --radius: 0.5rem;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 262.1 83.3% 57.8%;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply transition-colors duration-300;
   }
   body {
     @apply bg-background text-foreground font-sans;
@@ -86,7 +85,7 @@ html, body, #root {
 }
 
 .btn {
-  @apply px-4 py-2 rounded-md font-medium transition-all duration-200;
+  @apply px-6 py-3 rounded-lg font-medium transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2;
 }
 
 .btn-primary {
@@ -94,7 +93,7 @@ html, body, #root {
 }
 
 .btn-secondary {
-  @apply bg-secondary text-secondary-foreground hover:bg-secondary/90;
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
 }
 
 .btn-accent {
@@ -106,5 +105,42 @@ html, body, #root {
 }
 
 .card {
-  @apply rounded-lg bg-card text-card-foreground shadow-md;
+  @apply rounded-lg bg-card text-card-foreground shadow-md border border-border;
+}
+
+.fade-in {
+  @apply animate-fade-in opacity-100 !important;
+}
+
+.slide-up {
+  @apply animate-slide-up opacity-100 !important;
+}
+
+.slide-down {
+  @apply animate-slide-down opacity-100 !important;
+}
+
+.section-title {
+  @apply text-3xl md:text-4xl font-bold text-center mb-4;
+}
+
+.section-subtitle {
+  @apply text-lg text-foreground/70 text-center max-w-2xl mx-auto mb-12;
+}
+
+.feature-card {
+  @apply bg-card p-6 rounded-xl shadow-sm border border-border transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+}
+
+.feature-icon {
+  @apply w-12 h-12 bg-accent/10 text-accent rounded-lg flex items-center justify-center mb-4;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }

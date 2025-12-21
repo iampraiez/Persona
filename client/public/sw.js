@@ -22,19 +22,3 @@ self.addEventListener("notificationclick", function (event) {
     event.waitUntil(clients.openWindow(event.notification.data.url));
   }
 });
-
-// self.addEventListener("push", async (event) => {
-//   const data = event.data.json();
-//   const { title, body, icon, link } = data;
-
-//   await self.registration.showNotification(title, {
-//     body,
-//     icon,
-//     data: { url: link },
-//   });
-// });
-
-// self.addEventListener("notificationclick", (event) => {
-//   event.notification.close();
-//   event.waitUntil(clients.openWindow(event.notification.data.url));
-// });

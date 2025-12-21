@@ -1,56 +1,53 @@
-import * as express from "express";
-import { authenticate } from "../middleware/auth";
-import { prisma } from "../index";
+import { type Response, Router } from "express";
+import { prisma } from "../lib/prisma";
+import { errorWrapper } from "../utils/error.util";
+import { logger } from "../utils/logger.utils";
 
-const router = express.Router();
+const router: Router = Router();
 
-// Get current user
-router.get("/me", authenticate, async (req, res) => {
+router.get("/", async (req, res: Response): Promise<void> => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { email: req.user },
       select: {
-        id: true,
-        email: true,
-        name: true,
-        image: true,
+        events: true,
+        goals: true,
+        notifications: true,
       },
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      res.status(404).json({ message: "User not found", error: null });
+      return;
     }
 
-    res.json(user);
-  } catch (error) {
-    console.error("Get User Error:", error);
-    res.status(500).json({ message: "Failed to get user" });
+    res.json({ data: user, error: null });
+  } catch (error: unknown) {
+    res
+      .status(500)
+      .json({ data: null, error: errorWrapper(error, "Failed to get user") });
   }
 });
 
-// Update user profile
-router.put("/me", authenticate, async (req, res) => {
+router.put("/", async (req, res) => {
   try {
     const { name, image } = req.body;
-
-    const updatedUser = await prisma.user.update({
-      where: { id: req.user!.id },
-      data: {
-        name,
-        image,
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        image: true,
-      },
+    const dataToUpdate = {
+      ...(name !== undefined && { name }),
+      ...(image !== undefined && { image }),
+    };
+    await prisma.user.update({
+      where: { email: req.user },
+      data: dataToUpdate,
     });
 
-    res.json(updatedUser);
+    res.json({ data: "User updated", error: null });
   } catch (error) {
-    console.error("Update User Error:", error);
-    res.status(500).json({ message: "Failed to update user" });
+    logger.error(`Error updating user: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to update user"),
+    });
   }
 });
 

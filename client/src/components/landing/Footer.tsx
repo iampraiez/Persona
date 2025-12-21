@@ -3,43 +3,43 @@ import { Github, Twitter, Linkedin, Instagram } from "lucide-react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-100 dark:bg-gray-900 py-12">
-      <div className="container">
+    <footer className="bg-secondary/50 py-12">
+      <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="md:col-span-1">
             <a
               href="#"
-              className="font-bold text-2xl text-violet-600 mb-4 inline-block"
+              className="font-bold text-2xl text-accent mb-4 inline-block"
             >
               TimeForge
             </a>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
+            <p className="text-foreground/70 mb-4">
               AI-powered time management and goal tracking for ambitious
               professionals.
             </p>
             <div className="flex space-x-4">
               <a
-                href="https://x.com/xlyla277615?t=NSmxrCmUNOzTQZfYv8N1vg&s=09"
-                className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                href="https://x.com/iampraiez"
+                className="text-foreground/50 hover:text-accent transition-colors"
               >
                 <Twitter size={20} />
               </a>
               <a
                 href="https://www.linkedin.com/in/thepraiseolaoye"
-                className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                className="text-foreground/50 hover:text-accent transition-colors"
               >
                 <Linkedin size={20} />
               </a>
               <a
-                href="https://www.instagram.com/prai__ez?igsh=enI4OWcxOHN1Yml3"
-                className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                href="https://www.instagram.com/iampraiez_?igsh=enI4OWcxOHN1Yml3"
+                className="text-foreground/50 hover:text-accent transition-colors"
               >
                 <Instagram size={20} />
               </a>
               <a
-                href="https://github.com/satoru707/Persona"
-                className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                href="https://github.com/iampraiez/Persona"
+                className="text-foreground/50 hover:text-accent transition-colors"
               >
                 <Github size={20} />
               </a>
@@ -53,31 +53,31 @@ const Footer: React.FC = () => {
               <li>
                 <a
                   href="#features"
-                  className="text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                  className="text-foreground/70 hover:text-accent transition-colors"
                 >
                   Features
                 </a>
               </li>
               <li>
                 <a
-                  href="https://satoru707.vercel.app/#contact"
-                  className="text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                  href="https://iampraiez.vercel.app/#contact"
+                  className="text-foreground/70 hover:text-accent transition-colors"
                 >
                   Contact
                 </a>
               </li>
               <li>
                 <a
-                  href="https://github.com/satoru707/Persona"
-                  className="text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                  href="https://github.com/iampraiez/Persona"
+                  className="text-foreground/70 hover:text-accent transition-colors"
                 >
                   Documentation
                 </a>
               </li>
               <li>
                 <a
-                  href="https://github.com/satoru707"
-                  className="text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                  href="https://github.com/iampraiez"
+                  className="text-foreground/70 hover:text-accent transition-colors"
                 >
                   About Me
                 </a>
@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+        <div className="mt-12 pt-8 border-t border-border text-center text-foreground/50">
           <p>
             © {new Date().getFullYear()} Time Forge. All rights reserved. Talk
             to Praise sha.

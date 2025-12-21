@@ -7,8 +7,8 @@ import {
   Target,
   BarChart,
 } from "lucide-react";
-import { useThemeStore } from "../store/themeStore";
-import { useAuthStore } from "../store/authStore";
+import { useThemeStore } from "../store/theme.store";
+import { useAuthStore } from "../store/auth.store.";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";

@@ -39,7 +39,7 @@ The project is open for further cleanup and refactoring, especially now that Iâ€
 
 ```bash
 # Clone the repo
-git clone https://github.com/satoru707/Persona.git
+git clone https://github.com/iampraiez/Persona.git
 cd Persona
 
 # Install dependencies

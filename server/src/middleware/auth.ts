@@ -1,57 +1,30 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { prisma } from "../index";
+import type { Request, Response, NextFunction } from "express";
+import { verifyToken } from "../utils/jwt.util";
+import { logger } from "../utils/logger.utils";
 
-interface JwtPayload {
-  userId: string;
-  email: string;
-}
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-      };
-    }
-  }
-}
-
-export const authenticate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
   try {
-    const authHeader = req.headers.authorization;
+    const token = req.cookies?.access_token;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Unauthorized" });
+    if (!token) {
+      res.status(401).json({ error: "Unauthorized", data: null });
+      return;
     }
 
-    const token = authHeader.split(" ")[1];
+    // handle expired token
+    const payload = verifyToken(token);
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-    });
-
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
+    if (!payload) {
+      res.clearCookie("access_token");
+      res.status(401).json({ error: "Invalid token", data: null });
+      return;
     }
 
-    // Attach user to request
-    req.user = {
-      id: user.id,
-      email: user.email,
-    };
-
+    req.user = payload.email;
     next();
-  } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
+  } catch (error: any) {
+    logger.error(`Auth Error: ${error.message}`);
+    res.clearCookie("access_token");
+    res.status(401).json({ error: "Unauthorized", data: null });
   }
-};
+}

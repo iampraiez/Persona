@@ -51,13 +51,13 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 
   return (
     <div
-      className="feature-card opacity-5"
+      className="feature-card opacity-0"
       ref={cardRef}
       style={{ animationDelay: `${delay}s`, animationFillMode: "forwards" }}
     >
       <div className="feature-icon">{icon}</div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-gray-600 dark:text-gray-300">{description}</p>
+      <p className="text-foreground/70">{description}</p>
     </div>
   );
 };
@@ -71,6 +71,9 @@ const FeaturesSection: React.FC = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("fade-in");
+            entry.target.querySelectorAll(".opacity-0").forEach((el) =>
+              el.classList.add("fade-in")
+            );
           }
         });
       },
@@ -142,10 +145,10 @@ const FeaturesSection: React.FC = () => {
   return (
     <section
       id="features"
-      className="py-20 bg-white dark:bg-gray-800/50"
+      className="py-24 bg-background"
       ref={sectionRef}
     >
-      <div className="container">
+      <div className="container mx-auto px-6">
         <h2
           className="section-title opacity-0"
           style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}
@@ -160,7 +163,7 @@ const FeaturesSection: React.FC = () => {
           you make the most of your time.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <FeatureCard
               key={index}

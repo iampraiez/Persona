@@ -12,6 +12,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>((set, get) => ({
   theme: 'dark',
 
+  // this just handles the actual chaning of theme
   setTheme: (theme: Theme) => {
     localStorage.setItem('theme', theme);
     set({ theme });
@@ -24,6 +25,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
     get().setTheme(newTheme);
   },
 
+  // gets theme or sets it
   initTheme: () => {
     const savedTheme = localStorage.getItem('theme') as Theme | null;
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;

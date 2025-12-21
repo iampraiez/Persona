@@ -479,8 +479,8 @@ const Timetable = () => {
                       className={`flex items-center gap-2 px-4 py-2 rounded-md border transition duration-200 
     ${
       important
-        ? "bg-yellow-400 text-white border-yellow-400 hover:bg-yellow-500"
-        : "border-yellow-400 text-yellow-600 hover:bg-yellow-100"
+        ? "bg-warning text-warning-foreground border-warning hover:bg-warning/90"
+        : "border-warning text-warning hover:bg-warning/10"
     }`}
                     >
                       {important ? (
