@@ -1,54 +1,137 @@
-# TimeForge (Persona)
+<div align="center">
+  <img src="./client/public/logo.svg" alt="TimeForge Logo" width="120">
+  
+  # ⚡ TimeForge
+  ### Master Your Time, Forge Your Future.
+  
+  [![Live Demo](https://img.shields.io/badge/Live-Demo-blueviolet?style=for-the-badge)](https://timeforge-persona.vercel.app)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+</div>
 
-**TimeForge** is an AI-powered goal tracker and scheduler designed to help individuals take control of their time, stay productive, and meet their personal goals with precision. Built with a modern tech stack including React, Node.js, Prisma, and Gemini API.
+---
 
-[View Live Site](https://timeforge-eight.vercel.app)
+## 🌟 Overview
 
-## Note
-This was my first project using TypeScript and one of my earliest coding experiences. At the time, I was still figuring out how to structure code — so functions ended up scattered across multiple files and the organization wasn’t the cleanest. I later did a light cleanup just because I was bored, so while it may still look messy now, trust me, it was **much worse** before.
+**TimeForge** is an AI-powered productivity ecosystem designed to help you reclaim your schedule. Unlike traditional calendars, TimeForge leverages the **Gemini API** to intelligently break down complex goals into manageable steps, provides real-time adaptive suggestions, and ensures you stay on track with a robust notification system.
 
-The project is open for further cleanup and refactoring, especially now that I’ve learned better coding practices.
+Whether you're a student, professional, or hobbyist, TimeForge provides the tools to visualize your progress and optimize your daily routine with a premium, high-performance interface.
 
-## Features
+---
 
-- **AI-Enhanced Planning** – Breaks down goals into actionable steps with deadlines
-- **24/7 Personal Scheduler** – Supports full-week and round-the-clock event planning
-- **Google Authentication** – Seamless login with OAuth
-- **Goal Tracking** – Monitor progress and track completion status
-- **Event Notifications** – Sends reminders 10 minutes before any event
-- **Adaptive Suggestions** – Prompts for alternative activities when goals are missed
+## ✨ Key Features
 
-## Tech Stack
+- 🤖 **AI-Powered Goal Breakdown** – Input a high-level goal and let AI generate a structured roadmap with actionable steps and deadlines.
+- 📅 **24/7 Dynamic Scheduler** – A sleek, interactive timetable for managing your daily events and habits with ease.
+- 🔔 **Dual Notification System** – Receive both "Upcoming" reminders and "Starting Now" alerts via Web Push and in-app notifications.
+- 📊 **Advanced Analytics** – Visualize your productivity trends, goal completion rates, and weekly performance with interactive charts.
+- 🌓 **Premium Aesthetics** – A stunning dark-mode-first design featuring glassmorphism, smooth Framer Motion animations, and a responsive layout.
+- 🔐 **Secure Authentication** – Seamless and secure login experience using Google OAuth.
+- 🔄 **Adaptive Suggestions** – Missed a goal? TimeForge suggests alternative activities to keep your momentum going.
 
-- **Frontend**: React, Tailwind CSS, React Router, Vite
-- **Backend**: Node.js, Express.js
-- **Database**: PostgreSQL (Prisma ORM)
-- **AI Integration**: Gemini API
-- **Authentication**: Google OAuth
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: React 18 with Vite
+- **Styling**: Tailwind CSS (Custom Design System)
+- **Animations**: Framer Motion
+- **State Management**: Zustand
+- **Data Fetching**: TanStack Query (React Query)
+
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+
+### Infrastructure & Services
+- **AI**: Google Gemini API
+- **Auth**: Google OAuth 2.0
+- **Notifications**: Web Push (VAPID)
 - **Deployment**: Vercel
 
-## Getting Started
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-
-- Node.js v18+
-- PostgreSQL
-- Vercel CLI (for deployment)
+- **Node.js** (v18 or higher)
+- **PostgreSQL** instance
+- **Google Cloud Console** account (for OAuth)
+- **Gemini API Key**
 
 ### Installation
 
-```bash
-# Clone the repo
-git clone https://github.com/iampraiez/Persona.git
-cd Persona
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/iampraiez/Persona.git
+   cd Persona
+   ```
 
-# Install dependencies
-cd client
-npm install
-npm start
+2. **Backend Setup**
+   ```bash
+   cd server
+   npm install
+   ```
+   Create a `.env` file in the `server` directory:
+   ```env
+   PORT=3000
+   DATABASE_URL="postgresql://user:password@localhost:5432/timeforge"
+   JWT_SECRET="your_jwt_secret"
+   GOOGLE_CLIENT_ID="your_google_client_id"
+   GOOGLE_CLIENT_SECRET="your_google_client_secret"
+   GEMINI_API_KEY="your_gemini_api_key"
+   VAPID_PUBLIC_KEY="your_vapid_public_key"
+   VAPID_PRIVATE_KEY="your_vapid_private_key"
+   CLIENT_URL="http://localhost:5173"
+   BACKEND_URL="http://localhost:3000"
+   ```
 
-cd server
-npm install
-npm start
+3. **Frontend Setup**
+   ```bash
+   cd ../client
+   npm install
+   ```
+   Create a `.env` file in the `client` directory:
+   ```env
+   VITE_API_URL="http://localhost:3000/api"
+   ```
 
+4. **Run the Application**
+   - **Server**: `npm run dev` (in `/server`)
+   - **Client**: `npm run dev` (in `/client`)
 
+---
+
+## 📂 Project Structure
+
+```text
+Persona/
+├── client/                # React Frontend
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── pages/         # Page-level components
+│   │   ├── store/         # Zustand state stores
+│   │   └── service/       # API interaction layer
+├── server/                # Express Backend
+│   ├── src/
+│   │   ├── routes/        # API endpoints
+│   │   ├── services/      # Business logic
+│   │   ├── middleware/    # Auth & Error handling
+│   │   └── scheduler.ts   # Cron jobs for notifications
+│   └── prisma/            # Database schema & migrations
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  Built with ❤️ by <a href="https://github.com/iampraiez">iampraiez</a>
+</div>
