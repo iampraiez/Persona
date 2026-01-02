@@ -11,21 +11,34 @@ import {
   Pencil,
   Trash,
   Loader2,
+  Target,
 } from "lucide-react";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_URL } from "../config";
 import { Goal, Step } from "../types";
-import { toast } from "sonner";
-
-const URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { toast } from "react-toastify";
+import { useGoals } from "../hooks/useGoals";
+import { api } from "../service/api.service";
+import { demoApi } from "../service/demo.service";
+import { useAuthStore } from "../store/auth.store";
 
 const Goals: React.FC = () => {
-  const [goals, setGoals] = useState<Goal[]>([]);
+  const {
+    goals,
+    createGoal,
+    updateGoal,
+    deleteGoal,
+    isLoading,
+    updateStepStatus,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    isUpdatingStep,
+  } = useGoals();
   const [showNewGoalModal, setShowNewGoalModal] = useState(false);
   const [expandedGoal, setExpandedGoal] = useState<string | null>(null);
   const [optionsModalOpen, setOptionsModalOpen] = useState<string | null>(null);
   const [generatingSteps, setGeneratingSteps] = useState(false);
+  const [stepCount, setStepCount] = useState<number>(10);
   const [newGoal, setNewGoal] = useState<Goal>({
     id: "",
     title: "",
@@ -35,7 +48,6 @@ const Goals: React.FC = () => {
     userId: "",
     steps: [],
   });
-  const [steps, setSteps] = useState<Step[]>([]);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,118 +61,97 @@ const Goals: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [setOptionsModalOpen]);
 
-  useEffect(() => {
-    setNewGoal((prev) => ({ ...prev, steps }));
-  }, [steps]);
-
-  useEffect(() => {
-    async function fetchGoals() {
-      try {
-        const { data } = await axios.get(`${URL}/api/goals`);
-        setGoals(data);
-      } catch (error) {
-        console.error("Error fetching goals:", error);
-        toast.error("Failed to fetch goals");
-      }
-    }
-    fetchGoals();
-  }, []);
-
   const handleReset = async (id: string) => {
-    try {
-      const goal = goals.find((g) => g.id === id);
-      if (!goal) return;
+    const goal = goals?.find((g: Goal) => g.id === id);
+    if (!goal) return;
 
-      await Promise.all(
-        goal.steps.map((step) =>
-          axios.put(`${URL}/api/goals/steps/${step.id}`, {
-            isCompleted: false,
-            skippedIsImportant: false,
-            skippedReason: null,
-          })
-        )
-      );
-      setGoals((prev) =>
-        prev.map((g) =>
-          g.id === id
-            ? {
-                ...g,
-                steps: g.steps.map((s) => ({ ...s, isCompleted: false })),
-              }
-            : g
-        )
-      );
-      setExpandedGoal(null);
-      setOptionsModalOpen(null);
-      toast.success("Goal reset successfully");
-    } catch (error) {
-      console.error("Error resetting goal:", error);
-      toast.error("Failed to reset goal");
-    }
+    const updatedSteps = (goal.steps || []).map((step: Step) => ({
+      ...step,
+      isCompleted: false,
+      skippedIsImportant: false,
+      skippedReason: null,
+    }));
+
+    updateGoal(
+      { id, goal: { steps: updatedSteps } },
+      {
+        onSuccess: () => {
+          setExpandedGoal(null);
+          setOptionsModalOpen(null);
+          toast.success("Goal reset successfully");
+        },
+        onError: () => {
+          toast.error("Failed to reset goal");
+        },
+      }
+    );
   };
 
-  const handleEdit = async (id: string) => {
-    try {
-      const { data } = await axios.get(`${URL}/api/goals/${id}`);
-      setNewGoal(data);
-      setSteps(data.steps);
+  const handleEdit = (id: string) => {
+    const goal = goals?.find((g: Goal) => g.id === id);
+    if (goal) {
+      setNewGoal(goal);
       setShowNewGoalModal(true);
       setExpandedGoal(null);
       setOptionsModalOpen(null);
-    } catch (error) {
-      console.error("Error fetching goal for edit:", error);
-      toast.error("Failed to load goal for editing");
+    } else {
+      toast.error("Goal not found");
     }
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      await axios.delete(`${URL}/api/goals/${id}`);
-      setGoals((prev) => prev.filter((g) => g.id !== id));
-      setExpandedGoal(null);
-      setOptionsModalOpen(null);
-      setOptionsModalOpen(null);
-      toast.success("Goal deleted successfully");
-    } catch (error) {
-      console.error("Error deleting goal:", error);
-      toast.error("Failed to delete goal");
-    }
+    deleteGoal(id, {
+      onSuccess: () => {
+        setExpandedGoal(null);
+        setOptionsModalOpen(null);
+        toast.success("Goal deleted successfully");
+      },
+      onError: () => {
+        toast.error("Failed to delete goal");
+      },
+    });
   };
 
-  const completeStep = async (id: string) => {
-    try {
-      await axios.put(`${URL}/api/goals/steps/${id}`, { isCompleted: true });
-      setGoals((prev) =>
-        prev.map((g) => ({
-          ...g,
-          steps: g.steps.map((s) =>
-            s.id === id ? { ...s, isCompleted: true } : s
-          ),
-        }))
-      );
-      toast.success("Step marked as complete");
-    } catch (error) {
-      console.error("Error completing step:", error);
-      toast.error("Failed to mark step as complete");
-    }
+  const completeStep = async (stepId: string) => {
+    const goal = goals?.find((g: Goal) =>
+      (g.steps || []).some((s: Step) => s.id === stepId)
+    );
+    if (!goal) return;
+
+    updateStepStatus(
+      { goalId: goal.id, stepId },
+      {
+        onSuccess: () => {
+          toast.success("Step marked as complete");
+        },
+        onError: () => {
+          toast.error("Failed to mark step as complete");
+        },
+      }
+    );
   };
 
   const addStep = () => {
-    setSteps((prev) => [
+    setNewGoal((prev) => ({
       ...prev,
-      {
-        id: `${prev.length + 1}`,
-        title: "",
-        description: "",
-        dueDate: new Date().toISOString(),
-        isCompleted: false,
-        // goalId: newGoal.id || '',
-      },
-    ]);
+      steps: [
+        ...prev.steps,
+        {
+          id: `${prev.steps.length + 1}`,
+          title: "",
+          description: "",
+          dueDate: new Date().toISOString(),
+          isCompleted: false,
+        },
+      ],
+    }));
   };
 
   const removeStep = (index: number) => {
-    setSteps((prev) => prev.filter((_, i) => i !== index));
+    setNewGoal((prev) => ({
+      ...prev,
+      steps: prev.steps.filter((_, i) => i !== index),
+    }));
   };
 
   const updateStep = <K extends keyof Step>(
@@ -168,10 +159,10 @@ const Goals: React.FC = () => {
     field: K,
     value: Step[K]
   ) => {
-    setSteps((prev) => {
-      const updatedSteps = [...prev];
+    setNewGoal((prev) => {
+      const updatedSteps = [...prev.steps];
       updatedSteps[index] = { ...updatedSteps[index], [field]: value };
-      return updatedSteps;
+      return { ...prev, steps: updatedSteps };
     });
   };
 
@@ -213,66 +204,97 @@ const Goals: React.FC = () => {
   const handleCreateGoal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGoal.title || !newGoal.totalDays) {
-      console.log("Please fill out goal title and valid time frame");
+      toast.error("Please fill out goal title and valid time frame");
       return;
     }
-    try {
-      const payload = { ...newGoal, steps };
-      const { data } = await axios.post(`${URL}/api/goals`, payload);
-      setGoals((prev) => [...prev, data]);
-      setShowNewGoalModal(false);
-      setNewGoal({
-        id: "",
-        title: "",
-        description: "",
-        totalDays: 0,
-        createdAt: new Date().toISOString(),
-        userId: "",
-        steps: [],
-      });
-      setSteps([]);
-      toast.success("Goal created successfully");
-    } catch (error) {
-      console.error("Error creating goal:", error);
-      toast.error("Failed to create goal");
-    }
+
+    createGoal(newGoal, {
+      onSuccess: () => {
+        setShowNewGoalModal(false);
+        setNewGoal({
+          id: "",
+          title: "",
+          description: "",
+          totalDays: 0,
+          createdAt: new Date().toISOString(),
+          userId: "",
+          steps: [],
+        });
+        toast.success("Goal created successfully");
+      },
+      onError: () => {
+        toast.error("Failed to create goal");
+      },
+    });
   };
 
   const handleUpdateGoal = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newGoal.id || !newGoal.title || newGoal.totalDays || 0 <= 0) {
+    if (!newGoal.id || !newGoal.title || (newGoal.totalDays || 0) <= 0) {
       toast.error("Please fill out goal title and valid time frame");
       return;
     }
-    try {
-      const payload = { ...newGoal, steps };
-      await axios.put(`${URL}/api/goals/${newGoal.id}`, payload);
-      await Promise.all(
-        steps.map((step) =>
-          axios.put(`${URL}/api/goals/steps/${step.id}`, step)
-        )
-      );
-      setGoals((prev) =>
-        prev.map((g) =>
-          g.id === newGoal.id ? { ...payload, id: newGoal.id } : g
-        )
-      );
-      setShowNewGoalModal(false);
-      setNewGoal({
-        id: "",
-        title: "",
-        description: "",
-        totalDays: 0,
-        createdAt: new Date().toISOString(),
-        userId: "",
-        steps: [],
-      });
-      setSteps([]);
-      toast.success("Goal updated successfully");
-    } catch (error) {
-      console.error("Error updating goal:", error);
-      toast.error("Failed to update goal");
+
+    // Only send fields that should be updated
+    const updateData: Partial<Goal> = {
+      title: newGoal.title,
+      description: newGoal.description,
+      totalDays: newGoal.totalDays,
+      steps: newGoal.steps,
+    };
+
+    updateGoal(
+      { id: newGoal.id.toString(), goal: updateData },
+      {
+        onSuccess: () => {
+          setShowNewGoalModal(false);
+          setNewGoal({
+            id: "",
+            title: "",
+            description: "",
+            totalDays: 0,
+            createdAt: new Date().toISOString(),
+            userId: "",
+            steps: [],
+          });
+          toast.success("Goal updated successfully");
+        },
+        onError: () => {
+          toast.error("Failed to update goal");
+        },
+      }
+    );
+  };
+
+  // Sync stepCount with actual steps length when steps are added/removed manually
+  useEffect(() => {
+    if (newGoal.steps.length !== stepCount) {
+      setStepCount(newGoal.steps.length || 1);
     }
+  }, [newGoal.steps.length]);
+
+  const handleStepCountChange = (count: number) => {
+    setStepCount(count);
+    setNewGoal((prev) => {
+      const currentSteps = [...prev.steps];
+      if (count > currentSteps.length) {
+        // Add empty steps
+        const stepsToAdd = count - currentSteps.length;
+        for (let i = 0; i < stepsToAdd; i++) {
+          currentSteps.push({
+            id: `${currentSteps.length + 1 + i}`,
+            title: "",
+            description: "",
+            dueDate: new Date().toISOString(),
+            isCompleted: false,
+          });
+        }
+      } else if (count < currentSteps.length) {
+        // Remove steps from the end
+        currentSteps.splice(count);
+      }
+      return { ...prev, steps: currentSteps };
+    });
   };
 
   const generateSteps = async (
@@ -286,16 +308,40 @@ const Goals: React.FC = () => {
     }
     try {
       setGeneratingSteps(true);
+      const getApi = () => (useAuthStore.getState().isDemo ? demoApi : api);
+      
+      // Pass current steps as context
+      const currentSteps = newGoal.steps.map(({ title, description }) => ({
+        title,
+        description,
+      }));
 
-      const { data } = await axios.post(`${API_URL}/api/ai/generate-steps`, {
-        goal,
-        totalDays: days,
-      });
-      setSteps(data.steps);
+      const data = await getApi().generateSteps(
+        { title: goal, description: newGoal.description },
+        days,
+        stepCount,
+        currentSteps // Pass context
+      );
+
+      const editedSteps = data.steps.map(({ dueDate, ...rest }: any) => ({
+        ...rest,
+        dueDate: new Date(dueDate as string).toISOString(),
+      }));
+      setNewGoal((prev) => ({
+        ...prev,
+        steps: editedSteps.map((step: any) => ({
+          ...step,
+          dueDate: new Date(step.dueDate).toISOString(),
+          id: `${prev.steps.length + 1}`, // Note: This might need better ID generation if merging, but for now replacing/refining is fine
+          isCompleted: false,
+        })),
+      }));
+
       toast.success("Steps generated successfully");
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Error generating steps:", error);
-      toast.error("Error generating steps");
+      toast.error(error.response?.data?.error || "Error generating steps");
     } finally {
       setGeneratingSteps(false);
     }
@@ -312,32 +358,58 @@ const Goals: React.FC = () => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen" ref={modalRef}>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">
-          Goals
-        </h1>
-        <button
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between mb-6"
+      >
+        <h1 className="text-2xl font-bold">Goals</h1>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           className="btn btn-accent flex items-center gap-2"
           onClick={() => setShowNewGoalModal(true)}
         >
           <Plus className="h-5 w-5" />
           New Goal
-        </button>
-      </div>
-
-      <div className="grid gap-6 grid-cols-1">
-        {goals.length > 0 ? (
-          goals.map((goal) => {
+        </motion.button>
+      </motion.div>
+      <motion.div 
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.1
+            }
+          }
+        }}
+        initial="hidden"
+        animate="show"
+        className="grid gap-6 grid-cols-1"
+      >
+        {goals && goals.length > 0 ? (
+          goals.map((goal: Goal) => {
             const isExpanded = expandedGoal === goal.id;
             const isOpened = optionsModalOpen === goal.id;
-            const completedSteps = goal.steps.filter(
+            const steps = goal.steps || [];
+            const completedSteps = steps.filter(
               (step) => step.isCompleted
             ).length;
-            const progressPercentage = Math.round(
-              (completedSteps / goal.steps.length) * 100
-            );
+            const progressPercentage =
+              steps.length > 0
+                ? Math.round((completedSteps / steps.length) * 100)
+                : 0;
             const elapsedDays = differenceInDays(
               new Date(),
               new Date(goal.createdAt)
@@ -354,15 +426,17 @@ const Goals: React.FC = () => {
               <motion.div
                 key={goal.id}
                 layout
-                animate={{ height: "auto" }}
-                className="bg-card rounded-lg shadow-sm overflow-hidden"
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  show: { opacity: 1, y: 0 }
+                }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="bg-card rounded-lg shadow-sm overflow-hidden border border-border/50 hover:border-accent/30 transition-colors"
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h2 className="text-xl font-semibold">
-                        {goal.title}
-                      </h2>
+                      <h2 className="text-xl font-semibold">{goal.title}</h2>
                       <p className="text-foreground/70 mt-1">
                         {goal.description}
                       </p>
@@ -391,9 +465,14 @@ const Goals: React.FC = () => {
                             >
                               <button
                                 onClick={() => handleReset(`${goal.id}`)}
-                                className="w-full text-left flex items-center px-4 py-2 text-sm hover:bg-secondary rounded-md"
+                                disabled={isUpdating}
+                                className="w-full text-left flex items-center px-4 py-2 text-sm hover:bg-secondary rounded-md disabled:opacity-50"
                               >
-                                <RotateCcw className="h-4 w-4 mr-2" />
+                                {isUpdating ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <RotateCcw className="h-4 w-4 mr-2" />
+                                )}
                                 Reset Goal
                               </button>
                               <button
@@ -405,9 +484,14 @@ const Goals: React.FC = () => {
                               </button>
                               <button
                                 onClick={() => handleDelete(`${goal.id}`)}
-                                className="w-full text-left flex items-center px-4 py-2 text-sm text-destructive hover:bg-secondary rounded-md"
+                                disabled={isDeleting}
+                                className="w-full text-left flex items-center px-4 py-2 text-sm text-destructive hover:bg-secondary rounded-md disabled:opacity-50"
                               >
-                                <Trash className="h-4 w-4 mr-2" />
+                                {isDeleting ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Trash className="h-4 w-4 mr-2" />
+                                )}
                                 Delete Goal
                               </button>
                             </motion.div>
@@ -422,14 +506,16 @@ const Goals: React.FC = () => {
                       <div className="flex justify-between text-sm mb-1 text-foreground/70">
                         <span>Progress</span>
                         <span>
-                          {completedSteps}/{goal.steps.length} steps
+                          {completedSteps}/{(goal.steps || []).length} steps
                         </span>
                       </div>
                       <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-accent rounded-full transition-all duration-500"
-                          style={{ width: `${progressPercentage}%` }}
-                        ></div>
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progressPercentage}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          className="h-full bg-accent rounded-full"
+                        ></motion.div>
                       </div>
                     </div>
 
@@ -443,16 +529,18 @@ const Goals: React.FC = () => {
                         </span>
                       </div>
                       <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${timePercentage}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                          className={`h-full rounded-full ${
                             timePercentage > 75
                               ? "bg-destructive"
                               : timePercentage > 50
                               ? "bg-warning"
                               : "bg-success"
                           }`}
-                          style={{ width: `${timePercentage}%` }}
-                        ></div>
+                        ></motion.div>
                       </div>
                     </div>
                   </div>
@@ -479,68 +567,85 @@ const Goals: React.FC = () => {
                     exit={{ opacity: 0, height: 0 }}
                     className="bg-secondary/50 border-t border-border px-6 py-4"
                   >
-                    <h3 className="text-sm font-medium mb-4">
-                      Steps
-                    </h3>
+                    <h3 className="text-sm font-medium mb-4">Steps</h3>
                     <div className="space-y-3">
-                      {sortStepsByTitleNumber(goal.steps).map((step, index) => (
-                        <div
-                          key={step.id}
-                          className={`p-3 rounded-md flex items-start gap-3 ${
-                            step.isCompleted
-                              ? "bg-success/20"
-                              : "bg-secondary"
-                          }`}
-                        >
-                          <div className="flex-shrink-0 mt-0.5">
-                            {step.isCompleted ? (
-                              <div className="w-5 h-5 rounded-full bg-success flex items-center justify-center">
-                                <Check className="h-3 w-3 text-success-foreground" />
-                              </div>
-                            ) : (
-                              <div className="w-5 h-5 rounded-full border-2 border-border flex items-center justify-center text-xs">
-                                {index + 1}
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h4
-                                  className={`font-medium ${
-                                    step.isCompleted
-                                      ? "line-through opacity-70"
-                                      : ""
-                                  }`}
-                                >
-                                  {step.title}
-                                </h4>
-                                {step.description && (
-                                  <p className="text-sm text-foreground/70 mt-1">
-                                    {step.description}
-                                  </p>
+                      {(goal.steps || []).length > 0 ? (
+                        sortStepsByTitleNumber(goal.steps || []).map(
+                          (step: Step, index: number) => (
+                            <div
+                              key={step.id}
+                              className={`p-3 rounded-md flex items-start gap-3 ${
+                                step.isCompleted
+                                  ? "bg-success/20"
+                                  : "bg-secondary"
+                              }`}
+                            >
+                              <motion.div 
+                                className="flex-shrink-0 mt-0.5"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                              >
+                                {step.isCompleted ? (
+                                  <motion.div 
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="w-5 h-5 rounded-full bg-success flex items-center justify-center"
+                                  >
+                                    <Check className="h-3 w-3 text-success-foreground" />
+                                  </motion.div>
+                                ) : (
+                                  <div className="w-5 h-5 rounded-full border-2 border-border flex items-center justify-center text-xs">
+                                    {index + 1}
+                                  </div>
+                                )}
+                              </motion.div>
+                              <div className="flex-1">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <h4
+                                      className={`font-medium ${
+                                        step.isCompleted
+                                          ? "line-through opacity-70"
+                                          : ""
+                                      }`}
+                                    >
+                                      {step.title}
+                                    </h4>
+                                    {step.description && (
+                                      <p className="text-sm text-foreground/70 mt-1">
+                                        {step.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center text-xs text-foreground/70">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    <span>
+                                      {format(new Date(step.dueDate), "MMM d")}
+                                    </span>
+                                  </div>
+                                </div>
+                                {!step.isCompleted && (
+                                  <div className="mt-2">
+                                    <button
+                                      onClick={() => completeStep(step.id)}
+                                      disabled={isUpdatingStep}
+                                      className="text-xs px-3 py-1 rounded-full bg-accent/10 text-accent hover:bg-accent/20 disabled:opacity-50"
+                                    >
+                                      {isUpdatingStep
+                                        ? "Updating..."
+                                        : "Mark Complete"}
+                                    </button>
+                                  </div>
                                 )}
                               </div>
-                              <div className="flex items-center text-xs text-foreground/70">
-                                <Clock className="h-3 w-3 mr-1" />
-                                <span>
-                                  {format(new Date(step.dueDate), "MMM d")}
-                                </span>
-                              </div>
                             </div>
-                            {!step.isCompleted && (
-                              <div className="mt-2">
-                                <button
-                                  onClick={() => completeStep(step.id)}
-                                  className="text-xs px-3 py-1 rounded-full bg-accent/10 text-accent hover:bg-accent/20"
-                                >
-                                  Mark Complete
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                          )
+                        )
+                      ) : (
+                        <div className="p-4 bg-secondary rounded-md text-center text-muted-foreground">
+                          <p>No steps defined for this goal yet.</p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -548,22 +653,36 @@ const Goals: React.FC = () => {
             );
           })
         ) : (
-          <div className="p-3 rounded-md bg-card text-center">
-            <h3 className="font-medium">
-              No goals found
-            </h3>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-12 rounded-xl bg-card border-2 border-dashed border-border text-center"
+          >
+            <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Target className="h-8 w-8 text-accent" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">No goals found</h3>
+            <p className="text-foreground/60 mb-6 max-w-sm mx-auto">
+              You haven't set any goals yet. Start by creating a new goal and let AI help you break it down!
+            </p>
+            <button
+              className="btn btn-accent"
+              onClick={() => setShowNewGoalModal(true)}
+            >
+              Create Your First Goal
+            </button>
+          </motion.div>
         )}
-      </div>
-
+      </motion.div>
       {/* New Goal Modal */}
       {showNewGoalModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-card rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
-          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-card rounded-xl p-8 w-full max-w-md md:max-w-2xl mx-4 max-h-[90vh] overflow-y-auto shadow-2xl border border-border"
+            >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">
                 {newGoal.id ? "Edit Goal" : "New Goal"}
@@ -581,7 +700,6 @@ const Goals: React.FC = () => {
                     userId: "",
                     steps: [],
                   });
-                  setSteps([]);
                 }}
               >
                 <X className="h-5 w-5 text-foreground/70" />
@@ -628,7 +746,7 @@ const Goals: React.FC = () => {
                   className="input w-full"
                   placeholder="30"
                   min="1"
-                  value={newGoal.totalDays || ""}
+                  value={newGoal.totalDays?.toString() || ""}
                   onChange={(e) =>
                     setNewGoal((prev) => ({
                       ...prev,
@@ -638,41 +756,51 @@ const Goals: React.FC = () => {
                 />
               </div>
               <div className="border-t border-border pt-4 mt-4">
-                <h3 className="text-sm font-medium mb-3">
-                  Steps
-                </h3>
+                <h3 className="text-sm font-medium mb-3">Steps</h3>
                 <p className="text-xs text-foreground/70 mb-4">
-                  You can define your own steps or let the AI generate 10 steps
-                  for you.
+                  You can define your own steps or let the AI generate steps for
+                  you.
                 </p>
-                <button
-                  type="button"
-                  className="w-full btn bg-accent/10 text-accent hover:bg-accent/20 mb-4"
-                  onClick={() =>
-                    generateSteps(
-                      newGoal.title || newGoal.description || "",
-                      newGoal.totalDays || 0,
-                      10
-                    )
-                  }
-                >
-                  {generatingSteps ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    "Generate Steps with AI"
-                  )}
-                </button>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-1">
+                    <label className="block text-xs font-medium mb-1">
+                      Step Count
+                    </label>
+                    <input
+                      type="number"
+                      className="input w-full text-sm"
+                      min="1"
+                      max="30"
+                      value={stepCount}
+                      onChange={(e) => handleStepCountChange(Number(e.target.value))}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="flex-[2] btn bg-accent/10 text-accent hover:bg-accent/20 mt-5"
+                    onClick={() =>
+                      generateSteps(
+                        newGoal.title || newGoal.description || "",
+                        newGoal.totalDays || 0,
+                        stepCount
+                      )
+                    }
+                  >
+                    {generatingSteps ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      "Generate Steps with AI"
+                    )}
+                  </button>
+                </div>
                 <div className="space-y-3">
-                  {steps.map((step, index) => (
-                    <div
-                      key={step.id}
-                      className="p-3 bg-secondary rounded-md"
-                    >
+                  {newGoal.steps.map((step, index) => (
+                    <div key={index} className="p-3 bg-secondary rounded-md">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium">
                           Step {index + 1}
                         </span>
-                        {steps.length > 1 && (
+                        {newGoal.steps.length > 1 && (
                           <button
                             type="button"
                             className="text-destructive hover:text-destructive/80"
@@ -732,12 +860,19 @@ const Goals: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-accent"
+                  className="btn btn-accent disabled:opacity-50"
+                  disabled={isCreating || isUpdating}
                   onClick={(e) =>
                     newGoal.id ? handleUpdateGoal(e) : handleCreateGoal(e)
                   }
                 >
-                  {newGoal.id ? "Update Goal" : "Create Goal"}
+                  {isCreating || isUpdating ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : newGoal.id ? (
+                    "Update Goal"
+                  ) : (
+                    "Create Goal"
+                  )}
                 </button>
               </div>
             </form>

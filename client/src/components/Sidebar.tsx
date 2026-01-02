@@ -27,27 +27,27 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
   const navItems = [
     {
-      to: "/auths/",
+      to: "/",
       label: "Dashboard",
       icon: <LayoutDashboard className="h-5 w-5" />,
     },
     {
-      to: "/auths/timetable",
+      to: "/timetable",
       label: "Timetable",
       icon: <Calendar className="h-5 w-5" />,
     },
     {
-      to: "/auths/goals",
+      to: "/goals",
       label: "Goals",
       icon: <Target className="h-5 w-5" />,
     },
     {
-      to: "/auths/analytics",
+      to: "/analytics",
       label: "Analytics",
       icon: <BarChart className="h-5 w-5" />,
     },
     {
-      to: "/auths/settings",
+      to: "/settings",
       label: "Settings",
       icon: <Settings className="h-5 w-5" />,
     },

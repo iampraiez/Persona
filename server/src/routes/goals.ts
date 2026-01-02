@@ -1,228 +1,168 @@
-import * as express from "express";
-import { authenticate } from "../middleware/auth";
-import { prisma } from "../index";
-import { generateGoalSteps } from "../services/aiService";
+import { Router, type Request, type Response } from "express";
+import { prisma } from "../lib/prisma";
+import { logger } from "../utils/logger.utils";
+import { errorWrapper } from "../utils/error.util";
 
-const router = express.Router();
+const router = Router();
 
-// Get all goals for the user
-router.get("/", authenticate, async (req, res) => {
+router.get("/", async (req: Request, res: Response): Promise<void> => {
   try {
-    const goals = await prisma.goal.findMany({
-      where: { userId: req.user!.id },
-      include: { steps: true },
-      orderBy: { createdAt: "desc" },
-    });
-
-    res.json(goals);
-  } catch (error) {
-    console.error("Get Goals Error:", error);
-    res.status(500).json({ message: "Failed to get goals" });
-  }
-});
-
-// Get active goals
-router.get("/active", authenticate, async (req, res) => {
-  try {
-    // Find goals where not all steps are completed
-    const goals = await prisma.goal.findMany({
-      where: {
-        userId: req.user!.id,
-      },
-      include: {
-        steps: true,
-      },
-      orderBy: { createdAt: "desc" },
-      take: 1,
-    });
-
-    // Filter to goals with at least one incomplete step
-    const activeGoals = goals.filter((goal) =>
-      goal.steps.some((step) => !step.isCompleted)
-    );
-
-    res.json(activeGoals);
-  } catch (error) {
-    console.error("Get Active Goals Error:", error);
-    res.status(500).json({ message: "Failed to get active goals" });
-  }
-});
-
-// Get a specific goal
-router.get("/:id", authenticate, async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const goal = await prisma.goal.findFirst({
-      where: {
-        id,
-        userId: req.user!.id,
-      },
-      include: {
-        steps: {
-          orderBy: { dueDate: "asc" },
-        },
-      },
-    });
-
-    if (!goal) {
-      return res.status(404).json({ message: "Goal not found" });
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
     }
 
-    res.json(goal);
-  } catch (error) {
-    console.error("Get Goal Error:", error);
-    res.status(500).json({ message: "Failed to get goal" });
+    const goals = await prisma.goal.findMany({
+      where: { userId: user.id },
+      include: {
+        steps: {
+          orderBy: {
+            dueDate: "asc",
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.status(200).json({ data: goals, error: null });
+  } catch (error: unknown) {
+    logger.error(`Get Goals Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to get goals"),
+    });
   }
 });
 
-// Create a new goal
-router.post("/", authenticate, async (req, res) => {
+router.post("/", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, description, totalDays, steps } = req.body;
-
-    // Create goal
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+    const { title, description, totalDays, createdAt, steps } = req.body;
+    const steps_edited = steps.map(({ id, ...rest }) => ({ ...rest }));
     const newGoal = await prisma.goal.create({
       data: {
         title,
         description,
         totalDays,
-        userId: req.user!.id,
+        createdAt,
+        userId: user.id,
+        steps: {
+          create: steps_edited,
+        },
+      },
+      include: {
+        steps: {
+          orderBy: {
+            dueDate: "asc",
+          },
+        },
       },
     });
 
-    const sortStepsByTitleNumber = (steps: any) => {
-      return [...steps].sort((a, b) => {
-        const getNumber = (title: string) => {
-          const match = title.match(/\d+/);
-          return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER;
-        };
-
-        return getNumber(a.title) - getNumber(b.title);
-      });
-    };
-
-    // If steps are provided, create them
-    if (Array.isArray(steps) && steps.length > 0) {
-      await Promise.all(
-        sortStepsByTitleNumber(steps).map(async (step: any) => {
-          await prisma.step.create({
-            data: {
-              title: step.title,
-              description: step.description,
-              dueDate: new Date(step.dueDate),
-              goalId: newGoal.id,
-            },
-          });
-        })
-      );
-    }
-    // Otherwise, generate steps with AI
-    else {
-      try {
-        const aiSteps = await generateGoalSteps(newGoal, totalDays);
-
-        if (aiSteps && aiSteps.length > 0) {
-          await Promise.all(
-            aiSteps.map(async (step) => {
-              await prisma.step.create({
-                data: {
-                  title: step.title,
-                  description: step.description,
-                  dueDate: new Date(step.dueDate),
-                  goalId: newGoal.id,
-                },
-              });
-            })
-          );
-        }
-      } catch (aiError) {
-        console.error("AI Step Generation Error:", aiError);
-        // Create default steps if AI fails
-        const stepCount = 10;
-        const dayInterval = Math.floor(totalDays / stepCount);
-
-        for (let i = 0; i < stepCount; i++) {
-          const dueDate = new Date();
-          dueDate.setDate(dueDate.getDate() + i * dayInterval);
-
-          await prisma.step.create({
-            data: {
-              title: `Step ${i + 1}`,
-              description: `Step ${i + 1} for ${title}`,
-              dueDate,
-              goalId: newGoal.id,
-            },
-          });
-        }
-      }
-    }
-
-    // Return the created goal with steps
-    const goalWithSteps = await prisma.goal.findUnique({
-      where: { id: newGoal.id },
-      include: { steps: true },
+    res.status(201).json({ data: newGoal, error: null });
+  } catch (error: unknown) {
+    logger.error(`Create Goal Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to create goal"),
     });
-
-    res.status(201).json(goalWithSteps);
-  } catch (error) {
-    console.error("Create Goal Error:", error);
-    res.status(500).json({ message: "Failed to create goal" });
   }
 });
 
-// Update a goal
-router.put("/:id", authenticate, async (req, res) => {
+router.put("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
-    const { title, description, totalDays } = req.body;
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
 
-    // Check if goal belongs to user
+    const { id } = req.params;
+    const { title, description, totalDays, steps } = req.body;
+
     const goal = await prisma.goal.findFirst({
-      where: {
-        id,
-        userId: req.user!.id,
-      },
+      where: { id, userId: user.id },
     });
 
     if (!goal) {
-      return res.status(404).json({ message: "Goal not found" });
+      res.status(404).json({ error: "Goal not found", data: null });
+      return;
+    }
+
+    // Prepare update data
+    const updateData: any = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (totalDays !== undefined) updateData.totalDays = totalDays;
+
+    // Handle steps update if provided
+    if (steps !== undefined && Array.isArray(steps)) {
+      // Delete all existing steps and recreate them
+      await prisma.step.deleteMany({
+        where: { goalId: id },
+      });
+
+      // Create new steps (don't include goalId - Prisma sets it automatically via relation)
+      // Also filter out unknown fields like skippedIsImportant which might be coming from frontend
+      const stepsToCreate = steps.map(({ title, description, dueDate, isCompleted }: any) => ({
+        title,
+        description,
+        dueDate,
+        isCompleted: isCompleted || false,
+      }));
+
+      updateData.steps = {
+        create: stepsToCreate,
+      };
     }
 
     const updatedGoal = await prisma.goal.update({
       where: { id },
-      data: {
-        title,
-        description,
-        totalDays,
+      data: updateData,
+      include: {
+        steps: {
+          orderBy: {
+            dueDate: "asc",
+          },
+        },
       },
     });
 
-    res.json(updatedGoal);
-  } catch (error) {
-    console.error("Update Goal Error:", error);
-    res.status(500).json({ message: "Failed to update goal" });
+    res.status(200).json({ data: updatedGoal, error: null });
+  } catch (error: unknown) {
+    logger.error(`Update Goal Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to update goal"),
+    });
   }
 });
 
-// Delete a goal
-router.delete("/:id", authenticate, async (req, res) => {
+router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
     const { id } = req.params;
 
-    // Check if goal belongs to user
     const goal = await prisma.goal.findFirst({
-      where: {
-        id,
-        userId: req.user!.id,
-      },
+      where: { id, userId: user.id },
     });
 
     if (!goal) {
-      return res.status(404).json({ message: "Goal not found" });
+      res.status(404).json({ error: "Goal not found", data: null });
+      return;
     }
 
-    // Delete all steps first
+    // Delete associated steps first to avoid foreign key constraint
     await prisma.step.deleteMany({
       where: { goalId: id },
     });
@@ -232,46 +172,42 @@ router.delete("/:id", authenticate, async (req, res) => {
       where: { id },
     });
 
-    res.json({ message: "Goal deleted successfully" });
-  } catch (error) {
-    console.error("Delete Goal Error:", error);
-    res.status(500).json({ message: "Failed to delete goal" });
+    res.status(200).json({ data: "Goal deleted successfully", error: null });
+  } catch (error: unknown) {
+    logger.error(`Delete Goal Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to delete goal"),
+    });
   }
 });
 
-// Update a step
-router.put("/steps/:id", authenticate, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, description, dueDate, isCompleted } = req.body;
+router.put(
+  "/:id/steps/:stepid",
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id, stepid } = req.params;
 
-    // Check if step belongs to user's goal
-    const step = await prisma.step.findUnique({
-      where: { id },
-      include: {
-        goal: true,
-      },
-    });
+      const updatedStep = await prisma.step.update({
+        where: {
+          goalId: id,
+          id: stepid,
+        },
+        data: { 
+          isCompleted: true,
+          completedAt: new Date()
+        },
+      });
 
-    if (!step || step.goal.userId !== req.user!.id) {
-      return res.status(404).json({ message: "Step not found" });
+      res.status(200).json({ data: updatedStep, error: null });
+    } catch (error: unknown) {
+      logger.error(`Edit step error: ${error}`);
+      res.status(500).json({
+        data: null,
+        error: errorWrapper(error, "Failed to update step"),
+      });
     }
-
-    const updatedStep = await prisma.step.update({
-      where: { id },
-      data: {
-        title,
-        description,
-        dueDate: dueDate ? new Date(dueDate) : undefined,
-        isCompleted,
-      },
-    });
-
-    res.json(updatedStep);
-  } catch (error) {
-    console.error("Update Step Error:", error);
-    res.status(500).json({ message: "Failed to update step" });
   }
-});
+);
 
 export default router;

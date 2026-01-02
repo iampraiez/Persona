@@ -1,24 +1,15 @@
 import { type Request, type Response, Router } from "express";
-import { OAuth2Client } from "google-auth-library";
-import { prisma } from "../lib/prisma";
 import { logger } from "../utils/logger.utils";
 import { errorWrapper } from "../utils/error.util";
-import { createToken } from "../utils/jwt.util";
+import { AuthService, COOKIE_OPTIONS, ACCESS_TOKEN_OPTIONS } from "../services/auth.service";
+import { env } from "../config/env";
 
 const router: Router = Router();
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const URL = process.env.BACKEND_URL || "http://localhost:3000";
-const FRONTEND_URL = process.env.CLIENT_URL || "http://localhost:5173";
-const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REDIRECT_URI = `${URL}/auth/google/callback`;
-const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+const FRONTEND_URL = env.data?.CLIENT_URL || "http://localhost:5173";
 
 router.get("/google", async (req: Request, res: Response): Promise<void> => {
   try {
-    const authUrl = await oAuth2Client.generateAuthUrl({
-      scope: ["profile", "email"],
-      access_type: "offline",
-    });
+    const authUrl = await AuthService.getGoogleAuthUrl();
     res.json({ data: authUrl, error: null });
   } catch (error: unknown) {
     logger.error(`Google Auth Error: ${error}`);
@@ -36,32 +27,12 @@ router.get(
     if (!code) return res.redirect(`${FRONTEND_URL}/login?error=auth_failed`);
 
     try {
-      const { tokens } = await oAuth2Client.getToken({
-        code: code as string,
-      });
-      oAuth2Client.setCredentials(tokens);
+      const { accessToken, refreshToken } = await AuthService.handleGoogleCallback(code as string);
 
-      const userInfoResponse = await oAuth2Client.request({
-        url: "https://www.googleapis.com/oauth2/v3/userinfo",
-      });
-      const { sub: email, name, picture }: any = userInfoResponse.data;
+      res.cookie("access_token", accessToken, ACCESS_TOKEN_OPTIONS);
+      res.cookie("refresh_token", refreshToken, COOKIE_OPTIONS);
 
-      const user = await prisma.user.upsert({
-        where: { email: email! },
-        update: {},
-        create: {
-          email: email!,
-          name: name,
-          image: picture,
-        },
-      });
-      return res.redirect(
-        `${FRONTEND_URL}/login?token=${createToken({
-          email: user.email,
-          name: user.name!,
-          image: user.image!,
-        })}`
-      );
+      return res.redirect(`${FRONTEND_URL}/login?success=true`);
     } catch (error: unknown) {
       logger.error(`Google Auth Error: ${error}`);
       return res.redirect(`${FRONTEND_URL}/login?error=auth_failed`);
@@ -69,6 +40,40 @@ router.get(
   }
 );
 
-// refresh token route
+router.get("/refresh", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const refreshToken = req.cookies?.refresh_token;
+    if (!refreshToken) {
+      res.status(401).json({ data: null, error: "No refresh token" });
+      return;
+    }
+
+    const newAccessToken = await AuthService.refreshAccessToken(refreshToken);
+    if (!newAccessToken) {
+      res.status(401).json({ data: null, error: "Invalid or expired refresh token" });
+      return;
+    }
+
+    res.cookie("access_token", newAccessToken, ACCESS_TOKEN_OPTIONS);
+    res.status(200).json({ data: true, error: null });
+  } catch (error: unknown) {
+    logger.error(`Refresh Error: ${error}`);
+    res.status(500).json({ data: null, error: "Failed to refresh token" });
+  }
+});
+
+router.get("/logout", async (req: Request, res: Response): Promise<void> => {
+  try {
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+    res.status(200).json({ data: true, error: null });
+  } catch (error: unknown) {
+    logger.error(`Logout Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to logout"),
+    });
+  }
+});
 
 export default router;

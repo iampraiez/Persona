@@ -1,49 +1,26 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
+import { motion } from "framer-motion";
 
 interface BenefitProps {
   number: string;
   title: string;
   description: string;
-  delay: number;
+  index: number;
 }
 
 const Benefit: React.FC<BenefitProps> = ({
   number,
   title,
   description,
-  delay,
+  index,
 }) => {
-  const benefitRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("fade-in");
-            entry.target.classList.add("slide-up");
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (benefitRef.current) {
-      observer.observe(benefitRef.current);
-    }
-
-    return () => {
-      if (benefitRef.current) {
-        observer.unobserve(benefitRef.current);
-      }
-    };
-  }, []);
-
   return (
-    <div
-      className="flex items-start space-x-4 opacity-0"
-      ref={benefitRef}
-      style={{ animationDelay: `${delay}s`, animationFillMode: "forwards" }}
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="flex items-start space-x-4"
     >
       <div className="flex-shrink-0 w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center text-accent font-bold text-xl">
         {number}
@@ -52,39 +29,11 @@ const Benefit: React.FC<BenefitProps> = ({
         <h3 className="text-xl font-semibold mb-2">{title}</h3>
         <p className="text-foreground/70">{description}</p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 const BenefitsSection: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("fade-in");
-            entry.target.querySelectorAll(".opacity-0").forEach((el) =>
-              el.classList.add("fade-in")
-            );
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
   const benefits = [
     {
       number: "01",
@@ -113,17 +62,24 @@ const BenefitsSection: React.FC = () => {
   ];
 
   return (
-    <section id="benefits" className="py-24" ref={sectionRef}>
+    <section id="benefits" className="py-24">
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Image/Visual */}
-          <div
-            className="lg:w-1/2 opacity-0"
-            style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
+          <motion.div
+            className="lg:w-1/2"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
             <div className="relative">
               <div className="bg-gradient-to-br from-violet-500/10 to-indigo-500/10 dark:from-violet-500/5 dark:to-indigo-500/5 rounded-2xl p-8 shadow-xl">
-                <div className="bg-card rounded-xl shadow-lg p-6 animate-float">
+                <motion.div 
+                  className="bg-card rounded-xl shadow-lg p-6"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                >
                   <h3 className="font-semibold text-lg mb-6">
                     Goal Progress: Learn Spanish
                   </h3>
@@ -136,36 +92,28 @@ const BenefitsSection: React.FC = () => {
                         <span className="text-sm font-medium">70%</span>
                       </div>
                       <div className="w-full bg-secondary rounded-full h-2.5">
-                        <div
+                        <motion.div
                           className="bg-accent h-2.5 rounded-full"
-                          style={{ width: "70%" }}
-                        ></div>
+                          initial={{ width: 0 }}
+                          whileInView={{ width: "70%" }}
+                          transition={{ duration: 1, delay: 0.5 }}
+                        ></motion.div>
                       </div>
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-success/20 rounded-full flex items-center justify-center text-success text-xs">
-                          ✓
+                      {[
+                        "Master 500 common words",
+                        "Complete beginner grammar",
+                        "Practice with language app daily",
+                      ].map((step, i) => (
+                        <div key={i} className="flex items-center space-x-3">
+                          <div className="flex-shrink-0 w-6 h-6 bg-success/20 rounded-full flex items-center justify-center text-success text-xs">
+                            ✓
+                          </div>
+                          <span className="text-sm">{step}</span>
                         </div>
-                        <span className="text-sm">Master 500 common words</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-success/20 rounded-full flex items-center justify-center text-success text-xs">
-                          ✓
-                        </div>
-                        <span className="text-sm">
-                          Complete beginner grammar
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-success/20 rounded-full flex items-center justify-center text-success text-xs">
-                          ✓
-                        </div>
-                        <span className="text-sm">
-                          Practice with language app daily
-                        </span>
-                      </div>
+                      ))}
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0 w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center text-accent text-xs">
                           →
@@ -174,46 +122,45 @@ const BenefitsSection: React.FC = () => {
                           Hold a 5-minute conversation
                         </span>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-foreground/30 text-xs"></div>
-                        <span className="text-sm text-foreground/50">
-                          Read a simple book in Spanish
-                        </span>
-                      </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Stats cards */}
-                <div className="absolute -top-6 -right-6 bg-card rounded-lg px-4 py-2 shadow-lg text-sm">
+                <motion.div 
+                  className="absolute -top-6 -right-6 bg-card rounded-lg px-4 py-2 shadow-lg text-sm"
+                  animate={{ y: [0, 5, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
                   <div className="font-semibold text-accent">
                     7 days ahead of schedule
                   </div>
-                </div>
-                <div className="absolute -bottom-5 -left-5 bg-card rounded-lg px-4 py-2 shadow-lg text-sm">
-                  <div className="font-semibold text-success">
-                    85% completion rate
-                  </div>
-                </div>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Benefits List */}
           <div className="lg:w-1/2">
-            <h2
-              className="text-3xl md:text-4xl font-bold mb-4 opacity-0"
-              style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}
+            <motion.h2
+              className="text-3xl md:text-4xl font-bold mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
             >
               Transform How You Manage Your Time
-            </h2>
-            <p
-              className="text-lg text-foreground/70 mb-10 opacity-0"
-              style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
+            </motion.h2>
+            <motion.p
+              className="text-lg text-foreground/70 mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
               TimeForge helps you take control of your schedule and achieve your
               goals with less stress and more focus.
-            </p>
+            </motion.p>
 
             <div className="space-y-8">
               {benefits.map((benefit, index) => (
@@ -222,7 +169,7 @@ const BenefitsSection: React.FC = () => {
                   number={benefit.number}
                   title={benefit.title}
                   description={benefit.description}
-                  delay={0.3 + index * 0.1}
+                  index={index}
                 />
               ))}
             </div>

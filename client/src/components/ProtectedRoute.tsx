@@ -1,5 +1,5 @@
-import { Navigate } from 'react-router-dom';
-import { ReactNode } from 'react';
+import { Navigate, useLocation } from "react-router-dom";
+import { ReactNode } from "react";
 
 interface ProtectedRouteProps {
   isAuthenticated: boolean;
@@ -7,10 +7,14 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ isAuthenticated, children }: ProtectedRouteProps) => {
-  if (!isAuthenticated) {
+  const location = useLocation();
+  if (
+    !isAuthenticated &&
+    location.pathname !== "/login" &&
+    location.pathname !== "/"
+  ) {
     return <Navigate to="/login" replace />;
   }
-
   return <>{children}</>;
 };
 

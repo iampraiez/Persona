@@ -1,18 +1,8 @@
-import axios from "axios";
-import { API_URL } from "../config";
+import { api } from "../service/api.service";
+import { demoApi } from "../service/demo.service";
+import { useAuthStore } from "../store/auth.store";
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  startTime: string;
-  endTime: string;
-  isCompleted: boolean;
-  skippedReason: string | null;
-  skippedIsImportant: boolean;
-  isSpecial: boolean;
-  userId: string;
-}
+import { Event as Task } from "../types/index";
 
 const sendTaskNotifications = async (tasks: Task[]): Promise<void> => {
   const sentNotifications = JSON.parse(
@@ -20,8 +10,6 @@ const sendTaskNotifications = async (tasks: Task[]): Promise<void> => {
   ) as string[];
 
   const now = new Date();
-  const TEN_MINUTES_MS = 10 * 60 * 1000;
-  const ONE_MINUTE_MS = 60 * 1000;
 
   // Filter tasks for today to optimize
   const today = new Date(now);
@@ -32,47 +20,54 @@ const sendTaskNotifications = async (tasks: Task[]): Promise<void> => {
     const startTime = new Date(task.startTime);
     return startTime >= today && startTime < tomorrow;
   });
-  console.log("Sent notifcation", sentNotifications);
 
   for (const task of tasksToday) {
-    console.log("Looping through tasks", task);
     const startTime = new Date(task.startTime);
     const timeDiff = startTime.getTime() - now.getTime();
-    console.log("time diff err", timeDiff, startTime, now);
-
-    if (sentNotifications.includes(task.id)) {
-      console.log("Task already sent");
-
-      continue;
-    }
-    console.log("Getting here", timeDiff, TEN_MINUTES_MS, ONE_MINUTE_MS);
+    
+    // Use task's notifyBefore or default to 15
+    const notifyBeforeMins = (task as any).notifyBefore || 15;
+    const NOTIFY_BEFORE_MS = notifyBeforeMins * 60 * 1000;
+    const ONE_MINUTE_MS = 60 * 1000;
 
     let notificationType: "upcoming" | "now" | null = null;
-    if (
-      timeDiff <= TEN_MINUTES_MS &&
-      timeDiff > TEN_MINUTES_MS - ONE_MINUTE_MS
-    ) {
+    
+    // Check for "upcoming" notification
+    if (timeDiff <= NOTIFY_BEFORE_MS && timeDiff > NOTIFY_BEFORE_MS - ONE_MINUTE_MS) {
       notificationType = "upcoming";
-    } else if (timeDiff <= 0 && timeDiff > -ONE_MINUTE_MS) {
+    } 
+    // Check for "now" notification
+    else if (timeDiff <= 0 && timeDiff > -ONE_MINUTE_MS) {
       notificationType = "now";
     } 
 
-    console.log("Notification type", notificationType);
-
     if (notificationType) {
-      try {
-        const response = await axios.post(
-          `${API_URL}/api/notis/send-notification`,
-          {
-            title: task.title,
-            body: task?.description,
-            type: notificationType,
-            userId: task.userId,
-          }
-        );
-        console.log(`Notification sent for task ${task.id}:`, response.data);
+      // Unique key for this specific notification type for this task
+      const notifKey = `${task.id}_${notificationType}`;
+      
+      if (sentNotifications.includes(notifKey)) {
+        continue;
+      }
 
-        sentNotifications.push(task.id);
+      try {
+        const getApi = () => useAuthStore.getState().isDemo ? demoApi : api;
+        
+        const title = notificationType === "upcoming" 
+          ? `Upcoming: ${task.title}` 
+          : `Starting Now: ${task.title}`;
+        
+        const body = notificationType === "upcoming"
+          ? `Starts in ${notifyBeforeMins} minutes`
+          : task.description || "Your event is starting now";
+
+        await getApi().sendNotification({
+          title,
+          body,
+          type: notificationType,
+          userId: task.userId,
+        });
+
+        sentNotifications.push(notifKey);
         localStorage.setItem(
           "sentNotifications",
           JSON.stringify(sentNotifications)

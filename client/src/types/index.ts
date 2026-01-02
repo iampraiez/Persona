@@ -15,6 +15,7 @@ export interface Event {
   skippedReason?: string;
   skippedIsImportant: boolean;
   isSpecial: boolean;
+  notifyBefore: number;
   userId: string;
 }
 

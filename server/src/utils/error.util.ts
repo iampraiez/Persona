@@ -1,7 +1,8 @@
 import { type Express, type Request, type Response } from "express";
 import { logger } from "./logger.utils";
+import { env } from "../config/env";
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = env.data?.NODE_ENV === "development";
 
 export function errorHandler(app: Express) {
   app.use((err: Error, req: Request, res: Response, next: any) => {

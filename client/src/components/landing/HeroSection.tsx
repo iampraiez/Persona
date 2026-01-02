@@ -1,84 +1,129 @@
-import React, { useEffect, useRef } from "react";
-import { Calendar, Target, BarChart3, Clock } from "lucide-react";
+import React from "react";
+import { Calendar, Target, BarChart3, Users, Zap, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/auth.store";
+import { motion } from "framer-motion";
 
 const HeroSection: React.FC = () => {
-  const heroRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("fade-in");
-            entry.target.querySelectorAll(".opacity-0").forEach(el => el.classList.add("fade-in"));
-          }
-        });
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
       },
-      { threshold: 0.1 }
-    );
+    },
+  };
 
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
-
-    return () => {
-      if (heroRef.current) {
-        observer.unobserve(heroRef.current);
-      }
-    };
-  }, []);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  };
 
   return (
-    <div
-      className="pt-24 lg:pt-32 pb-16 lg:pb-24 overflow-hidden"
-      ref={heroRef}
-    >
+    <div className="pt-24 lg:pt-32 pb-16 lg:pb-24 overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-16">
           {/* Hero Text */}
-          <div
-            className="md:w-1/2 mb-12 md:mb-0 opacity-0 slide-up"
-            style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
+          <motion.div
+            className="md:w-1/2 mb-12 md:mb-0"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
           >
-            <div className="inline-block px-4 py-2 rounded-full bg-accent/10 text-accent font-medium text-sm mb-6">
+            <motion.div 
+              variants={itemVariants}
+              className="inline-block px-4 py-2 rounded-full bg-accent/10 text-accent font-medium text-sm mb-6"
+            >
               Powered by Gemini AI
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+            </motion.div>
+            <motion.h1 
+              variants={itemVariants}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+            >
               Master Your Time.
               <br />
               <span className="text-accent">Achieve Your Goals.</span>
-            </h1>
-            <p className="text-lg text-foreground/70 mb-8 max-w-lg">
+            </motion.h1>
+            <motion.p 
+              variants={itemVariants}
+              className="text-lg text-foreground/70 mb-8 max-w-lg"
+            >
               TimeForge combines AI-powered scheduling with goal tracking to
               help you optimize your time and achieve what matters most.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={() => navigate("/login")}
-                className="btn btn-primary"
-              >
-                Start Free Trial
-              </button>
-              <a href="#features" className="btn btn-secondary">
-                Explore Features
-              </a>
-            </div>
-          </div>
+            </motion.p>
+            <motion.div 
+              variants={itemVariants}
+              className="flex flex-col sm:flex-row gap-4 mb-12"
+            >
+              {useAuthStore((state) => state.isAuthenticated) ? (
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="btn btn-primary px-8 py-4 text-lg"
+                >
+                  Go to Dashboard
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="btn btn-primary px-8 py-4 text-lg"
+                  >
+                    Get Started
+                  </button>
+                  <button
+                    onClick={() => {
+                      useAuthStore.getState().loginDemo();
+                      navigate("/dashboard");
+                    }}
+                    className="btn btn-secondary px-8 py-4 text-lg"
+                  >
+                    Try Demo
+                  </button>
+                </>
+              )}
+            </motion.div>
+
+            {/* Stats/Social Proof */}
+            <motion.div 
+              variants={itemVariants}
+              className="flex items-center gap-8 border-t border-border pt-8"
+            >
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-accent" />
+                <span className="text-sm font-medium">10k+ Users</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-accent" />
+                <span className="text-sm font-medium">AI Powered</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-accent" />
+                <span className="text-sm font-medium">Secure</span>
+              </div>
+            </motion.div>
+          </motion.div>
 
           {/* Hero Image/Animation */}
-          <div
-            className="md:w-1/2 opacity-0"
-            style={{
-              animationDelay: "0.4s",
-              animationFillMode: "forwards",
-              animation: "fade-in 0.8s ease-in-out forwards",
-            }}
+          <motion.div
+            className="md:w-1/2"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
           >
             <div className="relative">
               <div className="bg-gradient-to-br from-accent/20 to-primary/20 rounded-2xl p-6 lg:p-8 shadow-xl">
-                <div className="bg-card rounded-xl shadow-lg p-6 animate-float">
+                <motion.div 
+                  className="bg-card rounded-xl shadow-lg p-6"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                >
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-semibold text-lg">
                       My Weekly Schedule
@@ -91,103 +136,55 @@ const HeroSection: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-8 gap-2 mb-4">
                     <div className="col-span-1"></div>
-                    <div className="col-span-1 text-center text-xs font-medium text-foreground/50">
-                      Mon
-                    </div>
-                    <div className="col-span-1 text-center text-xs font-medium text-foreground/50">
-                      Tue
-                    </div>
-                    <div className="col-span-1 text-center text-xs font-medium text-foreground/50">
-                      Wed
-                    </div>
-                    <div className="col-span-1 text-center text-xs font-medium text-foreground/50">
-                      Thu
-                    </div>
-                    <div className="col-span-1 text-center text-xs font-medium text-foreground/50">
-                      Fri
-                    </div>
-                    <div className="col-span-1 text-center text-xs font-medium text-foreground/50">
-                      Sat
-                    </div>
-                    <div className="col-span-1 text-center text-xs font-medium text-foreground/50">
-                      Sun
-                    </div>
+                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => (
+                      <div key={day} className="col-span-1 text-center text-xs font-medium text-foreground/50">
+                        {day}
+                      </div>
+                    ))}
                   </div>
                   <div className="space-y-2">
                     <div className="grid grid-cols-8 gap-2 items-center">
-                      <div className="col-span-1 text-xs text-foreground/50">
-                        9am
-                      </div>
-                      <div className="col-span-2 bg-accent/20 text-accent p-1 text-xs rounded">
-                        Work
-                      </div>
-                      <div className="col-span-2 bg-accent/20 text-accent p-1 text-xs rounded">
-                        Work
-                      </div>
-                      <div className="col-span-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 p-1 text-xs rounded">
-                        Gym
-                      </div>
-                      <div className="col-span-2 bg-accent/20 text-accent p-1 text-xs rounded">
-                        Work
-                      </div>
+                      <div className="col-span-1 text-xs text-foreground/50">9am</div>
+                      <div className="col-span-2 bg-accent/20 text-accent p-1 text-xs rounded">Work</div>
+                      <div className="col-span-2 bg-accent/20 text-accent p-1 text-xs rounded">Work</div>
+                      <div className="col-span-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 p-1 text-xs rounded">Gym</div>
+                      <div className="col-span-2 bg-accent/20 text-accent p-1 text-xs rounded">Work</div>
                     </div>
                     <div className="grid grid-cols-8 gap-2 items-center">
-                      <div className="col-span-1 text-xs text-foreground/50">
-                        12pm
-                      </div>
-                      <div className="col-span-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 p-1 text-xs rounded">
-                        Lunch
-                      </div>
-                      <div className="col-span-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 p-1 text-xs rounded">
-                        Lunch
-                      </div>
-                      <div className="col-span-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 p-1 text-xs rounded">
-                        Lunch
-                      </div>
-                      <div className="col-span-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 p-1 text-xs rounded">
-                        Lunch
-                      </div>
-                      <div className="col-span-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 p-1 text-xs rounded">
-                        Lunch
-                      </div>
-                      <div className="col-span-2 bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300 p-1 text-xs rounded">
-                        Hike
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-8 gap-2 items-center">
-                      <div className="col-span-1 text-xs text-foreground/50">
-                        3pm
-                      </div>
-                      <div className="col-span-2 bg-accent/20 text-accent p-1 text-xs rounded">
-                        Work
-                      </div>
-                      <div className="col-span-2 bg-accent/20 text-accent p-1 text-xs rounded">
-                        Work
-                      </div>
-                      <div className="col-span-1 bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 p-1 text-xs rounded">
-                        Call
-                      </div>
-                      <div className="col-span-3"></div>
+                      <div className="col-span-1 text-xs text-foreground/50">12pm</div>
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="col-span-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 p-1 text-xs rounded">Lunch</div>
+                      ))}
+                      <div className="col-span-2 bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300 p-1 text-xs rounded">Hike</div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Floating Elements */}
-                <div className="absolute -top-6 -right-6 bg-card rounded-full p-4 shadow-lg">
+                <motion.div 
+                  className="absolute -top-6 -right-6 bg-card rounded-full p-4 shadow-lg"
+                  animate={{ y: [0, 10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
                   <Calendar size={24} className="text-accent" />
-                </div>
-                <div className="absolute -bottom-4 -left-4 bg-card rounded-full p-3 shadow-lg">
+                </motion.div>
+                <motion.div 
+                  className="absolute -bottom-4 -left-4 bg-card rounded-full p-3 shadow-lg"
+                  animate={{ y: [0, -15, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                >
                   <Target size={20} className="text-success" />
-                </div>
-                <div className="absolute top-1/2 -right-3 transform -translate-y-1/2 bg-card rounded-full p-3 shadow-lg">
+                </motion.div>
+                <motion.div 
+                  className="absolute top-1/2 -right-3 transform -translate-y-1/2 bg-card rounded-full p-3 shadow-lg"
+                  animate={{ x: [0, 10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                >
                   <BarChart3 size={20} className="text-sky-500" />
-                </div>
-                <div className="absolute bottom-1/4 -left-5 bg-card rounded-full p-2 shadow-lg">
-                  <Clock size={16} className="text-warning" />
-                </div>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

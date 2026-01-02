@@ -15,9 +15,21 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
+  refreshToken          String?   @unique
+  refreshTokenExpiresAt DateTime?
+
   events    Event[]
   goals     Goal[]
-  notifications Notification[] // Relation to Notification model
+  notifications Notification[] 
+
+  aiCredits         Int       @default(3)
+  lastAiReset       DateTime  @default(now())
+  cachedInsights    Json?
+  lastInsightsDate  DateTime?
+  deleteAccountCode String?
+  deleteAccountCodeExpiry DateTime?
+  notificationsEnabled Boolean @default(true)
+  defaultNotifyBefore Int @default(15) // Minutes before event to notify
 }
 
 model Event {
@@ -30,6 +42,7 @@ model Event {
   skippedReason       String?
   skippedIsImportant  Boolean   @default(false)
   isSpecial           Boolean   @default(false)
+  notifyBefore        Int       @default(15) // Minutes before event to notify
   userId              String
   user                User      @relation(fields: [userId], references: [id])
 }
@@ -52,6 +65,7 @@ model Step {
   description String?
   dueDate     DateTime
   isCompleted Boolean   @default(false)
+  completedAt DateTime?
   goalId      String
   goal        Goal      @relation(fields: [goalId], references: [id])
 }
@@ -70,6 +84,7 @@ model Notification {
   userId    String
   title     String
   body      String
+  isRead    Boolean  @default(false)
   timestamp DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 }

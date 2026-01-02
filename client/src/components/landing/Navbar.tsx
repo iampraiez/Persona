@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useThemeStore } from "../../store/theme.store";
+import { useAuthStore } from "../../store/auth.store";
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useThemeStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -89,12 +91,21 @@ const Navbar: React.FC = () => {
           >
             {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <button
-            className="btn btn-accent"
-            onClick={() => navigate("/login")}
-          >
-            Get Started
-          </button>
+          {isAuthenticated ? (
+            <button
+              className="btn btn-accent"
+              onClick={() => navigate("/dashboard")}
+            >
+              Go to Dashboard
+            </button>
+          ) : (
+            <button
+              className="btn btn-accent"
+              onClick={() => navigate("/login")}
+            >
+              Get Started
+            </button>
+          )}
         </div>
 
         <div className="flex items-center md:hidden">
@@ -132,13 +143,27 @@ const Navbar: React.FC = () => {
             >
               Benefits
             </a>
-            <a
-              href="/login"
-              className="btn btn-accent w-full"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Get Started
-            </a>
+            {isAuthenticated ? (
+              <button
+                className="btn btn-accent w-full"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate("/dashboard");
+                }}
+              >
+                Go to Dashboard
+              </button>
+            ) : (
+              <button
+                className="btn btn-accent w-full"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate("/login");
+                }}
+              >
+                Get Started
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -1,13 +1,6 @@
-import { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { QueryClient, QueryClientProvider } from "react-query";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Timetable from "./pages/Timetable";
@@ -15,85 +8,74 @@ import Goals from "./pages/Goals";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import LandingPage from "./pages/LandingPage";
+import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
-
-import { useAuthStore } from "./store/auth.store.";
+import { useAuthStore } from "./store/auth.store";
 import { useThemeStore } from "./store/theme.store";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
+import Loader from "./components/Loader";
+import { useUser } from "./hooks/useUser";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
-  const { isAuthenticated, checkAuth } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { theme, initTheme } = useThemeStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: user, isLoading: isUserLoading } = useUser();
 
   useEffect(() => {
-    const initialize = async () => {
-      await checkAuth();
-      initTheme();
-      setIsLoading(false);
-    };
+    initTheme();
+  }, [initTheme]);
 
-    initialize();
-  }, [checkAuth, initTheme]);
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // 1. Run client-side notification checker
+      import("./store/notis.store").then((m) => {
+        const runDailyNotifications = m.default;
+        runDailyNotifications(user.events);
+      });
+      // 2. Automate push subscription if permission is already granted
+      if ("Notification" in window && Notification.permission === "granted") {
+        import("./utils/push.util").then((m) => m.subscribeUser());
+      }
+    }
+  }, [isAuthenticated, user]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-background">
-        <div className="animate-pulse flex space-x-2">
-          <div className="w-3 h-3 bg-accent rounded-full"></div>
-          <div className="w-3 h-3 bg-accent rounded-full"></div>
-          <div className="w-3 h-3 bg-accent rounded-full"></div>
-        </div>
-      </div>
-    );
-  }
+  if (isUserLoading) return <Loader />;
 
   return (
     <div className={theme}>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/auths/"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="timetable" element={<Timetable />} />
-              <Route path="goals" element={<Goals />} />
-              <Route path="analytics" element={<Analytics />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-        <ToastContainer
-          position="bottom-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme={theme === "dark" ? "dark" : "light"}
-        />
-      </QueryClientProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="timetable" element={<Timetable />} />
+            <Route path="goals" element={<Goals />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme={theme === "dark" ? "dark" : "light"}
+      />
     </div>
   );
 }

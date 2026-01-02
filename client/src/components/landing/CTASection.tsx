@@ -1,73 +1,88 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/auth.store";
+import { motion } from "framer-motion";
 
 const CTASection: React.FC = () => {
-  const ctaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("fade-in");
-            entry.target.querySelectorAll(".opacity-0").forEach((el) =>
-              el.classList.add("fade-in")
-            );
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (ctaRef.current) {
-      observer.observe(ctaRef.current);
-    }
-
-    return () => {
-      if (ctaRef.current) {
-        observer.unobserve(ctaRef.current);
-      }
-    };
-  }, []);
+  const navigate = useNavigate();
 
   return (
-    <section id="signup" className="py-24" ref={ctaRef}>
+    <section id="signup" className="py-24">
       <div className="container mx-auto px-6">
-        <div className="bg-gradient-to-r from-accent to-accent/80 rounded-3xl p-8 md:p-12 shadow-xl text-accent-foreground text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="bg-gradient-to-r from-accent to-accent/80 rounded-3xl p-8 md:p-12 shadow-xl text-accent-foreground text-center"
+        >
           <div className="max-w-3xl mx-auto">
-            <h2
-              className="text-3xl md:text-4xl font-bold mb-4 opacity-0"
-              style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}
+            <motion.h2
+              className="text-3xl md:text-4xl font-bold mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
               Ready to Transform Your Productivity?
-            </h2>
-            <p
-              className="text-lg md:text-xl opacity-90 mb-8 opacity-0"
-              style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
+            </motion.h2>
+            <motion.p
+              className="text-lg md:text-xl opacity-90 mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
               Join thousands of users who have already optimized their time and
               achieved their goals with TimeForge.
-            </p>
+            </motion.p>
 
-            <div
-              className="flex flex-col sm:flex-row justify-center gap-4 opacity-0"
-              style={{ animationDelay: "0.3s", animationFillMode: "forwards" }}
+            <motion.div
+              className="flex flex-col sm:flex-row justify-center gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <button className="btn btn-secondary !bg-background !text-foreground">
-                Start 14-Day Free Trial
-              </button>
-              <button className="btn border border-accent-foreground text-accent-foreground hover:bg-accent-foreground/10">
-                Request Demo
-              </button>
-            </div>
+              {useAuthStore((state) => state.isAuthenticated) ? (
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="btn btn-secondary !bg-background !text-foreground px-8 py-4 text-lg"
+                >
+                  Go to Dashboard
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="btn btn-secondary !bg-background !text-foreground px-8 py-4 text-lg"
+                  >
+                    Get Started Now
+                  </button>
+                  <button
+                    onClick={() => {
+                      useAuthStore.getState().loginDemo();
+                      navigate("/dashboard");
+                    }}
+                    className="btn border border-accent-foreground text-accent-foreground hover:bg-accent-foreground/10 px-8 py-4 text-lg"
+                  >
+                    Try Demo
+                  </button>
+                </>
+              )}
+            </motion.div>
 
-            <p
-              className="mt-6 text-sm opacity-80 opacity-0"
-              style={{ animationDelay: "0.4s", animationFillMode: "forwards" }}
+            <motion.p
+              className="mt-6 text-sm opacity-80"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.4 }}
             >
-              No credit card required. Cancel anytime.
-            </p>
+              Free forever for individuals.
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

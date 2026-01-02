@@ -1,76 +1,48 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useAuthStore } from "../store/auth.store.";
-import { API_URL } from "../config";
 import { motion } from "framer-motion";
+import { api } from "../service/api.service";
+import { useAuthStore } from "../store/auth.store";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, login } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuthStore();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/auths/");
+      navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get("success");
+    const errorParam = params.get("error");
+
+    if (success === "true") {
+      setIsLoading(true);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    } else if (errorParam) {
+      setError("Authentication failed. Please try again.");
+    }
+  }, [queryClient]);
+
   const handleGoogleLogin = async () => {
-    // Redirect to Google OAuth
     try {
-      const response = await axios.get(`${API_URL}/auth/google`);
-      window.location.href = response.data.url;
+      await api.handleGoogleLogin();
     } catch (error) {
       console.error("Google Auth error:", error);
-      setError("Google authentication failed. Please try again.");
+      setError("Google Auth error");
     }
   };
 
-  // Handle OAuth callback
-  useEffect(() => {
-    const handleOAuthCallback = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
-      // console.log(token, "token");
-
-      if (token) {
-        try {
-          setIsLoading(true);
-          await login(token);
-          navigate("/auths/");
-        } catch (err) {
-          console.error("Login error:", err);
-          setError("Authentication failed");
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    handleOAuthCallback();
-  }, [login, navigate]);
-
-  // For development/demo purposes without OAuth setup
-  const handleDemoLogin = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Simulate API call
-      // const { data } = await axios.post(`${API_URL}/auth/demo-login`);
-
-      // if (data.token) {
-      //   await login(data.token);
-      //   navigate("/");
-      // }
-    } catch (err) {
-      console.error("Demo login error:", err);
-      setError("Demo login failed");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleDemoLogin = () => {
+    useAuthStore.getState().loginDemo();
+    navigate("/dashboard");
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import {
   Calendar,
   Target,
@@ -9,88 +9,40 @@ import {
   Brain,
   Check,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface FeatureCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
-  delay: number;
+  index: number;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
   icon,
   title,
   description,
-  delay,
+  index,
 }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("fade-in");
-            entry.target.classList.add("slide-up");
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
-
-    return () => {
-      if (cardRef.current) {
-        observer.unobserve(cardRef.current);
-      }
-    };
-  }, []);
-
   return (
-    <div
-      className="feature-card opacity-0"
-      ref={cardRef}
-      style={{ animationDelay: `${delay}s`, animationFillMode: "forwards" }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      whileHover={{ y: -5, scale: 1.02 }}
+      className="feature-card bg-card p-6 rounded-2xl border border-border shadow-sm hover:shadow-md transition-all"
     >
-      <div className="feature-icon">{icon}</div>
+      <div className="feature-icon w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4">
+        {icon}
+      </div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
       <p className="text-foreground/70">{description}</p>
-    </div>
+    </motion.div>
   );
 };
 
 const FeaturesSection: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("fade-in");
-            entry.target.querySelectorAll(".opacity-0").forEach((el) =>
-              el.classList.add("fade-in")
-            );
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
   const features = [
     {
       icon: <Calendar />,
@@ -143,25 +95,21 @@ const FeaturesSection: React.FC = () => {
   ];
 
   return (
-    <section
-      id="features"
-      className="py-24 bg-background"
-      ref={sectionRef}
-    >
+    <section id="features" className="py-24 bg-background">
       <div className="container mx-auto px-6">
-        <h2
-          className="section-title opacity-0"
-          style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-16"
         >
-          Powerful Features
-        </h2>
-        <p
-          className="section-subtitle opacity-0"
-          style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
-        >
-          TimeForge combines intelligent scheduling with goal tracking to help
-          you make the most of your time.
-        </p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Powerful Features</h2>
+          <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
+            TimeForge combines intelligent scheduling with goal tracking to help
+            you make the most of your time.
+          </p>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {features.map((feature, index) => (
@@ -170,7 +118,7 @@ const FeaturesSection: React.FC = () => {
               icon={feature.icon}
               title={feature.title}
               description={feature.description}
-              delay={0.1 + index * 0.1}
+              index={index}
             />
           ))}
         </div>

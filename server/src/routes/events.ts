@@ -1,69 +1,79 @@
-import * as express from "express";
-import { authenticate } from "../middleware/auth";
-import { prisma } from "../index";
-import { generateEventSuggestions } from "../services/aiService";
+import { Router, type Request, type Response } from "express";
+import { prisma } from "../lib/prisma";
+import { logger } from "../utils/logger.utils";
+import { errorWrapper } from "../utils/error.util";
 
-const router = express.Router();
+const router = Router();
 
-// Get all events for the user
-router.get("/", authenticate, async (req, res) => {
+router.get("/", async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
     const events = await prisma.event.findMany({
-      where: { userId: req.user!.id },
+      where: { userId: user.id },
       orderBy: { startTime: "asc" },
     });
-    res.json(events);
-  } catch (error) {
-    console.error("Get Events Error:", error);
-    res.status(500).json({ message: "Failed to get events" });
+    res.status(200).json({ data: events, error: null });
+  } catch (error: unknown) {
+    logger.error(`Get Events Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to get events"),
+    });
   }
 });
 
-router.get("/upcoming", authenticate, async (req, res) => {
+router.get("/upcoming", async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
     const now = new Date();
-    // const endOfDay = new Date(
-    //   Date.UTC(
-    //     now.getUTCFullYear(),
-    //     now.getUTCMonth(),
-    //     now.getUTCDate(),
-    //     23,
-    //     59,
-    //     59,
-    //     999
-    //   )
-    // );
     const next24Hours = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const events = await prisma.event.findMany({
       where: {
-        userId: req.user!.id,
+        userId: user.id,
         startTime: {
           gte: now,
           lte: next24Hours,
         },
       },
       orderBy: { startTime: "asc" },
-      take: 8, // Limit to 5 upcoming events
+      take: 8,
     });
 
-    res.json(events);
-  } catch (error) {
-    console.error("Get Upcoming Events Error:", error);
-    res.status(500).json({ message: "Failed to get upcoming events" });
+    res.status(200).json({ data: events, error: null });
+  } catch (error: unknown) {
+    logger.error(`Get Upcoming Events Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to get upcoming events"),
+    });
   }
 });
 
-// Get events for a specific date/week
-router.get("/date", authenticate, async (req, res) => {
+router.get("/date", async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
     const { date, view } = req.query;
     const dateObj = date ? new Date(date as string) : new Date();
 
     let startDate: Date;
     let endDate: Date;
 
-    // For week view
     if (view === "week") {
       const day = dateObj.getDay();
       startDate = new Date(dateObj);
@@ -73,9 +83,7 @@ router.get("/date", authenticate, async (req, res) => {
       endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + 7);
       endDate.setHours(23, 59, 59, 999);
-    }
-    // For day view (default)
-    else {
+    } else {
       startDate = new Date(dateObj);
       startDate.setHours(0, 0, 0, 0);
 
@@ -85,7 +93,7 @@ router.get("/date", authenticate, async (req, res) => {
 
     const events = await prisma.event.findMany({
       where: {
-        userId: req.user!.id,
+        userId: user.id,
         startTime: {
           gte: startDate,
           lt: endDate,
@@ -94,17 +102,25 @@ router.get("/date", authenticate, async (req, res) => {
       orderBy: { startTime: "asc" },
     });
 
-    res.json(events);
-  } catch (error) {
-    console.error("Get Events by Date Error:", error);
-    res.status(500).json({ message: "Failed to get events" });
+    res.status(200).json({ data: events, error: null });
+  } catch (error: unknown) {
+    logger.error(`Get Events by Date Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to get events"),
+    });
   }
 });
 
-// Create a new event
-router.post("/", authenticate, async (req, res) => {
+router.post("/", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, description, startTime, endTime } = req.body;
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
+    const { title, description, startTime, endTime, notifyBefore } = req.body;
 
     const newEvent = await prisma.event.create({
       data: {
@@ -112,44 +128,50 @@ router.post("/", authenticate, async (req, res) => {
         description,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        userId: req.user!.id,
+        notifyBefore: notifyBefore !== undefined ? parseInt(notifyBefore) : user.defaultNotifyBefore,
+        userId: user.id,
       },
     });
 
-    // Generate AI suggestions based on new event (optional)
-    try {
-      const suggestions = await generateEventSuggestions([newEvent]);
-      if (suggestions) {
-        // Store or return suggestions
-      }
-    } catch (aiError) {
-      console.error("AI Suggestion Error:", aiError);
-      // Continue without AI suggestions
-    }
-
-    res.status(201).json(newEvent);
-  } catch (error) {
-    console.error("Create Event Error:", error);
-    res.status(500).json({ message: "Failed to create event" });
+    res.status(201).json({ data: newEvent, error: null });
+  } catch (error: unknown) {
+    logger.error(`Create Event Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to create event"),
+    });
   }
 });
 
-// Update an event
-router.put("/:id", authenticate, async (req, res) => {
+router.put("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
-    const { title, description, startTime, endTime, isCompleted } = req.body;
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
 
-    // Check if event belongs to user
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      startTime,
+      endTime,
+      isCompleted,
+      skippedIsImportant,
+      skippedReason,
+    } = req.body;
+
     const event = await prisma.event.findFirst({
       where: {
         id,
-        userId: req.user!.id,
+        userId: user.id,
       },
     });
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      res.status(404).json({ error: "Event not found", data: null });
+      return;
     }
 
     const updatedEvent = await prisma.event.update({
@@ -160,32 +182,42 @@ router.put("/:id", authenticate, async (req, res) => {
         startTime: startTime ? new Date(startTime) : undefined,
         endTime: endTime ? new Date(endTime) : undefined,
         isCompleted,
+        skippedIsImportant,
+        skippedReason,
       },
     });
 
-    res.json(updatedEvent);
-  } catch (error) {
-    console.error("Update Event Error:", error);
-    res.status(500).json({ message: "Failed to update event" });
+    res.status(200).json({ data: updatedEvent, error: null });
+  } catch (error: unknown) {
+    logger.error(`Update Event Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to update event"),
+    });
   }
 });
 
-// Mark event as skipped
-router.put("/:id/skip", authenticate, async (req, res) => {
+router.put("/:id/skip", async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
     const { id } = req.params;
     const { skippedReason, skippedIsImportant } = req.body;
 
-    // Check if event belongs to user
     const event = await prisma.event.findFirst({
       where: {
         id,
-        userId: req.user!.id,
+        userId: user.id,
       },
     });
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      res.status(404).json({ error: "Event not found", data: null });
+      return;
     }
 
     const updatedEvent = await prisma.event.update({
@@ -198,38 +230,49 @@ router.put("/:id/skip", authenticate, async (req, res) => {
       },
     });
 
-    res.json(updatedEvent);
-  } catch (error) {
-    console.error("Skip Event Error:", error);
-    res.status(500).json({ message: "Failed to skip event" });
+    res.status(200).json({ data: updatedEvent, error: null });
+  } catch (error: unknown) {
+    logger.error(`Skip Event Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to skip event"),
+    });
   }
 });
 
-// Delete an event
-router.delete("/:id", authenticate, async (req, res) => {
+router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
     const { id } = req.params;
 
-    // Check if event belongs to user
     const event = await prisma.event.findFirst({
       where: {
         id,
-        userId: req.user!.id,
+        userId: user.id,
       },
     });
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      res.status(404).json({ error: "Event not found", data: null });
+      return;
     }
 
     await prisma.event.delete({
       where: { id },
     });
 
-    res.json({ message: "Event deleted successfully" });
-  } catch (error) {
-    console.error("Delete Event Error:", error);
-    res.status(500).json({ message: "Failed to delete event" });
+    res.status(200).json({ data: "Event deleted successfully", error: null });
+  } catch (error: unknown) {
+    logger.error(`Delete Event Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to delete event"),
+    });
   }
 });
 

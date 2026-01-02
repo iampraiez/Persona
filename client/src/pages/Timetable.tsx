@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import {
   Calendar,
@@ -8,102 +8,42 @@ import {
   CheckCircle,
   XCircle,
   Circle,
+  Copy,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Event } from "../types";
-import axios from "axios";
-
-const BACKURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-// const mockEvents: Event[] = [
-//   {
-//     id: "1",
-//     title: "Team Standup",
-//     description: "Daily team standup meeting",
-//     startTime: createEventTime(today, 10, 0),
-//     endTime: createEventTime(today, 10, 30),
-//     isCompleted: false,
-//     skippedIsImportant: false,
-//     isSpecial: false,
-//     userId: "1",
-//   },
-//   {
-//     id: "2",
-//     title: "Design Review",
-//     description: "Review new product designs with stakeholders",
-//     startTime: createEventTime(today, 13, 0),
-//     endTime: createEventTime(today, 14, 0),
-//     isCompleted: false,
-//     skippedIsImportant: false,
-//     isSpecial: false,
-//     userId: "1",
-//   },
-//   {
-//     id: "3",
-//     title: "Workout Session",
-//     description: "Gym time - focus on cardio",
-//     startTime: createEventTime(today, 18, 0),
-//     endTime: createEventTime(today, 19, 0),
-//     isCompleted: false,
-//     skippedIsImportant: false,
-//     isSpecial: false,
-//     userId: "1",
-//   },
-//   {
-//     id: "4",
-//     title: "Project Planning",
-//     description: "Quarterly project planning session",
-//     startTime: createEventTime(tomorrow, 9, 0),
-//     endTime: createEventTime(tomorrow, 11, 0),
-//     isCompleted: false,
-//     skippedIsImportant: false,
-//     isSpecial: false,
-//     userId: "1",
-//   },
-//   {
-//     id: "5",
-//     title: "Client Meeting",
-//     description: "Discuss project requirements with client",
-//     startTime: createEventTime(tomorrow, 14, 0),
-//     endTime: createEventTime(tomorrow, 15, 30),
-//     isCompleted: false,
-//     skippedIsImportant: false,
-//     isSpecial: false,
-//     userId: "1",
-//   },
-// ];
+import { useEvents } from "../hooks/useEvents";
+import { toast } from "react-toastify";
+import { Loader2 } from "lucide-react";
+import { useUser } from "../hooks/useUser";
 
 const Timetable = () => {
+  const {
+    events,
+    createEvent,
+    updateEvent,
+    deleteEvent,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useEvents();
+  const { data: user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [events, setEvents] = useState<Event[]>();
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",
     startTime: "",
     endTime: "",
+    notifyBefore: user?.defaultNotifyBefore || 15,
   });
-  const [showNewEventModal, setShowNewEventModal] = useState(false);
-  const [showEventDetailsModal, setShowEventDetailsModal] = useState(false);
+  const [showNewEventModal, setShowNewEventModal] = useState<boolean>(false);
+  const [showEventDetailsModal, setShowEventDetailsModal] =
+    useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [skipps, setSkipps] = useState("");
-  const [show, setShow] = useState(false);
-  const [important, setImportant] = useState(false);
-
-  useEffect(() => {
-    async function getEvents() {
-      const eve = await axios.get(`${BACKURL}/api/events`);
-      // console.log(eve.data);
-
-      setEvents(eve.data);
-    }
-    getEvents();
-  }, [
-    setNewEvent,
-    handleDeleteEvent,
-    handleMarkAsCompleted,
-    handleResetStatus,
-    handleSkipEvent,
-  ]);
+  const [skipps, setSkipps] = useState<string>("");
+  const [show, setShow] = useState<boolean>(false);
+  const [important, setImportant] = useState<boolean>(false);
 
   const startOfCurrentWeek = startOfWeek(selectedDate, { weekStartsOn: 0 });
   const weekDays = [...Array(7)].map((_, i) => addDays(startOfCurrentWeek, i));
@@ -117,63 +57,138 @@ const Timetable = () => {
     setShowEventDetailsModal(true);
   };
 
-  async function handleNewEvent(e: any) {
+  async function handleNewEvent(e: React.FormEvent) {
     e.preventDefault();
     if (!newEvent.title || !newEvent.startTime || !newEvent.endTime) {
-      alert("Please fill out all fields");
+      toast.error("Please fill out all fields");
       return;
     }
-    setShowNewEventModal(false);
 
-    await axios.post(`${BACKURL}/api/events`, newEvent);
-    setNewEvent({
-      title: "",
-      description: "",
-      startTime: "",
-      endTime: "",
+    createEvent(newEvent, {
+      onSuccess: () => {
+        setShowNewEventModal(false);
+        setNewEvent({
+          title: "",
+          description: "",
+          startTime: "",
+          endTime: "",
+          notifyBefore: user?.defaultNotifyBefore || 15,
+        });
+        toast.success("Event created successfully");
+      },
+      onError: () => {
+        toast.error("Failed to create event");
+      },
     });
   }
 
   async function handleMarkAsCompleted() {
-    //loading icon here
     if (!selectedEvent) return;
-    await axios.put(`${BACKURL}/api/events/${selectedEvent.id}`, {
-      isCompleted: true,
-    });
-    setShowEventDetailsModal(false);
-    setSelectedEvent(null);
-  }
+    updateEvent(
+      {
+        id: selectedEvent.id,
+        event: { isCompleted: true },
+      },
+      {
+        onSuccess: () => {
+          setShowEventDetailsModal(false);
+          setSelectedEvent(null);
+          toast.success("Event marked as completed");
+        },
+        onError: () => {
+          toast.error("Failed to mark event as completed");
+        },
+      }
+    );
+  } 
 
   async function handleSkipEvent() {
-    //loading icon here
     setShow(false);
     if (!selectedEvent) return;
-    await axios.put(`${BACKURL}/api/events/${selectedEvent.id}/skip`, {
-      skippedIsImportant: important,
-      skippedReason: skipps,
-    });
-    setShowEventDetailsModal(false);
-    setSkipps("");
+
+    updateEvent(
+      {
+        id: selectedEvent.id,
+        event: {
+          skippedIsImportant: important,
+          skippedReason: skipps,
+          isCompleted: false,
+        },
+      },
+      {
+        onSuccess: () => {
+          setShowEventDetailsModal(false);
+          setSkipps("");
+          setSelectedEvent(null);
+          toast.success("Event skipped");
+        },
+        onError: () => {
+          toast.error("Failed to skip event");
+        },
+      }
+    );
   }
 
   async function handleResetStatus() {
-    //loading icon here
     if (!selectedEvent) return;
-    await axios.put(`${BACKURL}/api/events/${selectedEvent.id}/skip`, {
-      isCompleted: false,
-      skippedIsImportant: false,
-      skippedReason: null,
-    });
-    setShowEventDetailsModal(false);
+
+    updateEvent(
+      {
+        id: selectedEvent.id,
+        event: {
+          isCompleted: false,
+          skippedIsImportant: false,
+          skippedReason: "",
+        },
+      },
+      {
+        onSuccess: () => {
+          setShowEventDetailsModal(false);
+          toast.success("Event status reset");
+        },
+        onError: () => {
+          toast.error("Failed to reset event status");
+        },
+      }
+    );
   }
 
   async function handleDeleteEvent() {
-    //loading icon here
     if (!selectedEvent) return;
-    await axios.delete(`${BACKURL}/api/events/${selectedEvent.id}`);
-    setShowEventDetailsModal(false);
+
+    deleteEvent(selectedEvent.id, {
+      onSuccess: () => {
+        setShowEventDetailsModal(false);
+        setSelectedEvent(null);
+        toast.success("Event deleted");
+      },
+      onError: () => {
+        toast.error("Failed to delete event");
+      },
+    });
   }
+
+  const handleDuplicateEvent = () => {
+    if (!selectedEvent) return;
+    setNewEvent({
+      title: `${selectedEvent.title} (Copy)`,
+      description: selectedEvent.description || "",
+      startTime: format(new Date(selectedEvent.startTime), "yyyy-MM-dd'T'HH:mm"),
+      endTime: format(new Date(selectedEvent.endTime), "yyyy-MM-dd'T'HH:mm"),
+      notifyBefore: selectedEvent.notifyBefore,
+    });
+    setShowEventDetailsModal(false);
+    setShowNewEventModal(true);
+  };
   //Page begins
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -265,7 +280,14 @@ const Timetable = () => {
                       >
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="font-medium">{event.title}</h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-medium">{event.title}</h3>
+                              {event.isSpecial && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/20 text-accent font-medium uppercase tracking-wider">
+                                  Special
+                                </span>
+                              )}
+                            </div>
                             <div className="flex items-center text-xs text-foreground/70 mt-1">
                               <Clock className="h-3 w-3 mr-1" />
                               {format(
@@ -290,7 +312,7 @@ const Timetable = () => {
                   ) : (
                     <div className="h-full flex items-center justify-center">
                       <div
-                        className="w-full h-[1px] bg-border/50"
+                        className="w-full h-[1px] bg-border/50 cursor-pointer hover:bg-accent/30 transition-colors"
                         onClick={() => setShowNewEventModal(true)}
                       ></div>
                     </div>
@@ -299,6 +321,24 @@ const Timetable = () => {
               </div>
             );
           })}
+          {(!eventsForSelectedDate || eventsForSelectedDate.length === 0) && (
+            <div className="mt-8 p-8 text-center bg-secondary/30 rounded-lg border border-dashed border-border">
+              <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-20" />
+              <h3 className="text-lg font-medium text-foreground/70">
+                No events scheduled
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                You have a clear schedule for{" "}
+                {format(selectedDate, "EEEE, MMMM d")}.
+              </p>
+              <button
+                onClick={() => setShowNewEventModal(true)}
+                className="mt-4 text-sm bg-accent/10 text-accent px-4 py-2 rounded-md hover:bg-accent/20 transition-colors"
+              >
+                Add an event
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -378,6 +418,25 @@ const Timetable = () => {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Notify Before (minutes)
+                </label>
+                <input
+                  type="number"
+                  className="input w-full"
+                  placeholder="15"
+                  min="0"
+                  value={newEvent.notifyBefore}
+                  onChange={(e) =>
+                    setNewEvent({
+                      ...newEvent,
+                      notifyBefore: parseInt(e.target.value) || 0,
+                    })
+                  }
+                />
+              </div>
+
               <div className="flex justify-end space-x-2 pt-4">
                 <button
                   type="button"
@@ -388,10 +447,15 @@ const Timetable = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-accent"
+                  className="btn btn-accent disabled:opacity-50"
+                  disabled={isCreating}
                   onClick={(e) => handleNewEvent(e)}
                 >
-                  Create Event
+                  {isCreating ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    "Create Event"
+                  )}
                 </button>
               </div>
             </form>
@@ -444,13 +508,15 @@ const Timetable = () => {
                   <>
                     <button
                       onClick={handleMarkAsCompleted}
-                      className="flex-1 btn bg-success/20 text-success hover:bg-success/30"
+                      disabled={isUpdating}
+                      className="flex-1 btn bg-success/20 text-success hover:bg-success/30 disabled:opacity-50"
                     >
-                      Mark as Completed
+                      {isUpdating ? "Updating..." : "Mark as Completed"}
                     </button>
                     <button
                       onClick={() => setShow(true)}
-                      className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30"
+                      disabled={isUpdating}
+                      className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30 disabled:opacity-50"
                     >
                       Skip Event
                     </button>
@@ -458,9 +524,10 @@ const Timetable = () => {
                 ) : (
                   <button
                     onClick={handleResetStatus}
-                    className="flex-1 btn bg-secondary hover:bg-secondary/90"
+                    disabled={isUpdating}
+                    className="flex-1 btn bg-secondary hover:bg-secondary/90 disabled:opacity-50"
                   >
-                    Reset Status
+                    {isUpdating ? "Resetting..." : "Reset Status"}
                   </button>
                 )}
               </div>
@@ -469,7 +536,7 @@ const Timetable = () => {
                   {" "}
                   <textarea
                     className="input w-full h-24"
-                    placeholder="Reason for skipping"
+                    placeholder="Reason for skipping (optional)"
                     value={skipps}
                     onChange={(e) => setSkipps(e.target.value)}
                   ></textarea>
@@ -493,9 +560,10 @@ const Timetable = () => {
                   </div>
                   <button
                     onClick={handleSkipEvent}
-                    className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30"
+                    disabled={isUpdating}
+                    className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30 disabled:opacity-50"
                   >
-                    Submit
+                    {isUpdating ? "Skipping..." : "Submit"}
                   </button>
                 </>
               )}
@@ -524,9 +592,17 @@ const Timetable = () => {
               <div className="flex justify-end space-x-2 pt-2">
                 <button
                   onClick={handleDeleteEvent}
-                  className="btn bg-destructive/20 text-destructive hover:bg-destructive/30"
+                  disabled={isDeleting}
+                  className="btn bg-destructive/20 text-destructive hover:bg-destructive/30 disabled:opacity-50"
                 >
-                  Delete
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </button>
+                <button
+                  onClick={handleDuplicateEvent}
+                  className="btn bg-accent/10 text-accent hover:bg-accent/20 flex items-center gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  Duplicate
                 </button>
                 <button
                   className="btn bg-secondary hover:bg-secondary/90"

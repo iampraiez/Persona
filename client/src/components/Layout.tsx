@@ -1,10 +1,28 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import CopyEventsModal from './CopyEventsModal';
+import { startOfWeek, format } from 'date-fns';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showCopyModal, setShowCopyModal] = useState(false);
+
+  useEffect(() => {
+    const lastSeenWeek = localStorage.getItem('last_seen_week');
+    const currentWeekStart = format(startOfWeek(new Date(), { weekStartsOn: 0 }), 'yyyy-MM-dd');
+
+    if (lastSeenWeek !== currentWeekStart) {
+      setShowCopyModal(true);
+    }
+  }, []);
+
+  const handleCloseModal = () => {
+    const currentWeekStart = format(startOfWeek(new Date(), { weekStartsOn: 0 }), 'yyyy-MM-dd');
+    localStorage.setItem('last_seen_week', currentWeekStart);
+    setShowCopyModal(false);
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -19,6 +37,11 @@ const Layout = () => {
           </div>
         </main>
       </div>
+
+      <CopyEventsModal 
+        isOpen={showCopyModal} 
+        onClose={handleCloseModal} 
+      />
     </div>
   );
 };

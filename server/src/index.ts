@@ -1,33 +1,42 @@
 import express, { type Request, type Response, type Express } from "express";
 import "dotenv/config";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { authMiddleware } from "./middleware/auth";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import eventRoutes from "./routes/events";
 import goalRoutes from "./routes/goals";
 import aiRoutes from "./routes/ai";
+import analyticsRoutes from "./routes/analytics";
 import subRoute from "./routes/notification";
 import { logger } from "./utils/logger.utils";
 import { shutdown } from "./lib/prisma";
 import { errorHandler } from "./utils/error.util";
+import { startScheduler } from "./scheduler";
+import { env } from "./config/env";
 
 const app: Express = express();
-const CLIENT: string = process.env.CLIENT_URL || "http://localhost:5173";
+
+startScheduler();
+const CLIENT: string = env.data?.CLIENT_URL || "http://localhost:5173";
 const corsOptions = {
   origin: [CLIENT],
+  credentials: true,
   optionsSuccessStatus: 200,
 };
 
-app.use(express.json());
+app.use(express.json());  
+app.use(cookieParser());
 app.use(cors(corsOptions));
 errorHandler(app);
 
-app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/users", authMiddleware, userRoutes);
 app.use("/api/events", authMiddleware, eventRoutes);
 app.use("/api/goals", authMiddleware, goalRoutes);
 app.use("/api/ai", authMiddleware, aiRoutes);
+app.use("/api/analytics", authMiddleware, analyticsRoutes);
 app.use("/api/notification", authMiddleware, subRoute);
 
 app.get("/api/health", (req: Request, res: Response) => {
@@ -42,7 +51,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 
 shutdown();
 
-const port: Number = Number(process.env.PORT) || 3000;
+const port: Number = Number(env.data?.PORT) || 3000;
 app.listen(port, (err?: Error | null) => {
   if (err) {
     logger.error(`Error starting server: ${err}`);

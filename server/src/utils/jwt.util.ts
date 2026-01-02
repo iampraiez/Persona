@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { env } from "../config/env";
 
-const JWT_SECRET = process.env.JWT_SECRET || "random-ass-secret";
-const JWT_EXPIRY = "3d";
+const JWT_SECRET = env.data?.JWT_SECRET || "random-ass-secret";
+const ACCESS_TOKEN_EXPIRY = "15m";
 
 export interface JWTPayload {
   email: string;
@@ -9,11 +11,15 @@ export interface JWTPayload {
   image: string;
 }
 
-export function createToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+export function createAccessToken(payload: JWTPayload): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
 }
 
-export function verifyToken(token: string): JWTPayload | null {
+export function generateRandomToken(): string {
+  return crypto.randomBytes(40).toString("hex");
+}
+
+export function verifyAccessToken(token: string): JWTPayload | null {
   try {
     return jwt.verify(token, JWT_SECRET) as JWTPayload;
   } catch {
