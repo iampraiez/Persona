@@ -20,16 +20,25 @@ const app: Express = express();
 
 startScheduler();
 const CLIENT: string = env.data?.CLIENT_URL || "http://localhost:5173";
-const corsOptions = {
-  origin: [CLIENT],
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
+const corsOptions =  {
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
 
+      const allowedOrigins = [
+        CLIENT,
+      ];
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  }
 app.use(express.json());  
 app.use(cookieParser());
 app.use(cors(corsOptions));
-errorHandler(app);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", authMiddleware, userRoutes);
@@ -49,6 +58,7 @@ app.get("/api/health", (req: Request, res: Response) => {
   });
 });
 
+errorHandler(app);
 shutdown();
 
 const port: Number = Number(env.data?.PORT) || 3000;
