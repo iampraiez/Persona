@@ -76,7 +76,10 @@ class ApiService {
             await ApiService.axios.get("/auth/refresh");
             return ApiService.axios(originalRequest);
           } catch (refreshError) {
-            if (window.location.pathname !== "/login") {
+            if (
+              window.location.pathname !== "/login" &&
+              window.location.pathname !== "/"
+            ) {
               window.location.href = "/login";
             }
             return Promise.reject(refreshError);

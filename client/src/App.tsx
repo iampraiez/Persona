@@ -28,12 +28,10 @@ function App() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      // 1. Run client-side notification checker
       import("./store/notis.store").then((m) => {
         const runDailyNotifications = m.default;
         runDailyNotifications(user.events);
       });
-      // 2. Automate push subscription if permission is already granted
       if ("Notification" in window && Notification.permission === "granted") {
         import("./utils/push.util").then((m) => m.subscribeUser());
       }
