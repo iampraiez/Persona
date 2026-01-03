@@ -47,10 +47,20 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      logout: () => {
-        set({ user: null, isAuthenticated: false, isDemo: false });
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
+      logout: async () => {
+        try {
+          const { isDemo } = useAuthStore.getState();
+          if (!isDemo) {
+            const { api } = await import("../service/api.service");
+            await api.logout();
+          }
+        } catch (error) {
+          console.error("Logout error:", error);
+        } finally {
+          set({ user: null, isAuthenticated: false, isDemo: false });
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+        }
       },
     }),
     {

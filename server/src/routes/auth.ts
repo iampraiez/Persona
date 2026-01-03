@@ -64,8 +64,8 @@ router.get("/refresh", async (req: Request, res: Response): Promise<void> => {
 
 router.get("/logout", async (req: Request, res: Response): Promise<void> => {
   try {
-    res.clearCookie("access_token");
-    res.clearCookie("refresh_token");
+    res.clearCookie("access_token", ACCESS_TOKEN_OPTIONS);
+    res.clearCookie("refresh_token", COOKIE_OPTIONS);
     res.status(200).json({ data: true, error: null });
   } catch (error: unknown) {
     logger.error(`Logout Error: ${error}`);
