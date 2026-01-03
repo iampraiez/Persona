@@ -14,7 +14,6 @@ import "../index.css";
 const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen relative overflow-hidden bg-background">
-      {/* Background Polish */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.05),transparent_40%)]" />
         <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,rgba(139,92,246,0.05),transparent_40%)]" />

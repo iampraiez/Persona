@@ -315,7 +315,6 @@ const Analytics = () => {
           </div>
         </motion.div>
 
-        {/* Special Events */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -368,7 +367,6 @@ const Analytics = () => {
           </div>
         </motion.div>
 
-        {/* Focus Distribution */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -470,7 +468,6 @@ const Analytics = () => {
         </div>
       </motion.div>
 
-      {/* AI Insights */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

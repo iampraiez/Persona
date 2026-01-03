@@ -30,7 +30,6 @@ const HeroSection: React.FC = () => {
     <div className="pt-24 lg:pt-32 pb-16 lg:pb-24 overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-16">
-          {/* Hero Text */}
           <motion.div
             className="md:w-1/2 mb-12 md:mb-0"
             variants={containerVariants}
@@ -90,7 +89,6 @@ const HeroSection: React.FC = () => {
               )}
             </motion.div>
 
-            {/* Stats/Social Proof */}
             <motion.div 
               variants={itemVariants}
               className="flex items-center gap-8 border-t border-border pt-8"
@@ -110,7 +108,6 @@ const HeroSection: React.FC = () => {
             </motion.div>
           </motion.div>
 
-          {/* Hero Image/Animation */}
           <motion.div
             className="md:w-1/2"
             initial={{ opacity: 0, x: 50 }}
@@ -160,7 +157,6 @@ const HeroSection: React.FC = () => {
                   </div>
                 </motion.div>
 
-                {/* Floating Elements */}
                 <motion.div 
                   className="absolute -top-6 -right-6 bg-card rounded-full p-4 shadow-lg"
                   animate={{ y: [0, 10, 0] }}

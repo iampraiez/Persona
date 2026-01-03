@@ -57,8 +57,8 @@ router.get("/refresh", async (req, res) => {
 });
 router.get("/logout", async (req, res) => {
     try {
-        res.clearCookie("access_token");
-        res.clearCookie("refresh_token");
+        res.clearCookie("access_token", auth_service_1.ACCESS_TOKEN_OPTIONS);
+        res.clearCookie("refresh_token", auth_service_1.COOKIE_OPTIONS);
         res.status(200).json({ data: true, error: null });
     }
     catch (error) {

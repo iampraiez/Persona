@@ -188,14 +188,12 @@ const Dashboard = () => {
             <div className="space-y-4">
               {activeGoals.length > 0 ? (
                 activeGoals.slice(0, 4).map((goal) => {
-                  // Calculate days left
                   const elapsedDays = Math.floor(
                     (new Date().getTime() - new Date(goal.createdAt).getTime()) /
                       (1000 * 60 * 60 * 24)
                   );
                   const daysLeft = Math.max(0, (goal.totalDays || 0) - elapsedDays);
                   
-                  // Round percentage to 1 decimal place
                   const roundedPercentage = (goal.percentage * 100).toFixed(1);
 
                   return (

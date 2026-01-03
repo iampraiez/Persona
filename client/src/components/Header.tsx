@@ -74,7 +74,6 @@ const Header = ({ openSidebar }: HeaderProps) => {
     <header className="sticky top-0 z-40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 border-b border-border">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left: Logo + Mobile Menu */}
           <div className="flex items-center gap-3">
             <button
               className="md:hidden p-2 rounded-lg hover:bg-secondary transition-colors"
@@ -119,7 +118,6 @@ const Header = ({ openSidebar }: HeaderProps) => {
             </button>
           </div>
 
-          {/* Center: Navigation (Desktop) */}
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -148,9 +146,7 @@ const Header = ({ openSidebar }: HeaderProps) => {
             })}
           </nav>
 
-          {/* Right: Actions */}
           <div className="flex items-center gap-2">
-            {/* Theme Toggle */}
             <button
               className="p-2 rounded-lg hover:bg-secondary transition-colors"
               onClick={toggleTheme}
@@ -163,7 +159,6 @@ const Header = ({ openSidebar }: HeaderProps) => {
               )}
             </button>
 
-            {/* Notifications */}
             <div className="relative" ref={notificationsRef}>
               <button
                 className="p-2 rounded-lg hover:bg-secondary transition-colors relative"
@@ -280,7 +275,6 @@ const Header = ({ openSidebar }: HeaderProps) => {
               </AnimatePresence>
             </div>
 
-            {/* Profile */}
             <div className="relative" ref={profileRef}>
               <button
                 className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg hover:bg-secondary transition-all"

@@ -55,7 +55,6 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
   return (
     <>
-      {/* Mobile sidebar overlay */}
       <motion.div
         className="fixed inset-0 bg-black z-20 md:hidden"
         initial="closed"
@@ -66,7 +65,6 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
         style={{ pointerEvents: open ? "auto" : "none" }}
       />
 
-      {/* Sidebar */}
       <motion.nav
         className="fixed md:static top-0 left-0 bottom-0 h-screen w-64 bg-card z-30 border-r border-border flex flex-col"
         initial="closed"

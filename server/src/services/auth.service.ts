@@ -20,7 +20,7 @@ export const COOKIE_OPTIONS = {
 
 export const ACCESS_TOKEN_OPTIONS = {
   ...COOKIE_OPTIONS,
-  maxAge: 20 * 60 * 1000, 
+  maxAge: 20 * 60 * 1000,
 };
 
 export class AuthService {

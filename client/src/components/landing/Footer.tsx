@@ -1,7 +1,10 @@
 import React from "react";
 import { Github, Twitter, Linkedin, Instagram } from "lucide-react";
+import MemeModal from "./MemeModal";
 
 const Footer: React.FC = () => {
+  const [isMemeOpen, setIsMemeOpen] = React.useState(false);
+
   return (
     <footer className="bg-secondary/50 py-12">
       <div className="container mx-auto px-6">
@@ -19,12 +22,12 @@ const Footer: React.FC = () => {
               professionals.
             </p>
             <div className="flex space-x-4">
-              <a
-                href="https://x.com/iampraiez"
+              <button
+                onClick={() => setIsMemeOpen(true)}
                 className="text-foreground/50 hover:text-accent transition-colors"
               >
                 <Twitter size={20} />
-              </a>
+              </button>
               <a
                 href="https://www.linkedin.com/in/thepraiseolaoye"
                 className="text-foreground/50 hover:text-accent transition-colors"
@@ -93,6 +96,7 @@ const Footer: React.FC = () => {
           </p>
         </div>
       </div>
+      <MemeModal isOpen={isMemeOpen} onClose={() => setIsMemeOpen(false)} />
     </footer>
   );
 };

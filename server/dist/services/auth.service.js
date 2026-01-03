@@ -13,7 +13,7 @@ exports.oAuth2Client = new google_auth_library_1.OAuth2Client(CLIENT_ID, CLIENT_
 exports.COOKIE_OPTIONS = {
     httpOnly: true,
     secure: env_1.env.data?.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
 };

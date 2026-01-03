@@ -16,7 +16,7 @@ export const useUser = ()  => {
     queryFn: (): Promise<User | null> => getApi().getUser(),
     retry: false,
     staleTime: 1000 * 60 * 5,
-    enabled: true, // Always attempt to fetch to check for cookies/session
+    enabled: true,
   });
 
   useEffect(() => {

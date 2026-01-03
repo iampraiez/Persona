@@ -24,14 +24,24 @@ const app = (0, express_1.default)();
 (0, scheduler_1.startScheduler)();
 const CLIENT = env_1.env.data?.CLIENT_URL || "http://localhost:5173";
 const corsOptions = {
-    origin: [CLIENT],
+    origin(origin, callback) {
+        if (!origin)
+            return callback(null, true);
+        const allowedOrigins = [
+            CLIENT,
+        ];
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
-    optionsSuccessStatus: 200,
 };
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 app.use((0, cors_1.default)(corsOptions));
-(0, error_util_1.errorHandler)(app);
 app.use("/api/auth", auth_2.default);
 app.use("/api/users", auth_1.authMiddleware, users_1.default);
 app.use("/api/events", auth_1.authMiddleware, events_1.default);
@@ -48,6 +58,7 @@ app.get("/api/health", (req, res) => {
         },
     });
 });
+(0, error_util_1.errorHandler)(app);
 (0, prisma_1.shutdown)();
 const port = Number(env_1.env.data?.PORT) || 3000;
 app.listen(port, (err) => {

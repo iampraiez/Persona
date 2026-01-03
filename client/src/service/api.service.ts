@@ -24,8 +24,8 @@ export interface User {
     specialEvents: number;
     aggregateGoalProgress: number;
   };
-  aiCredits: number;
-  cachedInsights: AiSuggestion[] | null;
+  aiCredits?: number;
+  cachedInsights?: AiSuggestion[] | null;
   notificationsEnabled: boolean;
   defaultNotifyBefore: number;
 }
@@ -51,16 +51,13 @@ class ApiService {
       async (error: AxiosError) => {
         const originalRequest = error.config;
 
-        // Handle Network Errors
         if (!error.response) {
           toast.error("Network error. Please check your connection.");
           return Promise.reject(error);
         }
 
         const { status, data } = error.response;
-        const errorMessage =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (data as any)?.error || "An unexpected error occurred";
+        const errorMessage = (data as any)?.error || "An unexpected error occurred";
 
         if (originalRequest?.url === "/auth/refresh") {
           return Promise.reject(error);
