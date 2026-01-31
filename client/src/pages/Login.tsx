@@ -28,6 +28,7 @@ const Login = () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
     } else if (errorParam) {
       setError("Authentication failed. Please try again.");
+      setTimeout(() => setError(null), 3000);
     }
   }, [queryClient]);
 
@@ -37,6 +38,7 @@ const Login = () => {
     } catch (error) {
       console.error("Google Auth error:", error);
       setError("Google Auth error");
+      setTimeout(() => setError(null), 3000);
     }
   };
 
@@ -90,7 +92,7 @@ const Login = () => {
         </h2>
 
         {error && (
-          <div className="mb-4 p-3 bg-destructive/20 text-destructive rounded-md text-sm">
+          <div className="mb-4 p-3 bg-destructive/20 text-destructive rounded-md text-sm text-center">
             {error}
           </div>
         )}

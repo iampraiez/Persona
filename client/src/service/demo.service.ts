@@ -1,17 +1,5 @@
-import { Event, Goal } from "../types/index";
-
-interface User {
-  email: string;
-  name: string | null;
-  image: string | null;
-  createdAt: Date;
-  events: Event[];
-  goals: Goal[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  notifications: any[];
-  notificationsEnabled: boolean;
-  defaultNotifyBefore: number;
-}
+import { User } from "./api.service";
+import { Event, Goal, AiSuggestion } from "../types/index";
 
 class DemoService {
   private user: User = {
@@ -132,17 +120,14 @@ class DemoService {
     },
   ];
 
-  async getUser() {
+  async getUser(): Promise<User | null> {
     const goalsWithPercentage = this.goals.map((goal) => {
       const completedSteps = goal.steps.filter((s) => s.isCompleted).length;
       const percentage =
-        goal.steps.length > 0
-          ? completedSteps / goal.steps.length
-          : 0;
+        goal.steps.length > 0 ? completedSteps / goal.steps.length : 0;
       return { ...goal, percentage };
     });
 
-    // Calculate weekly summary
     const now = new Date();
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - now.getDay());
@@ -156,14 +141,21 @@ class DemoService {
     });
 
     const totalEventsThisWeek = weeklyEvents.length;
-    const completedEventsThisWeek = weeklyEvents.filter((e) => e.isCompleted).length;
-    const specialEventsThisWeek = weeklyEvents.filter((e) => e.isSpecial).length;
+    const completedEventsThisWeek = weeklyEvents.filter(
+      (e) => e.isCompleted,
+    ).length;
+    const specialEventsThisWeek = weeklyEvents.filter(
+      (e) => e.isSpecial,
+    ).length;
     const aggregateGoalProgress =
       goalsWithPercentage.length > 0
         ? Math.round(
-            (goalsWithPercentage.reduce((sum, goal) => sum + goal.percentage, 0) /
+            (goalsWithPercentage.reduce(
+              (sum, goal) => sum + goal.percentage,
+              0,
+            ) /
               goalsWithPercentage.length) *
-              100
+              100,
           )
         : 0;
 
@@ -189,16 +181,16 @@ class DemoService {
     window.location.href = "/login";
   }
 
-  async getEvents() {
+  async getEvents(): Promise<Event[]> {
     return this.events;
   }
 
-  async getUpcomingEvents() {
+  async getUpcomingEvents(): Promise<Event[]> {
     const now = new Date();
     return this.events.filter((e) => new Date(e.startTime) > now);
   }
 
-  async createEvent(event: Partial<Event>) {
+  async createEvent(event: Partial<Event>): Promise<Event> {
     const newEvent = {
       ...event,
       id: Math.random().toString(36).substr(2, 9),
@@ -238,11 +230,11 @@ class DemoService {
     return "Event deleted successfully";
   }
 
-  async getGoals() {
+  async getGoals(): Promise<Goal[]> {
     return this.goals;
   }
 
-  async createGoal(goal: Partial<Goal>) {
+  async createGoal(goal: Partial<Goal>): Promise<Goal> {
     const newGoal = {
       ...goal,
       id: Math.random().toString(36).substr(2, 9),
@@ -257,15 +249,13 @@ class DemoService {
   async updateGoal(id: string, goal: Partial<Goal>): Promise<string> {
     const index = this.goals.findIndex((g) => g.id === id);
     if (index !== -1) {
-      // If steps are provided, replace them completely (don't merge)
       if (goal.steps !== undefined) {
-        this.goals[index] = { 
-          ...this.goals[index], 
+        this.goals[index] = {
+          ...this.goals[index],
           ...goal,
-          steps: goal.steps  // Explicitly set steps to replace, not merge
+          steps: goal.steps,
         };
       } else {
-        // For other fields, merge normally
         this.goals[index] = { ...this.goals[index], ...goal };
       }
       return "Goal updated successfully";
@@ -293,10 +283,9 @@ class DemoService {
   }
 
   async getAnalytics(range: string, date: Date) {
-    // Generate realistic random analytics data
-    const randomBetween = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-    
-    // Generate total events based on range
+    const randomBetween = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
+
     const totalEventsByRange = {
       day: randomBetween(3, 8),
       week: randomBetween(20, 50),
@@ -304,74 +293,114 @@ class DemoService {
       year: randomBetween(400, 800),
       all: randomBetween(500, 1200),
     };
-    
-    const totalEvents = totalEventsByRange[range as keyof typeof totalEventsByRange] || 30;
+
+    const totalEvents =
+      totalEventsByRange[range as keyof typeof totalEventsByRange] || 30;
     const completionRate = randomBetween(65, 95);
     const completedEvents = Math.floor((totalEvents * completionRate) / 100);
-    const specialEventsCount = randomBetween(1, Math.max(2, Math.floor(totalEvents * 0.1)));
-    
-    // Generate focus time (hours)
-    const focusTimeHours = range === 'day' 
-      ? randomBetween(2, 8)
-      : range === 'week'
-      ? randomBetween(15, 40)
-      : range === 'month'
-      ? randomBetween(60, 150)
-      : randomBetween(200, 600);
-    
-    // Generate special events data
-    const reasonTypes = ["Gym", "Errands", "Family Time", "Emergency", "Sick", "Travel", "Meeting Conflict"];
+    const specialEventsCount = randomBetween(
+      1,
+      Math.max(2, Math.floor(totalEvents * 0.1)),
+    );
+
+    const focusTimeHours =
+      range === "day"
+        ? randomBetween(2, 8)
+        : range === "week"
+          ? randomBetween(15, 40)
+          : range === "month"
+            ? randomBetween(60, 150)
+            : randomBetween(200, 600);
+
+    const reasonTypes = [
+      "Gym",
+      "Errands",
+      "Family Time",
+      "Emergency",
+      "Sick",
+      "Travel",
+      "Meeting Conflict",
+    ];
     const numReasons = randomBetween(2, Math.min(4, specialEventsCount));
     const specialEventsData = Array.from({ length: numReasons }, (_, i) => ({
       name: reasonTypes[i % reasonTypes.length],
-      value: randomBetween(1, Math.max(1, Math.floor(specialEventsCount / numReasons))),
+      value: randomBetween(
+        1,
+        Math.max(1, Math.floor(specialEventsCount / numReasons)),
+      ),
     }));
-    
-    // Generate activity data based on range
-    let activityData: any[] = [];
+
+    let activityData = [];
     if (range === "day") {
-      // Hourly breakdown for day
-      const hours = ["9AM", "10AM", "11AM", "12PM", "1PM", "2PM", "3PM", "4PM", "5PM"];
-      activityData = hours.map(h => {
+      const hours = [
+        "9AM",
+        "10AM",
+        "11AM",
+        "12PM",
+        "1PM",
+        "2PM",
+        "3PM",
+        "4PM",
+        "5PM",
+      ];
+      activityData = hours.map((h) => {
         const completed = randomBetween(0, 2);
         const skipped = Math.random() > 0.8 ? 1 : 0;
         return { name: h, completed, skipped, total: completed + skipped };
       });
     } else if (range === "week") {
-      // Daily breakdown for week
       const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      activityData = days.map(day => {
+      activityData = days.map((day) => {
         const completed = randomBetween(2, 8);
         const skipped = randomBetween(0, 2);
         return { name: day, completed, skipped, total: completed + skipped };
       });
     } else if (range === "month") {
-      // Weekly breakdown for month
       activityData = Array.from({ length: 4 }, (_, i) => {
         const completed = randomBetween(10, 30);
         const skipped = randomBetween(1, 5);
-        return { name: `Week ${i + 1}`, completed, skipped, total: completed + skipped };
+        return {
+          name: `Week ${i + 1}`,
+          completed,
+          skipped,
+          total: completed + skipped,
+        };
       });
     } else if (range === "year") {
-      // Monthly breakdown for year
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      activityData = months.map(month => {
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      activityData = months.map((month) => {
         const completed = randomBetween(20, 80);
         const skipped = randomBetween(2, 10);
         return { name: month, completed, skipped, total: completed + skipped };
       });
     } else {
-      // Yearly breakdown for all time
       const currentYear = new Date().getFullYear();
       activityData = Array.from({ length: 3 }, (_, i) => {
         const year = currentYear - (2 - i);
         const completed = randomBetween(100, 300);
         const skipped = randomBetween(10, 30);
-        return { name: `${year}`, completed, skipped, total: completed + skipped };
+        return {
+          name: `${year}`,
+          completed,
+          skipped,
+          total: completed + skipped,
+        };
       });
     }
-    
-    // Generate goal progress data
+
     const goalNames = [
       "Learn TypeScript",
       "Build Portfolio",
@@ -386,11 +415,12 @@ class DemoService {
       name: goalNames[i % goalNames.length],
       progress: randomBetween(20, 90),
     }));
-    
+
     const averageGoalProgress = Math.floor(
-      goalProgressData.reduce((sum, g) => sum + g.progress, 0) / goalProgressData.length
+      goalProgressData.reduce((sum, g) => sum + g.progress, 0) /
+        goalProgressData.length,
     );
-    
+
     return {
       totalEvents,
       completedEvents,
@@ -426,8 +456,7 @@ class DemoService {
     return "DEMO_PUBLIC_KEY";
   }
 
-  async getSuggestions() {
-    // Return demo AI suggestions
+  async getSuggestions(): Promise<AiSuggestion[]> {
     return [
       {
         message:
@@ -450,9 +479,8 @@ class DemoService {
     goal: { title: string; description?: string },
     totalDays: number,
     stepCount?: number,
-    currentSteps?: { title: string; description?: string }[]
+    currentSteps?: { title: string; description?: string }[],
   ) {
-    // Return demo steps
     const stepsCount = stepCount || 10;
     const daysPerStep = Math.floor(totalDays / stepsCount);
     const steps = [];
@@ -460,12 +488,13 @@ class DemoService {
     for (let i = 0; i < stepsCount; i++) {
       const dueDate = new Date();
       dueDate.setDate(dueDate.getDate() + (i + 1) * daysPerStep);
-      
+
       const existingStep = currentSteps?.[i];
-      
+
       steps.push({
         title: existingStep?.title || `Step ${i + 1}: ${goal.title} milestone`,
-        description: existingStep?.description || `Complete this step for ${goal.title}`,
+        description:
+          existingStep?.description || `Complete this step for ${goal.title}`,
         dueDate: dueDate.toISOString().split("T")[0],
       });
     }
@@ -477,7 +506,7 @@ class DemoService {
     const goalIndex = this.goals.findIndex((g) => g.id === goalId);
     if (goalIndex !== -1) {
       const stepIndex = this.goals[goalIndex].steps.findIndex(
-        (s) => s.id === stepId
+        (s) => s.id === stepId,
       );
       if (stepIndex !== -1) {
         this.goals[goalIndex].steps[stepIndex].isCompleted = true;
@@ -498,7 +527,10 @@ class DemoService {
     return { success: true };
   }
 
-  async requestAccountDeletion(): Promise<{ message: string; expiresAt: string }> {
+  async requestAccountDeletion(): Promise<{
+    message: string;
+    expiresAt: string;
+  }> {
     console.log("Demo: Account deletion requested");
     const expiry = new Date();
     expiry.setMinutes(expiry.getMinutes() + 5);
@@ -510,15 +542,14 @@ class DemoService {
 
   async deleteAccount(code: string): Promise<{ message: string }> {
     console.log("Demo: Account deleted with code:", code);
-    // In demo mode, accept any 6-digit code
     if (code.length !== 6) {
       throw new Error("Invalid verification code");
     }
     return { message: "Account deleted successfully" };
   }
 
-  async updateUserProfile(data: { 
-    name?: string; 
+  async updateUserProfile(data: {
+    name?: string;
     image?: string;
     notificationsEnabled?: boolean;
     defaultNotifyBefore?: number;

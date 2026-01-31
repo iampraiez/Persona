@@ -20,23 +20,11 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   const { isAuthenticated } = useAuthStore();
   const { theme, initTheme } = useThemeStore();
-  const { data: user, isLoading: isUserLoading } = useUser();
+  const { isLoading: isUserLoading } = useUser();
 
   useEffect(() => {
     initTheme();
   }, [initTheme]);
-
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      import("./store/notis.store").then((m) => {
-        const runDailyNotifications = m.default;
-        runDailyNotifications(user.events);
-      });
-      if ("Notification" in window && Notification.permission === "granted") {
-        import("./utils/push.util").then((m) => m.subscribeUser());
-      }
-    }
-  }, [isAuthenticated, user]);
 
   if (isUserLoading) return <Loader />;
 

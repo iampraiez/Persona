@@ -18,8 +18,8 @@ import { useNotifications } from "../hooks/useNotifications";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
-
 import { subscribeUser } from "../utils/push.util";
+import { Notification as NotificationType } from "../service/api.service";
 
 interface HeaderProps {
   openSidebar: () => void;
@@ -81,8 +81,8 @@ const Header = ({ openSidebar }: HeaderProps) => {
             >
               <Menu className="h-5 w-5" />
             </button>
-            
-            <button 
+
+            <button
               onClick={() => navigate("/dashboard")}
               className="flex items-center gap-2 group"
             >
@@ -138,7 +138,11 @@ const Header = ({ openSidebar }: HeaderProps) => {
                     <motion.div
                       layoutId="activeTab"
                       className="absolute inset-0 bg-accent/10 rounded-lg -z-10"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.6,
+                      }}
                     />
                   )}
                 </button>
@@ -166,7 +170,8 @@ const Header = ({ openSidebar }: HeaderProps) => {
                   if (!notificationsOpen) {
                     if ("Notification" in window) {
                       if (Notification.permission === "default") {
-                        const permission = await Notification.requestPermission();
+                        const permission =
+                          await Notification.requestPermission();
                         if (permission === "granted") {
                           subscribeUser();
                         }
@@ -180,7 +185,7 @@ const Header = ({ openSidebar }: HeaderProps) => {
                 title="Notifications"
               >
                 <BellRing className="h-5 w-5" />
-                {notifications.some((n: any) => !n.isRead) && (
+                {notifications.some((n: NotificationType) => !n.isRead) && (
                   <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full ring-2 ring-card"></span>
                 )}
               </button>
@@ -211,7 +216,7 @@ const Header = ({ openSidebar }: HeaderProps) => {
                         {[...notifications]
                           .reverse()
                           .slice(0, number)
-                          .map((noti: any) => (
+                          .map((noti: NotificationType) => (
                             <div
                               key={noti.id}
                               className={`py-3 px-4 hover:bg-secondary/50 border-b border-border/50 last:border-0 transition-colors ${
@@ -227,7 +232,7 @@ const Header = ({ openSidebar }: HeaderProps) => {
                                     {noti.body}
                                   </p>
                                   <p className="text-[10px] text-foreground/50 mt-1">
-                                    {noti.timeAgo}
+                                    {noti.timestamp.toString()}
                                   </p>
                                 </div>
                                 {!noti.isRead && (
@@ -251,9 +256,7 @@ const Header = ({ openSidebar }: HeaderProps) => {
                     {notifications.length > 3 && (
                       <button
                         onClick={() =>
-                          setNumber(
-                            number === 3 ? notifications.length : 3
-                          )
+                          setNumber(number === 3 ? notifications.length : 3)
                         }
                         className="w-full text-center text-xs text-accent bg-secondary/30 border-t px-4 py-2.5 border-border hover:bg-secondary/50 transition-colors font-medium"
                       >
@@ -296,7 +299,9 @@ const Header = ({ openSidebar }: HeaderProps) => {
                 <span className="hidden md:block text-sm font-medium max-w-[120px] truncate">
                   {user?.name || "User"}
                 </span>
-                <ChevronDown className={`hidden md:block h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`hidden md:block h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               <AnimatePresence>
@@ -309,8 +314,12 @@ const Header = ({ openSidebar }: HeaderProps) => {
                     className="absolute right-0 mt-2 w-56 bg-card rounded-lg shadow-lg border border-border overflow-hidden z-50"
                   >
                     <div className="px-4 py-3 border-b border-border bg-secondary/30">
-                      <p className="text-sm font-semibold truncate">{user?.name || "User"}</p>
-                      <p className="text-xs text-foreground/60 truncate">{user?.email}</p>
+                      <p className="text-sm font-semibold truncate">
+                        {user?.name || "User"}
+                      </p>
+                      <p className="text-xs text-foreground/60 truncate">
+                        {user?.email}
+                      </p>
                     </div>
                     <div className="py-1">
                       <button

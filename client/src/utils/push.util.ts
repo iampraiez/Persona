@@ -31,7 +31,7 @@ export async function subscribeUser() {
 
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicKey),
+      applicationServerKey: urlBase64ToUint8Array(publicKey.publicKey),
     });
 
     await api.saveSubscription(subscription);

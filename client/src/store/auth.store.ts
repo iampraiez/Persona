@@ -1,15 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-interface User {
-  email: string;
-  name: string | null;
-  image: string | null;
-  createdAt: Date;
-  events: any[];
-  goals: any[];
-  notifications: any[];
-}
+import { User, api } from "../service/api.service";
 
 interface AuthState {
   user: User | null;
@@ -43,6 +34,8 @@ export const useAuthStore = create<AuthState>()(
             events: [],
             goals: [],
             notifications: [],
+            notificationsEnabled: true,
+            defaultNotifyBefore: 5,
           },
         });
       },
@@ -51,7 +44,6 @@ export const useAuthStore = create<AuthState>()(
         try {
           const { isDemo } = useAuthStore.getState();
           if (!isDemo) {
-            const { api } = await import("../service/api.service");
             await api.logout();
           }
         } catch (error) {

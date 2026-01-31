@@ -5,7 +5,7 @@ self.addEventListener("push", function (event) {
     body: data.body,
     icon: "/icon.png",
     badge: "/badge.png",
-    image: data.image, // optional
+    image: data.image,
     data: {
       url: data.url,
     },
