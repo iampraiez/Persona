@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    exclude: ["lucide-react"],
+    exclude: ["lucide-react", "recharts"],
   },
   server: {
     host: "localhost",
@@ -14,13 +14,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Only split common, stable vendor libraries
+          // Let Vite handle dynamic imports automatically
           if (id.includes("node_modules")) {
-            if (id.includes("recharts") || id.includes("lodash")) {
-              return "charts";
+            // Group React and React-related libraries together
+            if (id.includes("react") || id.includes("react-dom") || id.includes("react-router")) {
+              return "react-vendor";
             }
-            if (id.includes("framer-motion")) {
-              return "framer";
-            }
+            // Other utilities
             return "vendor";
           }
         },

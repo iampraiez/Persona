@@ -8,6 +8,7 @@ import { useThemeStore } from "./store/theme.store";
 import Loader from "./components/Loader";
 import { useUser } from "./hooks/useUser";
 import { LazyMotion, domAnimation } from "framer-motion";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import "react-toastify/dist/ReactToastify.css";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -32,30 +33,34 @@ function App() {
 
   return (
     <div className={theme}>
-      <LazyMotion features={domAnimation}>
-        <Router>
-          <Suspense fallback={<Loader />}>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route
-                element={
-                  <ProtectedRoute isAuthenticated={isAuthenticated}>
-                    <Layout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="timetable" element={<Timetable />} />
-                <Route path="goals" element={<Goals />} />
-                <Route path="analytics" element={<Analytics />} />
-                <Route path="settings" element={<Settings />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </Router>
-      </LazyMotion>
+      <ErrorBoundary>
+        <LazyMotion features={domAnimation}>
+          <Router>
+            <ErrorBoundary>
+              <Suspense fallback={<Loader />}>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <Layout />
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="timetable" element={<Timetable />} />
+                    <Route path="goals" element={<Goals />} />
+                    <Route path="analytics" element={<Analytics />} />
+                    <Route path="settings" element={<Settings />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
+          </Router>
+        </LazyMotion>
+      </ErrorBoundary>
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
