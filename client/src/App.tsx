@@ -1,21 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Timetable from "./pages/Timetable";
-import Goals from "./pages/Goals";
-import Analytics from "./pages/Analytics";
-import Settings from "./pages/Settings";
-import LandingPage from "./pages/LandingPage";
-import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuthStore } from "./store/auth.store";
 import { useThemeStore } from "./store/theme.store";
 import Loader from "./components/Loader";
 import { useUser } from "./hooks/useUser";
+import { LazyMotion, domAnimation } from "framer-motion";
 import "react-toastify/dist/ReactToastify.css";
+
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Login = lazy(() => import("./pages/Login"));
+const Timetable = lazy(() => import("./pages/Timetable"));
+const Goals = lazy(() => import("./pages/Goals"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Settings = lazy(() => import("./pages/Settings"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -30,26 +32,30 @@ function App() {
 
   return (
     <div className={theme}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <Layout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="timetable" element={<Timetable />} />
-            <Route path="goals" element={<Goals />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+      <LazyMotion features={domAnimation}>
+        <Router>
+          <Suspense fallback={<Loader />}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                element={
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="timetable" element={<Timetable />} />
+                <Route path="goals" element={<Goals />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </Router>
+      </LazyMotion>
       <ToastContainer
         position="bottom-right"
         autoClose={3000}

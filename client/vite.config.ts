@@ -13,11 +13,16 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          ui: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu"],
-          state: ["zustand", "@tanstack/react-query"],
-          utils: ["date-fns", "axios"],
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("recharts") || id.includes("lodash")) {
+              return "charts";
+            }
+            if (id.includes("framer-motion")) {
+              return "framer";
+            }
+            return "vendor";
+          }
         },
       },
     },
