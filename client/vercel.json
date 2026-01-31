@@ -1,8 +1,3 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "build": {
-    "env": {
-      "DATABASE_URL": "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiNzI4OTA5ZDktNzAzYS00NTcxLWEwNWEtYjg4MzRiMDExYTJiIiwidGVuYW50X2lkIjoiOWU5YTA2MTQ5NzdlYWRhOWJhYjFmZmZlMzc3Y2QyZDY5Mzk0YWMwNTMxOWFmYTA5M2Q0YjFjMDUyZTI3MzEzYiIsImludGVybmFsX3NlY3JldCI6Ijc3MzBkYWRjLTQ0MDYtNGZiMC1iNDAwLTgyODc5OGE2Y2NmOSJ9.TdjIZsQYIIpBR8yo5axD5Q_keFEMuVMBqsH5Pu-3ffg"
-    }
-  }
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
