@@ -13,7 +13,7 @@ export const useNotifications = () => {
   const notificationsQuery = useQuery({
     queryKey: ["notifications"],
     queryFn: () => getApi().getNotifications(),
-    refetchInterval: 30000, // Poll every 30 seconds
+    refetchInterval: 30000,
   });
 
   const deleteNotificationMutation = useMutation({

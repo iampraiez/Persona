@@ -38,7 +38,7 @@ export const useGoals = () => {
             return {
               ...goal,
               steps: goal.steps.map((step) =>
-                step.id === stepId ? { ...step, isCompleted: true } : step
+                step.id === stepId ? { ...step, isCompleted: true } : step,
               ),
             };
           }
@@ -48,7 +48,7 @@ export const useGoals = () => {
 
       return { previousGoals };
     },
-    onError: (err, newTodo, context) => {
+    onError: (_err, _newTodo, context) => {
       queryClient.setQueryData(["goals"], context?.previousGoals);
     },
     onSuccess: () => {
@@ -71,7 +71,7 @@ export const useGoals = () => {
 
       return { previousGoals };
     },
-    onError: (err, newTodo, context) => {
+    onError: (_err, _newTodo, context) => {
       queryClient.setQueryData(["goals"], context?.previousGoals);
     },
     onSuccess: () => {

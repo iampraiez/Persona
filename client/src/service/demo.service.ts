@@ -1,4 +1,4 @@
-import { User } from "./api.service";
+import { User, Analytics } from "./api.service";
 import { Event, Goal, AiSuggestion } from "../types/index";
 
 class DemoService {
@@ -119,6 +119,10 @@ class DemoService {
       isRead: true,
     },
   ];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  completed: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  skipped: any;
 
   async getUser(): Promise<User | null> {
     const goalsWithPercentage = this.goals.map((goal) => {
@@ -216,7 +220,7 @@ class DemoService {
     return newEvents;
   }
 
-  async updateEvent(id: string, event: Partial<Event>): Promise<string> {
+  async updateEvent(id: string, event: Partial<Event>): Promise<string | void> {
     const index = this.events.findIndex((e) => e.id === id);
     if (index !== -1) {
       this.events[index] = { ...this.events[index], ...event };
@@ -225,7 +229,7 @@ class DemoService {
     throw new Error("Event not found");
   }
 
-  async deleteEvent(id: string): Promise<string> {
+  async deleteEvent(id: string): Promise<string | void> {
     this.events = this.events.filter((e) => e.id !== id);
     return "Event deleted successfully";
   }
@@ -246,7 +250,7 @@ class DemoService {
     return newGoal;
   }
 
-  async updateGoal(id: string, goal: Partial<Goal>): Promise<string> {
+  async updateGoal(id: string, goal: Partial<Goal>): Promise<string | void> {
     const index = this.goals.findIndex((g) => g.id === id);
     if (index !== -1) {
       if (goal.steps !== undefined) {
@@ -263,7 +267,7 @@ class DemoService {
     throw new Error("Goal not found");
   }
 
-  async deleteGoal(id: string): Promise<string> {
+  async deleteGoal(id: string): Promise<string | void> {
     this.goals = this.goals.filter((g) => g.id !== id);
     return "Goal deleted successfully";
   }
@@ -272,17 +276,17 @@ class DemoService {
     return this.notifications;
   }
 
-  async deleteNotification(id: string): Promise<string> {
+  async deleteNotification(id: string): Promise<string | void> {
     this.notifications = this.notifications.filter((n) => n.id !== id);
     return "Notification deleted successfully";
   }
 
-  async clearAllNotifications(): Promise<string> {
+  async clearAllNotifications(): Promise<string | void> {
     this.notifications = [];
     return "All notifications deleted successfully";
   }
 
-  async getAnalytics(range: string, date: Date) {
+  async getAnalytics(range: string, date: Date): Promise<Analytics | null> {
     const randomBetween = (min: number, max: number) =>
       Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -312,25 +316,21 @@ class DemoService {
             ? randomBetween(60, 150)
             : randomBetween(200, 600);
 
-    const reasonTypes = [
-      "Gym",
-      "Errands",
-      "Family Time",
-      "Emergency",
-      "Sick",
-      "Travel",
-      "Meeting Conflict",
-    ];
     const numReasons = randomBetween(2, Math.min(4, specialEventsCount));
+
     const specialEventsData = Array.from({ length: numReasons }, (_, i) => ({
-      name: reasonTypes[i % reasonTypes.length],
-      value: randomBetween(
+      date: `Event ${i + 1}`,
+      completed: randomBetween(
         1,
         Math.max(1, Math.floor(specialEventsCount / numReasons)),
       ),
+      skipped: randomBetween(0, 2),
+      total: (() => {
+        return this.completed + this.skipped;
+      })(),
     }));
 
-    let activityData = [];
+    let activityData: Analytics["activityData"] = [];
     if (range === "day") {
       const hours = [
         "9AM",
@@ -346,23 +346,23 @@ class DemoService {
       activityData = hours.map((h) => {
         const completed = randomBetween(0, 2);
         const skipped = Math.random() > 0.8 ? 1 : 0;
-        return { name: h, completed, skipped, total: completed + skipped };
+        return { date: h, completed, skipped, total: completed + skipped };
       });
     } else if (range === "week") {
       const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
       activityData = days.map((day) => {
         const completed = randomBetween(2, 8);
         const skipped = randomBetween(0, 2);
-        return { name: day, completed, skipped, total: completed + skipped };
+        return { date: day, completed, skipped, total: completed + skipped };
       });
     } else if (range === "month") {
       activityData = Array.from({ length: 4 }, (_, i) => {
         const completed = randomBetween(10, 30);
         const skipped = randomBetween(1, 5);
         return {
-          name: `Week ${i + 1}`,
-          completed,
+          date: `Week ${i + 1}`,
           skipped,
+          completed,
           total: completed + skipped,
         };
       });
@@ -384,7 +384,7 @@ class DemoService {
       activityData = months.map((month) => {
         const completed = randomBetween(20, 80);
         const skipped = randomBetween(2, 10);
-        return { name: month, completed, skipped, total: completed + skipped };
+        return { date: month, completed, skipped, total: completed + skipped };
       });
     } else {
       const currentYear = new Date().getFullYear();
@@ -393,7 +393,7 @@ class DemoService {
         const completed = randomBetween(100, 300);
         const skipped = randomBetween(10, 30);
         return {
-          name: `${year}`,
+          date: `${year}`,
           completed,
           skipped,
           total: completed + skipped,
@@ -443,7 +443,7 @@ class DemoService {
     return true;
   }
 
-  async markNotificationAsRead(id: string): Promise<string> {
+  async markNotificationAsRead(id: string): Promise<string | void> {
     const index = this.notifications.findIndex((n) => n.id === id);
     if (index !== -1) {
       this.notifications[index].isRead = true;

@@ -20,7 +20,7 @@ export interface Event {
 }
 
 export interface Goal {
-  id: string | number;
+  id: string;
   title: string;
   description?: string | undefined;
   totalDays: number | undefined;

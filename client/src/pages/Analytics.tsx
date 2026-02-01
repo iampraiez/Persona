@@ -44,11 +44,58 @@ import { useInsights } from "../hooks/useInsights";
 
 const COLORS = ["#8B5CF6", "#3B82F6", "#14B8A6", "#F97316"];
 
+ const CustomTooltip = ({
+   active,
+   payload,
+   label,
+ }: {
+   active: boolean;
+   payload: {
+     name: string;
+     value: number;
+     color: string;
+     length: number;
+     entry: { name: string; value: number; color: string };
+   }[];
+   label: string;
+ }) => {
+   if (active && payload && payload.length) {
+     return (
+       <div className="bg-card p-3 border border-border rounded-md shadow-md">
+         <p className="font-medium">{label}</p>
+         {payload.map(
+           (
+             entry: { name: string; value: number; color: string },
+             index: number,
+           ) => (
+             <p key={index} style={{ color: entry.color }}>
+               {entry.name}: {entry.value}
+             </p>
+           ),
+         )}
+       </div>
+     );
+   }
+   return null;
+ };
+
 const Analytics = () => {
   const [range, setRange] = useState("week");
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(range, currentDate);
   const { suggestions, generateInsights, isGenerating } = useInsights();
+
+   const {
+     totalEvents = 0,
+     completedEvents = 0,
+     completionRate = 0,
+     focusTime = "0.0",
+     specialEventsCount = 0,
+     specialEventsData = [],
+     activityData = [],
+     goalProgressData = [],
+     averageGoalProgress = 0,
+   } = analyticsData || {};
 
   const handlePrev = () => {
     if (range === "day") setCurrentDate(subDays(currentDate, 1));
@@ -76,55 +123,25 @@ const Analytics = () => {
     return "All Time";
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-card p-3 border border-border rounded-md shadow-md">
-          <p className="font-medium">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }}>
-              {entry.name}: {entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
-
-
-  const {
-    totalEvents = 0,
-    completedEvents = 0,
-    completionRate = 0,
-    focusTime = "0.0",
-    specialEventsCount = 0,
-    specialEventsData = [],
-    activityData = [],
-    goalProgressData = [],
-    averageGoalProgress = 0,
-  } = analyticsData || {};
-
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <h1 className="text-2xl font-bold">Analytics</h1>
-        
+
         <div className="flex bg-secondary rounded-lg p-1">
-            {["day", "week", "month", "year", "all"].map((r) => (
-                <button
-                    key={r}
-                    onClick={() => setRange(r)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        range === r
-                            ? "bg-card text-accent shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                    }`}
-                >
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                </button>
-            ))}
+          {["day", "week", "month", "year", "all"].map((r) => (
+            <button
+              key={r}
+              onClick={() => setRange(r)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                range === r
+                  ? "bg-card text-accent shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {r.charAt(0).toUpperCase() + r.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -291,7 +308,11 @@ const Analytics = () => {
                   />
                   <XAxis dataKey="name" stroke="currentColor" />
                   <YAxis stroke="currentColor" />
-                  <Tooltip content={<CustomTooltip />} />
+                  <Tooltip
+                    content={
+                      <CustomTooltip active={false} payload={[]} label="" />
+                    }
+                  />
                   <Legend />
                   <Bar
                     dataKey="completed"
@@ -349,7 +370,7 @@ const Analytics = () => {
                       `${name} ${(percent * 100).toFixed(0)}%`
                     }
                   >
-                    {specialEventsData.map((entry: any, index: any) => (
+                    {specialEventsData.map((entry, index) => (
                       <Cell
                         key={`cell-${entry}`}
                         fill={COLORS[index % COLORS.length]}
@@ -390,7 +411,10 @@ const Analytics = () => {
                 <PieChart>
                   <Pie
                     data={[
-                      { name: "Scheduled", value: totalEvents - specialEventsCount },
+                      {
+                        name: "Scheduled",
+                        value: totalEvents - specialEventsCount,
+                      },
                       { name: "Special", value: specialEventsCount },
                     ]}
                     cx="50%"
@@ -446,22 +470,24 @@ const Analytics = () => {
               ))}
             </div>
           ) : goalProgressData.length > 0 ? (
-            goalProgressData.map((goal: any) => (
-              <div key={goal.id} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{goal.name}</span>
-                  <span className="text-sm bg-accent/20 text-accent px-2 py-0.5 rounded-full">
-                    {goal.progress}%
-                  </span>
+            goalProgressData.map(
+              (goal: { id: string; name: string; progress: number }) => (
+                <div key={goal.id} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{goal.name}</span>
+                    <span className="text-sm bg-accent/20 text-accent px-2 py-0.5 rounded-full">
+                      {goal.progress}%
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-accent rounded-full transition-all duration-500"
+                      style={{ width: `${goal.progress}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-accent rounded-full transition-all duration-500"
-                    style={{ width: `${goal.progress}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))
+              ),
+            )
           ) : (
             <p className="text-sm text-muted-foreground">No goals set yet.</p>
           )}
@@ -483,26 +509,31 @@ const Analytics = () => {
 
         <div className="space-y-4">
           {suggestions && suggestions.length > 0 ? (
-            suggestions.map((suggestion: { type: string; message: string }, index: number) => (
-              <div key={index} className="p-4 bg-secondary rounded-md">
-                <h4 className="font-medium mb-2">
-                  {" "}
-                  {suggestion.type === "schedule" && (
-                    <Calendar className="h-5 w-5 text-accent shrink-0" />
-                  )}
-                  {suggestion.type === "goal" && (
-                    <Target className="h-5 w-5 text-accent shrink-0" />
-                  )}
-                  {suggestion.type === "focus" && (
-                    <Activity className="h-5 w-5 text-accent shrink-0" />
-                  )}
-                  {suggestion.type === "description" && (
-                    <InfoIcon className="h-5 w-5 text-accent shrink-0" />
-                  )}
-                </h4>
-                <p className="text-sm">{suggestion.message}</p>
-              </div>
-            ))
+            suggestions.map(
+              (
+                suggestion: { type: string; message: string },
+                index: number,
+              ) => (
+                <div key={index} className="p-4 bg-secondary rounded-md">
+                  <h4 className="font-medium mb-2">
+                    {" "}
+                    {suggestion.type === "schedule" && (
+                      <Calendar className="h-5 w-5 text-accent shrink-0" />
+                    )}
+                    {suggestion.type === "goal" && (
+                      <Target className="h-5 w-5 text-accent shrink-0" />
+                    )}
+                    {suggestion.type === "focus" && (
+                      <Activity className="h-5 w-5 text-accent shrink-0" />
+                    )}
+                    {suggestion.type === "description" && (
+                      <InfoIcon className="h-5 w-5 text-accent shrink-0" />
+                    )}
+                  </h4>
+                  <p className="text-sm">{suggestion.message}</p>
+                </div>
+              ),
+            )
           ) : (
             <div className="p-4 bg-secondary rounded-md text-center text-muted-foreground">
               <p>No AI insights available. Click below to generate some!</p>
@@ -513,11 +544,14 @@ const Analytics = () => {
         <button
           onClick={() => {
             if (
-              (!analyticsData?.totalEvents || analyticsData.totalEvents === 0) &&
+              (!analyticsData?.totalEvents ||
+                analyticsData.totalEvents === 0) &&
               (!analyticsData?.goalProgressData ||
                 analyticsData.goalProgressData.length === 0)
             ) {
-              toast.info("Add some events or goals first to generate insights!");
+              toast.info(
+                "Add some events or goals first to generate insights!",
+              );
               return;
             }
             generateInsights();

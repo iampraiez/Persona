@@ -266,19 +266,17 @@ const Goals: React.FC = () => {
     );
   };
 
-  // Sync stepCount with actual steps length when steps are added/removed manually
   useEffect(() => {
     if (newGoal.steps.length !== stepCount) {
       setStepCount(newGoal.steps.length || 1);
     }
-  }, [newGoal.steps.length]);
+  }, [newGoal.steps.length, stepCount]);
 
   const handleStepCountChange = (count: number) => {
     setStepCount(count);
     setNewGoal((prev) => {
       const currentSteps = [...prev.steps];
       if (count > currentSteps.length) {
-        // Add empty steps
         const stepsToAdd = count - currentSteps.length;
         for (let i = 0; i < stepsToAdd; i++) {
           currentSteps.push({
@@ -290,7 +288,6 @@ const Goals: React.FC = () => {
           });
         }
       } else if (count < currentSteps.length) {
-        // Remove steps from the end
         currentSteps.splice(count);
       }
       return { ...prev, steps: currentSteps };
@@ -310,7 +307,6 @@ const Goals: React.FC = () => {
       setGeneratingSteps(true);
       const getApi = () => (useAuthStore.getState().isDemo ? demoApi : api);
       
-      // Pass current steps as context
       const currentSteps = newGoal.steps.map(({ title, description }) => ({
         title,
         description,
@@ -320,28 +316,27 @@ const Goals: React.FC = () => {
         { title: goal, description: newGoal.description },
         days,
         stepCount,
-        currentSteps // Pass context
+        currentSteps
       );
 
-      const editedSteps = data.steps.map(({ dueDate, ...rest }: any) => ({
+      const editedSteps = data.steps.map(({ dueDate, ...rest }) => ({
         ...rest,
         dueDate: new Date(dueDate as string).toISOString(),
       }));
       setNewGoal((prev) => ({
         ...prev,
-        steps: editedSteps.map((step: any) => ({
+        steps: editedSteps.map((step) => ({
           ...step,
           dueDate: new Date(step.dueDate).toISOString(),
-          id: `${prev.steps.length + 1}`, // Note: This might need better ID generation if merging, but for now replacing/refining is fine
+          id: `${prev.steps.length + 1}`, 
           isCompleted: false,
         })),
       }));
 
       toast.success("Steps generated successfully");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error generating steps:", error);
-      toast.error(error.response?.data?.error || "Error generating steps");
+      toast.error("Error generating steps");
     } finally {
       setGeneratingSteps(false);
     }

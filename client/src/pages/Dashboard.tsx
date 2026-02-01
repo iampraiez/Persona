@@ -20,7 +20,12 @@ import "../index.css";
 
 const Dashboard = () => {
   const { data: user, isLoading: isUserLoading, isError, refetch } = useUser();
-  const { suggestions, generateInsights, isGenerating } = useInsights();
+  const {
+    suggestions,
+    generateInsights,
+    isGenerating,
+    isError: insightsError,
+  } = useInsights();
   const navigate = useNavigate();
 
   const hour = new Date().getHours();
@@ -293,6 +298,10 @@ const Dashboard = () => {
                   (!user?.goals || user.goals.length === 0)
                 ) {
                   toast.info("Add some events or goals first to generate insights!");
+                  return;
+                }
+                if (insightsError) {
+                  toast.error("Failed to generate insights. Please try again.");
                   return;
                 }
                 generateInsights();

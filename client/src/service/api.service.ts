@@ -32,6 +32,29 @@ export interface Notification {
   timestamp: Date;
 }
 
+export interface Analytics {
+  totalEvents: number;
+  completedEvents: number;
+  completionRate: number;
+  focusTime: number | string;
+  specialEventsCount: number;
+  activityData: {
+    date: string;
+    completed: number;
+    skipped: number;
+    total: number;
+  }[];
+  specialEventsData: {
+    date: string;
+    completed: number;
+    skipped: number;
+    total: number;
+  }[];
+  goalProgressData: { id: string; name: string; progress: number }[];
+  averageGoalProgress: number;
+  range: { start: Date; end: Date };
+}
+
 interface WeeklySummary {
   totalEvents: number;
   completedEvents: number;
@@ -259,7 +282,7 @@ export class ApiService {
     await this.request("put", `/notification/${id}/read`);
   }
 
-  async getAnalytics(range: string, date: Date): Promise<unknown> {
+  async getAnalytics(range: string, date: Date): Promise<Analytics | null> {
     return this.request("get", "/analytics", undefined, {
       params: { range, date: date.toISOString() },
     });

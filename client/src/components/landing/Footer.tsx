@@ -91,8 +91,8 @@ const Footer: React.FC = () => {
 
         <div className="mt-12 pt-8 border-t border-border text-center text-foreground/50">
           <p>
-            © {new Date().getFullYear()} Time Forge. All rights reserved. Talk
-            to Praise sha.
+            © {new Date().getFullYear()} Time Forge. All rights reserved. Employ
+            Praise and your life will be better.
           </p>
         </div>
       </div>

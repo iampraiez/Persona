@@ -20,7 +20,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
@@ -31,24 +31,28 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div style={{ 
-          padding: "20px", 
-          color: "white", 
-          backgroundColor: "#1a1a1a",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
+        <div
+          style={{
+            padding: "20px",
+            color: "white",
+            backgroundColor: "#1a1a1a",
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <h1>Something went wrong</h1>
-          <pre style={{ 
-            background: "#2a2a2a", 
-            padding: "10px", 
-            borderRadius: "4px",
-            maxWidth: "600px",
-            overflow: "auto"
-          }}>
+          <pre
+            style={{
+              background: "#2a2a2a",
+              padding: "10px",
+              borderRadius: "4px",
+              maxWidth: "600px",
+              overflow: "auto",
+            }}
+          >
             {this.state.error?.message}
           </pre>
           <button
@@ -60,7 +64,7 @@ export class ErrorBoundary extends Component<Props, State> {
               color: "white",
               border: "none",
               borderRadius: "4px",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             Reload Page

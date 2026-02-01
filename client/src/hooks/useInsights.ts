@@ -26,9 +26,9 @@ export const useInsights = () => {
       queryClient.setQueryData(["insights"], data);
       queryClient.invalidateQueries({ queryKey: ["user"] }); // Update credits
     },
-    onError: (error: any) => {
-      // Error is handled by the component or global handler, but we can add toast here if needed
-      // For now, we'll let the component handle UI feedback via isError
+    onError: (error: Error) => {
+      console.log("Error generating insights:", error);
+      return "Error generating insights";
     },
   });
 

@@ -1,145 +1,45 @@
-import { useState, useEffect } from "react";
-import { Sun, Moon, Bell, User, Shield, LogOut, Trash2, Mail, Loader2, X, AlertTriangle } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  Bell,
+  User,
+  Shield,
+  LogOut,
+  Trash2,
+  Mail,
+  Loader2,
+  X,
+  AlertTriangle,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useThemeStore } from "../store/theme.store";
-import { useAuthStore } from "../store/auth.store";
-import { useUser } from "../hooks/useUser";
-import { api } from "../service/api.service";
-import { demoApi } from "../service/demo.service";
-import { toast } from "react-toastify";
+import { useSettings } from "../hooks/useSettings";
 
 const Settings = () => {
-  const { theme, setTheme } = useThemeStore();
-  const { logout, isDemo } = useAuthStore();
-  const { data: user, refetch } = useUser();
-  
-  // Profile state
-  const [name, setName] = useState("");
-  const [profileSaving, setProfileSaving] = useState(false);
-  
-  // Notification settings
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [notificationTime, setNotificationTime] = useState("15");
-  
-  // Delete account flow
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteCode, setDeleteCode] = useState("");
-  const [codeExpiry, setCodeExpiry] = useState<Date | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes in seconds
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isSendingCode, setIsSendingCode] = useState(false);
-
-  const getApi = () => (isDemo ? demoApi : api);
-
-  // Initialize from user data
-  useEffect(() => {
-    if (user) {
-      if (user.name) setName(user.name);
-      setNotificationsEnabled(user.notificationsEnabled ?? true);
-      setNotificationTime((user.defaultNotifyBefore ?? 15).toString());
-    }
-  }, [user]);
-
-  // Auto-save notification settings
-  useEffect(() => {
-    if (!user) return;
-    
-    const saveNotifications = async () => {
-      // Only save if values actually changed from user data
-      if (notificationsEnabled !== user.notificationsEnabled || 
-          parseInt(notificationTime) !== user.defaultNotifyBefore) {
-        try {
-          await getApi().updateUserProfile({
-            notificationsEnabled,
-            defaultNotifyBefore: parseInt(notificationTime)
-          });
-          // No toast for auto-save to avoid spamming, but we could refetch
-          await refetch();
-        } catch (error) {
-          console.error("Failed to auto-save notification settings:", error);
-        }
-      }
-    };
-
-    const timeoutId = setTimeout(saveNotifications, 1000);
-    return () => clearTimeout(timeoutId);
-  }, [notificationsEnabled, notificationTime, user]);
-
-  // Countdown timer for delete code
-  useEffect(() => {
-    if (!codeExpiry) return;
-
-    const interval = setInterval(() => {
-      const now = new Date();
-      const remaining = Math.max(0, Math.floor((new Date(codeExpiry).getTime() - now.getTime()) / 1000));
-      setTimeRemaining(remaining);
-
-      if (remaining === 0) {
-        clearInterval(interval);
-        setShowDeleteModal(false);
-        toast.error("Verification code expired. Please try again.");
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [codeExpiry]);
-
-  const handleSaveProfile = async () => {
-    if (!name.trim()) {
-      toast.error("Name cannot be empty");
-      return;
-    }
-
-    setProfileSaving(true);
-    try {
-      await getApi().updateUserProfile({ name: name.trim() });
-      await refetch();
-      toast.success("Profile updated successfully");
-    } catch (error) {
-      toast.error("Failed to update profile");
-    } finally {
-      setProfileSaving(false);
-    }
-  };
-
-  const handleRequestDelete = async () => {
-    setIsSendingCode(true);
-    try {
-      const response = await getApi().requestAccountDeletion();
-      setCodeExpiry(new Date(response.expiresAt));
-      setTimeRemaining(300);
-      setShowDeleteConfirm(false);
-      setShowDeleteModal(true);
-      toast.success("Verification code sent to your email");
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || error?.message || "Failed to send verification code";
-      toast.error(errorMessage);
-    } finally {
-      setIsSendingCode(false);
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!deleteCode.trim() || deleteCode.length !== 6) {
-      toast.error("Please enter a valid 6-digit code");
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      await getApi().deleteAccount(deleteCode);
-      toast.success("Account deleted successfully");
-      setTimeout(() => {
-        logout();
-      }, 1000);
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || error?.message || "Failed to delete account";
-      toast.error(errorMessage);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+  const {
+    theme,
+    setTheme,
+    user,
+    logout,
+    name,
+    setName,
+    profileSaving,
+    notificationsEnabled,
+    setNotificationsEnabled,
+    notificationTime,
+    setNotificationTime,
+    showDeleteConfirm,
+    setShowDeleteConfirm,
+    showDeleteModal,
+    setShowDeleteModal,
+    deleteCode,
+    setDeleteCode,
+    timeRemaining,
+    isDeleting,
+    isSendingCode,
+    handleSaveProfile,
+    handleRequestDelete,
+    handleDeleteAccount,
+  } = useSettings();
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -152,7 +52,6 @@ const Settings = () => {
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Settings Column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Profile */}
           <motion.div
@@ -181,7 +80,9 @@ const Settings = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Display Name</label>
+                <label className="block text-sm font-medium mb-2">
+                  Display Name
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -262,7 +163,9 @@ const Settings = () => {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Enable notifications</label>
+                <label className="text-sm font-medium">
+                  Enable notifications
+                </label>
                 <button
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     notificationsEnabled ? "bg-accent" : "bg-secondary"
@@ -306,12 +209,15 @@ const Settings = () => {
           >
             <div className="flex items-center gap-2 mb-4">
               <Shield className="h-5 w-5 text-destructive" />
-              <h2 className="text-lg font-semibold text-destructive">Danger Zone</h2>
+              <h2 className="text-lg font-semibold text-destructive">
+                Danger Zone
+              </h2>
             </div>
 
             <div className="space-y-3">
               <p className="text-sm text-foreground/70">
-                Once you delete your account, there is no going back. Please be certain.
+                Once you delete your account, there is no going back. Please be
+                certain.
               </p>
               <button
                 className="w-full btn bg-destructive/20 text-destructive hover:bg-destructive/30 flex items-center justify-center gap-2"
@@ -398,8 +304,9 @@ const Settings = () => {
               </div>
 
               <p className="text-foreground/70 mb-6">
-                This will permanently delete your account and all associated data including
-                events, goals, and progress. This action cannot be undone.
+                This will permanently delete your account and all associated
+                data including events, goals, and progress. This action cannot
+                be undone.
               </p>
 
               <div className="flex gap-3">
@@ -460,8 +367,9 @@ const Settings = () => {
               </div>
 
               <p className="text-foreground/70 mb-4">
-                We've sent a 6-digit verification code to <strong>{user?.email}</strong>.
-                Enter it below to confirm account deletion.
+                We've sent a 6-digit verification code to{" "}
+                <strong>{user?.email}</strong>. Enter it below to confirm
+                account deletion.
               </p>
 
               <div className="mb-4 p-4 bg-warning/10 border border-warning/20 rounded-md">
@@ -485,7 +393,9 @@ const Settings = () => {
                     placeholder="000000"
                     value={deleteCode}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                      const value = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 6);
                       setDeleteCode(value);
                     }}
                     maxLength={6}

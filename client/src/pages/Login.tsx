@@ -56,35 +56,37 @@ const Login = () => {
         className="w-full max-w-md bg-card rounded-lg shadow-md p-8"
       >
         <div className="flex justify-center mb-6">
-          <div className="flex items-center space-x-2">
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-accent"
-            >
-              <path
-                d="M12 8V12L14.5 14.5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M5.6087 19C3.58041 19 2.0016 17.2091 2.0016 15C2.0016 13.1358 3.1232 11.5693 4.72195 11.1469C4.89261 8.32075 7.15425 6 9.99739 6C12.1229 6 13.9532 7.2926 14.8308 9.1206C15.0769 9.04211 15.3348 9 15.6016 9C17.2584 9 18.6016 10.3431 18.6016 12C18.6016 12.2321 18.5739 12.4562 18.5216 12.6693C19.827 13.2784 20.7516 14.5478 20.7516 16C20.7516 18.2091 18.9608 20 16.9325 20H5.6087Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <h1 className="text-2xl font-bold">
-              <span className="text-accent">Time</span>
-              <span>forge</span>
-            </h1>
-          </div>
+          <button onClick={() => navigate("/")}>
+            <div className="flex items-center space-x-2">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-accent"
+              >
+                <path
+                  d="M12 8V12L14.5 14.5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M5.6087 19C3.58041 19 2.0016 17.2091 2.0016 15C2.0016 13.1358 3.1232 11.5693 4.72195 11.1469C4.89261 8.32075 7.15425 6 9.99739 6C12.1229 6 13.9532 7.2926 14.8308 9.1206C15.0769 9.04211 15.3348 9 15.6016 9C17.2584 9 18.6016 10.3431 18.6016 12C18.6016 12.2321 18.5739 12.4562 18.5216 12.6693C19.827 13.2784 20.7516 14.5478 20.7516 16C20.7516 18.2091 18.9608 20 16.9325 20H5.6087Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <h1 className="text-2xl font-bold">
+                <span className="text-accent">Time</span>
+                <span>forge</span>
+              </h1>
+            </div>
+          </button>
         </div>
 
         <h2 className="text-xl font-bold text-center mb-6">

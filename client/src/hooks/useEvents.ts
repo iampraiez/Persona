@@ -43,7 +43,7 @@ export const useEvents = () => {
 
       return { previousEvents };
     },
-    onError: (err, newTodo, context) => {
+    onError: (_err, _newTodo, context) => {
       queryClient.setQueryData(["events"], context?.previousEvents);
     },
     onSuccess: () => {
