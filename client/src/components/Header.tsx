@@ -33,6 +33,7 @@ const Header = ({ openSidebar }: HeaderProps) => {
 
   const [number, setNumber] = useState(3);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const { notifications, clearAllNotifications } = useNotifications();
@@ -284,11 +285,12 @@ const Header = ({ openSidebar }: HeaderProps) => {
                 onClick={() => setProfileOpen(!profileOpen)}
               >
                 <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center text-accent ring-1 ring-accent/20">
-                  {user?.image ? (
+                  {user?.image && !imgError ? (
                     <img
                       className="h-8 w-8 rounded-full object-cover"
                       src={user.image}
                       alt="Profile"
+                      onError={() => setImgError(true)}
                     />
                   ) : (
                     <span className="font-semibold text-sm">

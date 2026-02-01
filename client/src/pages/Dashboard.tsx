@@ -40,22 +40,29 @@ const Dashboard = () => {
 
   const { events } = useEvents(); 
 
-  const upcomingTasks =
-    events
-      ?.filter((event: Event) => {
-        const eventDate = new Date(event.startTime);
-        const now = new Date();
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
-        
-        return eventDate >= now && eventDate <= endOfDay;
-      })
-      || []; // User requested top 5
+  const now = new Date();
+  
+  const todaysEvents = events?.filter((event: Event) => {
+    const eventDate = new Date(event.startTime);
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    return eventDate >= startOfDay && eventDate <= endOfDay;
+  }) || [];
+
+  const upcomingTasks = todaysEvents
+    .filter((event: Event) => {
+      const eventDate = new Date(event.startTime);
+      return eventDate >= now;
+    })
+    .slice(0, 5);
 
   const activeGoals = user?.goals?.slice(0, 3) || [];
 
-  const completedToday = upcomingTasks.filter(t => t.isCompleted).length;
-  const totalToday = upcomingTasks.length;
+  const completedToday = todaysEvents.filter(t => t.isCompleted).length;
+  const totalToday = todaysEvents.length;
   const dayProgress = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
 
 

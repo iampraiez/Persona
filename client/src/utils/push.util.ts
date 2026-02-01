@@ -29,13 +29,18 @@ export async function subscribeUser() {
     }
 
     const vapidKey = env.data?.VITE_PUBLIC_VAPID_KEY;
-    if (vapidKey) {
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(vapidKey),
-        });
-        await api.saveSubscription(subscription);
-        return;
+    if (vapidKey && vapidKey.length > 10) { // Simple length check to avoid empty/short invalid strings
+        try {
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(vapidKey),
+          });
+          await api.saveSubscription(subscription);
+          return;
+        } catch (e) {
+             console.error("VAPID sub failed, trying server key...", e);
+             // Fallthrough to server key if VAPID fails
+        }
     }
 
     const publicKey = await api.getPublicKey();

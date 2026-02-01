@@ -41,6 +41,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { useAnalytics } from "../hooks/useAnalytics";
 import { useInsights } from "../hooks/useInsights";
+import { useUser } from "../hooks/useUser";
 
 const COLORS = ["#8B5CF6", "#3B82F6", "#14B8A6", "#F97316"];
 
@@ -83,7 +84,8 @@ const Analytics = () => {
   const [range, setRange] = useState("week");
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(range, currentDate);
-  const { suggestions, generateInsights, isGenerating } = useInsights();
+  const { suggestions, generateInsights, isGenerating, isError: insightsError } = useInsights();
+  const { data: user } = useUser();
 
    const {
      totalEvents = 0,
@@ -505,6 +507,9 @@ const Analytics = () => {
             <TrendingUp className="h-5 w-5 text-accent" />
             AI Insights
           </h3>
+          <span className="text-xs font-medium bg-accent/10 text-accent px-2 py-1 rounded-full">
+            {user?.aiCredits ?? 0}/3 Credits
+          </span>
         </div>
 
         <div className="space-y-4">
@@ -554,13 +559,26 @@ const Analytics = () => {
               );
               return;
             }
+            
+            if ((user?.aiCredits || 0) <= 0) {
+               toast.error("You have reached your daily limit of 3 AI credits.");
+               return;
+            }
+
+            if (insightsError) {
+              toast.error("Failed to generate insights. Please try again later.");
+              return;
+            }
+
             generateInsights();
           }}
-          disabled={isGenerating}
-          className="w-full mt-4 py-2 text-sm bg-accent/10 text-accent rounded-md hover:bg-accent/20 transition-colors disabled:opacity-50"
+          disabled={isGenerating || (user?.aiCredits || 0) <= 0}
+          className="w-full mt-4 py-2 text-sm bg-accent/10 text-accent rounded-md hover:bg-accent/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isGenerating ? (
             <Loader2 className="w-5 h-5 animate-spin inline-block" />
+          ) : (user?.aiCredits || 0) <= 0 ? (
+            "Daily Limit Reached"
           ) : (
             "Generate New Insights"
           )}
