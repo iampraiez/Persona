@@ -72,8 +72,8 @@ export const useSettings = (): UseSettingsReturn => {
             defaultNotifyBefore: parseInt(notificationTime),
           });
           await refetch();
-        } catch (error) {
-          console.error("Failed to auto-save notification settings:", error);
+        } catch {
+          console.error("Failed to auto-save notification settings:");
         }
       }
     };

@@ -35,8 +35,8 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       await api.handleGoogleLogin(window.location.origin);
-    } catch (error) {
-      console.error("Google Auth error:", error);
+    } catch {
+      console.error("Google Auth error:");
       setError("Google Auth error");
       setTimeout(() => setError(null), 3000);
     }

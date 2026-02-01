@@ -207,7 +207,7 @@ export class ApiService {
       });
       return response.data.data;
     } catch (error) {
-      console.error(`API Error [${method.toUpperCase()} ${url}]:`, error);
+      console.error(`API Error [${method.toUpperCase()} ${url}]`);
       throw error;
     }
   }

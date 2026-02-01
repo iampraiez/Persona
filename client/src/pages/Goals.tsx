@@ -334,8 +334,7 @@ const Goals: React.FC = () => {
       }));
 
       toast.success("Steps generated successfully");
-    } catch (error) {
-      console.error("Error generating steps:", error);
+    } catch {
       toast.error("Error generating steps");
     } finally {
       setGeneratingSteps(false);
