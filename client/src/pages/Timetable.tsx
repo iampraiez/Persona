@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import {
   Calendar,
@@ -9,8 +9,12 @@ import {
   XCircle,
   Circle,
   Copy,
+  Sparkles,
+  Trash2,
+  MoreVertical,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { api } from "../service/api.service";
+import { motion, AnimatePresence } from "framer-motion";
 import { Event } from "../types";
 import { useEvents } from "../hooks/useEvents";
 import { toast } from "react-toastify";
@@ -45,11 +49,46 @@ const Timetable = () => {
   const [show, setShow] = useState<boolean>(false);
   const [important, setImportant] = useState<boolean>(false);
 
+  // AI & Utility State
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiDescription, setAiDescription] = useState("");
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [aiRange, setAiRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [copyRange, setCopyRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  const [copyTargetStart, setCopyTargetStart] = useState<string>("");
+  
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [clearRange, setClearRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Set default ranges to selected date
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
+    setAiRange({ start: dateStr, end: dateStr });
+    setCopyRange({ start: dateStr, end: dateStr });
+    setClearRange({ start: dateStr, end: dateStr });
+    setCopyTargetStart(dateStr);
+  }, [selectedDate, showAiModal, showCopyModal, showClearModal]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
   const startOfCurrentWeek = startOfWeek(selectedDate, { weekStartsOn: 0 });
   const weekDays = [...Array(7)].map((_, i) => addDays(startOfCurrentWeek, i));
 
   const eventsForSelectedDate = events?.filter((event) =>
-    isSameDay(new Date(event.startTime), selectedDate)
+    isSameDay(new Date(event.startTime), selectedDate),
   );
 
   const handleEventClick = (event: Event) => {
@@ -98,9 +137,9 @@ const Timetable = () => {
         onError: () => {
           toast.error("Failed to mark event as completed");
         },
-      }
+      },
     );
-  } 
+  }
 
   async function handleSkipEvent() {
     setShow(false);
@@ -125,7 +164,7 @@ const Timetable = () => {
         onError: () => {
           toast.error("Failed to skip event");
         },
-      }
+      },
     );
   }
 
@@ -149,7 +188,7 @@ const Timetable = () => {
         onError: () => {
           toast.error("Failed to reset event status");
         },
-      }
+      },
     );
   }
 
@@ -173,12 +212,92 @@ const Timetable = () => {
     setNewEvent({
       title: `${selectedEvent.title} (Copy)`,
       description: selectedEvent.description || "",
-      startTime: format(new Date(selectedEvent.startTime), "yyyy-MM-dd'T'HH:mm"),
+      startTime: format(
+        new Date(selectedEvent.startTime),
+        "yyyy-MM-dd'T'HH:mm",
+      ),
       endTime: format(new Date(selectedEvent.endTime), "yyyy-MM-dd'T'HH:mm"),
       notifyBefore: selectedEvent.notifyBefore,
     });
     setShowEventDetailsModal(false);
     setShowNewEventModal(true);
+  };
+
+  const handleAiGenerate = async () => {
+    if (!aiDescription) {
+      toast.error("Please describe your schedule");
+      return;
+    }
+    if (!aiRange.start || !aiRange.end) {
+       toast.error("Please select a date range");
+       return;
+    }
+
+    try {
+      setIsGeneratingAi(true);
+      const start = new Date(aiRange.start);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(aiRange.end);
+      end.setHours(23, 59, 59, 999);
+
+      await api.generateTimetable(aiDescription, {
+        start: start.toISOString(),
+        end: end.toISOString(),
+      });
+      
+      toast.success("Timetable generated successfully!");
+      setShowAiModal(false);
+      setAiDescription("");
+      window.location.reload(); 
+    } catch {
+      toast.error("Failed to generate timetable. Check if you have credits.");
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
+
+  const handleCopyRange = async () => {
+    try {
+      if (!copyRange.start || !copyRange.end || !copyTargetStart) return;
+      
+      const sStart = new Date(copyRange.start);
+      sStart.setHours(0, 0, 0, 0);
+      const sEnd = new Date(copyRange.end);
+      sEnd.setHours(23, 59, 59, 999);
+      const tStart = new Date(copyTargetStart);
+      tStart.setHours(0, 0, 0, 0);
+
+      await api.copyEvents(
+        sStart.toISOString(),
+        sEnd.toISOString(),
+        tStart.toISOString()
+      );
+      
+      toast.success("Events copied successfully!");
+      setShowCopyModal(false);
+       window.location.reload();
+    } catch {
+       toast.error("Failed to copy events");
+    }
+  };
+
+  const handleClearRange = async () => {
+    if (!confirm("Are you sure you want to clear events in this range?"))
+      return;
+
+    try {
+      const start = new Date(clearRange.start);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(clearRange.end);
+      end.setHours(23, 59, 59, 999);
+
+      await api.deleteEventsRange(start.toISOString(), end.toISOString());
+      toast.success("Events cleared successfully");
+      setShowClearModal(false);
+      window.location.reload();
+    } catch {
+      toast.error("Failed to clear events");
+    }
   };
   //Page begins
   if (isLoading) {
@@ -193,13 +312,67 @@ const Timetable = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Weekly Timetable</h1>
-        <button
-          className="btn btn-accent flex items-center gap-2"
-          onClick={() => setShowNewEventModal(true)}
-        >
-          <Plus className="h-5 w-5" />
-          New Event
-        </button>
+        <div className="flex gap-2 relative" ref={menuRef}>
+          <button
+            className="btn btn-accent flex items-center gap-2"
+            onClick={() => setShowNewEventModal(true)}
+          >
+            <Plus className="h-5 w-5" />
+            <span className="hidden md:inline">New Event</span>
+          </button>
+          
+          <button 
+            className="p-2 rounded-full hover:bg-secondary border border-border"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <MoreVertical className="h-5 w-5" />
+          </button>
+
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                className="absolute right-0 top-12 w-56 bg-card rounded-xl shadow-xl border border-border z-50 overflow-hidden"
+              >
+                <div className="p-1">
+                  <button
+                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm hover:bg-secondary rounded-lg transition-colors"
+                    onClick={() => {
+                      setShowAiModal(true);
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4 text-accent" />
+                    AI Generate
+                  </button>
+                  <button
+                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm hover:bg-secondary rounded-lg transition-colors"
+                    onClick={() => {
+                      setShowCopyModal(true);
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <Copy className="h-4 w-4" />
+                    Copy Events
+                  </button>
+                  <div className="h-px bg-border my-1" />
+                  <button
+                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm hover:bg-secondary text-destructive rounded-lg transition-colors"
+                    onClick={() => {
+                       setShowClearModal(true);
+                       setIsMenuOpen(false);
+                    }}
+                  >
+                     <Trash2 className="h-4 w-4" />
+                    Clear Events
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Week days selector */}
@@ -207,7 +380,7 @@ const Timetable = () => {
         {weekDays.map((day, index) => {
           const isSelectedDay = isSameDay(day, selectedDate);
           const hasEvents = events?.some((event) =>
-            isSameDay(new Date(event.startTime), day)
+            isSameDay(new Date(event.startTime), day),
           );
 
           return (
@@ -253,12 +426,11 @@ const Timetable = () => {
                   {hour === 0
                     ? "12 AM"
                     : hour < 12
-                    ? `${hour} AM`
-                    : hour === 12
-                    ? "12 PM"
-                    : `${hour - 12} PM`}
+                      ? `${hour} AM`
+                      : hour === 12
+                        ? "12 PM"
+                        : `${hour - 12} PM`}
                 </div>
-                {/* Tile component for each event list */}
                 <div className="flex-1 min-h-[60px] border-l border-border pl-4 relative">
                   {hourEvents && hourEvents.length > 0 ? (
                     hourEvents.map((event) => (
@@ -272,8 +444,8 @@ const Timetable = () => {
                             event.isCompleted
                               ? "bg-success/20 hover:bg-success/30"
                               : event.skippedReason
-                              ? "bg-warning/20 hover:bg-warning/30"
-                              : "bg-secondary hover:bg-secondary/80"
+                                ? "bg-warning/20 hover:bg-warning/30"
+                                : "bg-secondary hover:bg-secondary/80"
                           }
                         `}
                         onClick={() => handleEventClick(event)}
@@ -292,7 +464,7 @@ const Timetable = () => {
                               <Clock className="h-3 w-3 mr-1" />
                               {format(
                                 new Date(event.startTime),
-                                "h:mm a"
+                                "h:mm a",
                               )} - {format(new Date(event.endTime), "h:mm a")}
                             </div>
                           </div>
@@ -370,7 +542,7 @@ const Timetable = () => {
                   value={newEvent.title}
                   onChange={(e) =>
                     setNewEvent({ ...newEvent, title: e.target.value })
-                  } //example
+                  }
                 />
               </div>
 
@@ -544,11 +716,11 @@ const Timetable = () => {
                     <button
                       onClick={() => setImportant(!important)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-md border transition duration-200 
-    ${
-      important
-        ? "bg-warning text-warning-foreground border-warning hover:bg-warning/90"
-        : "border-warning text-warning hover:bg-warning/10"
-    }`}
+                  ${
+                    important
+                      ? "bg-warning text-warning-foreground border-warning hover:bg-warning/90"
+                      : "border-warning text-warning hover:bg-warning/10"
+                  }`}
                     >
                       {important ? (
                         <CheckCircle className="w-4 h-4" />
@@ -618,8 +790,217 @@ const Timetable = () => {
           </motion.div>
         </div>
       )}
+
+      {/* AI Generate Modal */}
+      {showAiModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card p-6 rounded-lg w-full max-w-md border border-border m-4 shadow-2xl"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-accent" />
+                Generate with AI
+              </h2>
+              <button
+                onClick={() => setShowAiModal(false)}
+                className="p-1 hover:bg-secondary rounded-full"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Date Range</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="date"
+                    className="input w-full"
+                    value={aiRange.start}
+                    onChange={(e) => setAiRange(prev => ({ ...prev, start: e.target.value }))}
+                  />
+                  <input 
+                    type="date"
+                    className="input w-full"
+                    value={aiRange.end}
+                    onChange={(e) => setAiRange(prev => ({ ...prev, end: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Describe your ideal schedule
+                </label>
+                <textarea
+                  className="input w-full h-32 resize-none"
+                  placeholder="e.g., I want to wake up at 7am, exercise for an hour, work on coding until 5pm with a lunch break, then relax."
+                  value={aiDescription}
+                  onChange={(e) => setAiDescription(e.target.value)}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setShowAiModal(false)}
+                  className="btn bg-secondary hover:bg-secondary/80"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAiGenerate}
+                  disabled={isGeneratingAi}
+                  className="btn btn-accent flex items-center gap-2"
+                >
+                  {isGeneratingAi ? (
+                     <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  Generate
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Copy Modal */}
+      {showCopyModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card p-6 rounded-lg w-full max-w-md border border-border m-4 shadow-2xl"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Copy className="h-5 w-5" />
+                Copy Events
+              </h2>
+              <button
+                onClick={() => setShowCopyModal(false)}
+                className="p-1 hover:bg-secondary rounded-full"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+               <div>
+                <label className="block text-sm font-medium mb-1">Source Range</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="date"
+                    className="input w-full"
+                    value={copyRange.start}
+                    onChange={(e) => setCopyRange(prev => ({ ...prev, start: e.target.value }))}
+                  />
+                  <input 
+                    type="date"
+                    className="input w-full"
+                    value={copyRange.end}
+                    onChange={(e) => setCopyRange(prev => ({ ...prev, end: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+               <div>
+                <label className="block text-sm font-medium mb-1">Target Start Date</label>
+                <input 
+                  type="date"
+                  className="input w-full"
+                  value={copyTargetStart}
+                  onChange={(e) => setCopyTargetStart(e.target.value)}
+                />
+                <p className="text-xs text-foreground/60 mt-1">Events will be copied starting from this date.</p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setShowCopyModal(false)}
+                  className="btn bg-secondary hover:bg-secondary/80"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCopyRange}
+                  className="btn btn-accent"
+                >
+                  Copy Events
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Clear Modal */}
+      {showClearModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card p-6 rounded-lg w-full max-w-md border border-border m-4 shadow-2xl"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2 text-destructive">
+                <Trash2 className="h-5 w-5" />
+                Clear Events
+              </h2>
+              <button
+                onClick={() => setShowClearModal(false)}
+                className="p-1 hover:bg-secondary rounded-full"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-sm text-foreground/80">
+                Select the range of events you want to delete. This action cannot be undone.
+              </p>
+               <div>
+                <label className="block text-sm font-medium mb-1">Range to Clear</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="date"
+                    className="input w-full"
+                    value={clearRange.start}
+                    onChange={(e) => setClearRange(prev => ({ ...prev, start: e.target.value }))}
+                  />
+                  <input 
+                    type="date"
+                    className="input w-full"
+                    value={clearRange.end}
+                    onChange={(e) => setClearRange(prev => ({ ...prev, end: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setShowClearModal(false)}
+                  className="btn bg-secondary hover:bg-secondary/80"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleClearRange}
+                  className="btn bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
-};
+};;
 
 export default Timetable;

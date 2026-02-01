@@ -20,6 +20,7 @@ const prisma_1 = require("./lib/prisma");
 const error_util_1 = require("./utils/error.util");
 const scheduler_1 = require("./scheduler");
 const env_1 = require("./config/env");
+const rateLimiter_1 = require("./middleware/rateLimiter");
 const app = (0, express_1.default)();
 (0, scheduler_1.startScheduler)();
 const CLIENT = env_1.env.data?.CLIENT_URL || "http://localhost:5173";
@@ -43,12 +44,12 @@ app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 app.use((0, cors_1.default)(corsOptions));
 app.use("/api/auth", auth_2.default);
-app.use("/api/users", auth_1.authMiddleware, users_1.default);
-app.use("/api/events", auth_1.authMiddleware, events_1.default);
-app.use("/api/goals", auth_1.authMiddleware, goals_1.default);
-app.use("/api/ai", auth_1.authMiddleware, ai_1.default);
+app.use("/api/users", auth_1.authMiddleware, rateLimiter_1.eventWriteRateLimiter, users_1.default); // Apply rate limit to profile updates
+app.use("/api/events", auth_1.authMiddleware, rateLimiter_1.eventWriteRateLimiter, events_1.default);
+app.use("/api/goals", auth_1.authMiddleware, rateLimiter_1.eventWriteRateLimiter, goals_1.default); // Apply rate limit to goal updates
+app.use("/api/ai", auth_1.authMiddleware, rateLimiter_1.aiRateLimiter, ai_1.default);
 app.use("/api/analytics", auth_1.authMiddleware, analytics_1.default);
-app.use("/api/notification", auth_1.authMiddleware, notification_1.default);
+app.use("/api/notification", auth_1.authMiddleware, rateLimiter_1.eventWriteRateLimiter, notification_1.default); // Apply rate limit to notifications
 app.get("/api/health", (req, res) => {
     res.status(200).json({
         date: new Date().toISOString(),

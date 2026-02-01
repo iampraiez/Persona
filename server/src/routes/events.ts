@@ -276,4 +276,107 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+router.delete("/", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
+    const { start, end } = req.query;
+
+    if (!start || !end) {
+      res.status(400).json({ error: "Start and end dates are required", data: null });
+      return;
+    }
+
+    await prisma.event.deleteMany({
+      where: {
+        userId: user.id,
+        startTime: {
+          gte: new Date(start as string),
+          lte: new Date(end as string),
+        },
+      },
+    });
+
+    res.status(200).json({ data: "Events deleted successfully", error: null });
+  } catch (error: unknown) {
+    logger.error(`Delete Events Range Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to delete events"),
+    });
+  }
+});
+
+router.post("/copy", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await prisma.user.findUnique({ where: { email: req.user } });
+    if (!user) {
+      res.status(404).json({ error: "User not found", data: null });
+      return;
+    }
+
+    const { sourceStart, sourceEnd, targetStart } = req.body;
+
+    if (!sourceStart || !sourceEnd || !targetStart) {
+      res.status(400).json({ error: "Missing required fields", data: null });
+      return;
+    }
+
+    const sStart = new Date(sourceStart);
+    const sEnd = new Date(sourceEnd);
+    const tStart = new Date(targetStart);
+
+    // Normalize times for accurate diff calculation (optional, but good for day alignment)
+    // We keep hours if the user wants exact copy, but usually "copy day" means same time on new day.
+    // However, if it's a range, we just want to shift everything by the difference.
+    
+    const timeDiff = tStart.getTime() - sStart.getTime();
+
+    // Get source events
+    const events = await prisma.event.findMany({
+      where: {
+        userId: user.id,
+        startTime: {
+          gte: sStart,
+          lte: sEnd,
+        },
+      },
+    });
+
+    if (events.length === 0) {
+       res.status(200).json({ data: [], error: null }); 
+       return;
+    }
+
+    // Create new events
+    const newEvents = await Promise.all(
+      events.map((event) =>
+        prisma.event.create({
+          data: {
+            title: event.title,
+            description: event.description,
+            startTime: new Date(event.startTime.getTime() + timeDiff),
+            endTime: new Date(event.endTime.getTime() + timeDiff),
+            notifyBefore: event.notifyBefore,
+            userId: user.id,
+          },
+        })
+      )
+    );
+
+    res.status(201).json({ data: newEvents, error: null });
+
+  } catch (error: unknown) {
+    logger.error(`Copy Events Error: ${error}`);
+    res.status(500).json({
+      data: null,
+      error: errorWrapper(error, "Failed to copy events"),
+    });
+  }
+});
+
 export default router;

@@ -1,24 +1,24 @@
-self.addEventListener("push", function (event) {
-  const data = event.data.json();
 
-  self.registration.showNotification(data.title, {
-    body: data.body,
-    icon: "/icon.png",
-    badge: "/badge.png",
-    image: data.image,
-    data: {
-      url: data.url,
-    },
-    actions: [
-      { action: "open", title: "Open", icon: "/open-icon.png" },
-      { action: "dismiss", title: "Dismiss", icon: "/dismiss-icon.png" },
-    ],
-  });
+self.addEventListener("push", function (event) {
+  if (event.data) {
+    const data = event.data.json();
+    const options = {
+      body: data.body,
+      icon: "/pwa-192x192.png", // Ensure you have this icon or change path
+      badge: "/pwa-192x192.png",
+      vibrate: [100, 50, 100],
+      data: {
+        dateOfArrival: Date.now(),
+        primaryKey: "2",
+      },
+    };
+    event.waitUntil(self.registration.showNotification(data.title, options));
+  }
 });
 
 self.addEventListener("notificationclick", function (event) {
   event.notification.close();
-  if (event.action === "open") {
-    event.waitUntil(clients.openWindow(event.notification.data.url));
-  }
+  event.waitUntil(
+    clients.openWindow("http://localhost:5173") // Update with your production URL when deploying
+  );
 });

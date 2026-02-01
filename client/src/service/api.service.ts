@@ -104,7 +104,7 @@ export class ApiService {
       headers: {
         "Content-Type": "application/json",
       },
-      timeout: 10000,
+      timeout: 30000,
     });
 
     this.setupInterceptors();
@@ -321,6 +321,34 @@ export class ApiService {
 
   async updateStepStatus(goalId: string, stepId: string): Promise<void> {
     await this.request("put", `/goals/${goalId}/steps/${stepId}`);
+  }
+
+  async generateTimetable(
+    description: string,
+    range: { start: string; end: string },
+  ): Promise<Event[]> {
+    return this.request<Event[]>("post", "/ai/generate-timetable", {
+      description,
+      range,
+    });
+  }
+
+  async copyEvents(
+    sourceStart: string,
+    sourceEnd: string,
+    targetStart: string,
+  ): Promise<Event[]> {
+    return this.request<Event[]>("post", "/events/copy", {
+      sourceStart,
+      sourceEnd,
+      targetStart,
+    });
+  }
+
+  async deleteEventsRange(start: string, end: string): Promise<void> {
+    await this.request("delete", `/events`, undefined, {
+      params: { start, end },
+    });
   }
 
   async sendNotification(notification: {

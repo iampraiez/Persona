@@ -20,6 +20,7 @@ export const useNotifications = () => {
     mutationFn: (id: string) => getApi().deleteNotification(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 
@@ -32,6 +33,7 @@ export const useNotifications = () => {
     mutationFn: (id: string) => getApi().markNotificationAsRead(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 
@@ -39,6 +41,7 @@ export const useNotifications = () => {
     mutationFn: () => getApi().clearAllNotifications(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 

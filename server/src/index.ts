@@ -15,6 +15,7 @@ import { shutdown } from "./lib/prisma";
 import { errorHandler } from "./utils/error.util";
 import { startScheduler } from "./scheduler";
 import { env } from "./config/env";
+import { aiRateLimiter, eventWriteRateLimiter } from "./middleware/rateLimiter";
 
 const app: Express = express();
 
@@ -41,12 +42,12 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 
 app.use("/api/auth", authRoutes);
-app.use("/api/users", authMiddleware, userRoutes);
-app.use("/api/events", authMiddleware, eventRoutes);
-app.use("/api/goals", authMiddleware, goalRoutes);
-app.use("/api/ai", authMiddleware, aiRoutes);
+app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes); // Apply rate limit to profile updates
+app.use("/api/events", authMiddleware, eventWriteRateLimiter, eventRoutes); 
+app.use("/api/goals", authMiddleware, eventWriteRateLimiter, goalRoutes); // Apply rate limit to goal updates
+app.use("/api/ai", authMiddleware, aiRateLimiter, aiRoutes);
 app.use("/api/analytics", authMiddleware, analyticsRoutes);
-app.use("/api/notification", authMiddleware, subRoute);
+app.use("/api/notification", authMiddleware, eventWriteRateLimiter, subRoute); // Apply rate limit to notifications
 
 app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({

@@ -161,6 +161,7 @@ export const generateDailyFocus = async (
   }
 };
 
+
 const formatDateTime = (date: Date | string) => {
   return new Date(date).toLocaleString("en-US", {
     hour: "numeric",
@@ -168,5 +169,43 @@ const formatDateTime = (date: Date | string) => {
     hour12: true,
     month: "short",
     day: "numeric",
+    weekday: "short",
   });
-}
+};
+
+export const generateTimetable = async (
+  description: string,
+  range: { start: string; end: string }
+) => {
+  if (!GEMINI_API_KEY) return null;
+
+  try {
+    const prompt = `
+      Create a schedule based on this description: "${description}"
+      Time Range: ${range.start} to ${range.end}
+      
+      Rules:
+      1. Create events that fit the description and time range.
+      2. Infer logical durations if not specified (default 1 hour).
+      3. For "every day" or recurring patterns, generate individual events for each day in the range.
+      4. DO NOT fill every single hour, leave gaps for breaks/flexibility unless specified otherwise.
+      5. Infer "notifyBefore" (15m default) and "isImportant" based on context.
+      6. STRICTLY avoid overlapping time slots for events. Each event must finish before the next one starts.
+      
+      Return ONLY a JSON array of event objects:
+      [{
+        "title": "brief title",
+        "description": "optional details",
+        "startTime": "ISO 8601 string",
+        "endTime": "ISO 8601 string",
+        "notifyBefore": number (minutes)
+      }]
+    `;
+
+    const response = await generateContent(prompt);
+    return cleanJSON(response);
+  } catch (error) {
+    logger.error(`AI Timetable Generation Error: ${error}`);
+    return null;
+  }
+};

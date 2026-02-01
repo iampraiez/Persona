@@ -14,8 +14,9 @@ import {
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { useUser } from "../hooks/useUser";
+import { useEvents } from "../hooks/useEvents";
 import { useInsights } from "../hooks/useInsights";
-import { AiSuggestion } from "../types/index";
+import { AiSuggestion, Event } from "../types/index";
 import "../index.css";
 
 const Dashboard = () => {
@@ -37,13 +38,19 @@ const Dashboard = () => {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
+  const { events } = useEvents(); 
+
   const upcomingTasks =
-    user?.events
-      ?.filter((event) => {
+    events
+      ?.filter((event: Event) => {
         const eventDate = new Date(event.startTime);
-        return eventDate >= today && eventDate < tomorrow;
+        const now = new Date();
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        return eventDate >= now && eventDate <= endOfDay;
       })
-      .slice(0, 3) || [];
+      || []; // User requested top 5
 
   const activeGoals = user?.goals?.slice(0, 3) || [];
 

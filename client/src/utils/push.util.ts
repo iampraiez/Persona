@@ -1,5 +1,6 @@
 import { api } from "../service/api.service";
 import { useAuthStore } from "../store/auth.store";
+import { env } from "../config/env";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -25,6 +26,16 @@ export async function subscribeUser() {
     if (existingSubscription) {
       await api.saveSubscription(existingSubscription);
       return;
+    }
+
+    const vapidKey = env.data?.VITE_PUBLIC_VAPID_KEY;
+    if (vapidKey) {
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidKey),
+        });
+        await api.saveSubscription(subscription);
+        return;
     }
 
     const publicKey = await api.getPublicKey();

@@ -11,6 +11,8 @@ import { LazyMotion, domAnimation } from "framer-motion";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import "react-toastify/dist/ReactToastify.css";
 
+import NotificationManager from "./components/NotificationManager";
+
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const Timetable = lazy(() => import("./pages/Timetable"));
@@ -33,6 +35,7 @@ function App() {
 
   return (
     <div className={theme}>
+      <NotificationManager />
       <ErrorBoundary>
         <LazyMotion features={domAnimation}>
           <Router>

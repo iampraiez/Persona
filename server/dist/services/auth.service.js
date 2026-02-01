@@ -10,10 +10,11 @@ const CLIENT_SECRET = env_1.env.data?.GOOGLE_CLIENT_SECRET;
 const URL = env_1.env.data?.BACKEND_URL || "http://localhost:3000";
 const REDIRECT_URI = `${URL}/api/auth/google/callback`;
 exports.oAuth2Client = new google_auth_library_1.OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+const isProduction = env_1.env.data?.NODE_ENV === "production";
 exports.COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: env_1.env.data?.NODE_ENV === "production",
-    sameSite: "none",
+    secure: isProduction,
+    sameSite: (isProduction ? "none" : "lax"),
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
 };

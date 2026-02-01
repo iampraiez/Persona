@@ -16,11 +16,6 @@ router.get("/suggestions", async (req, res) => {
             res.status(404).json({ error: "User not found", data: null });
             return;
         }
-        // Check for cached insights first (if not forced)
-        // Note: Frontend should handle "force" refresh if needed, but for now we assume 
-        // if this endpoint is called, we want new insights UNLESS valid cache exists and we want to return it.
-        // However, the requirement says "if generated once... it just fetches from there".
-        // So we check cache first.
         const now = new Date();
         if (user.cachedInsights && user.lastInsightsDate) {
             const lastInsightsDate = new Date(user.lastInsightsDate);
@@ -32,7 +27,6 @@ router.get("/suggestions", async (req, res) => {
                 return;
             }
         }
-        // Check credits
         if (user.aiCredits <= 0) {
             res.status(403).json({ error: "Daily AI limit reached (3/3)", data: null });
             return;
@@ -69,12 +63,11 @@ router.get("/suggestions", async (req, res) => {
             ...(goalSuggestions || []),
             ...(focusSuggestions || []),
         ];
-        // Deduct credit and cache insights
         await prisma_1.prisma.user.update({
             where: { id: user.id },
             data: {
                 aiCredits: { decrement: 1 },
-                cachedInsights: suggestions, // Cast to any for Json compatibility
+                cachedInsights: suggestions,
                 lastInsightsDate: now,
             },
         });
@@ -133,6 +126,56 @@ router.post("/generate-steps", async (req, res) => {
         res.status(500).json({
             data: null,
             error: (0, error_util_1.errorWrapper)(error, "Failed to generate steps")
+        });
+    }
+});
+router.post("/generate-timetable", async (req, res) => {
+    try {
+        const userEmail = req.user;
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { email: userEmail },
+        });
+        if (!user) {
+            res.status(404).json({ error: "User not found", data: null });
+            return;
+        }
+        if (user.aiCredits <= 0) {
+            res.status(403).json({ error: "Daily AI limit reached (3/3)", data: null });
+            return;
+        }
+        const { description, range } = req.body;
+        if (!description || !range?.start || !range?.end) {
+            res.status(400).json({ error: "Missing required fields", data: null });
+            return;
+        }
+        const generatedEvents = await (0, ai_service_1.generateTimetable)(description, range);
+        if (!generatedEvents || !Array.isArray(generatedEvents)) {
+            res.status(500).json({ error: "Failed to generate valid timetable", data: null });
+            return;
+        }
+        const createdEvents = await Promise.all(generatedEvents.map((event) => prisma_1.prisma.event.create({
+            data: {
+                title: event.title,
+                description: event.description,
+                startTime: new Date(event.startTime),
+                endTime: new Date(event.endTime),
+                notifyBefore: event.notifyBefore || 15,
+                userId: user.id,
+            },
+        })));
+        await prisma_1.prisma.user.update({
+            where: { id: user.id },
+            data: {
+                aiCredits: { decrement: 1 },
+            },
+        });
+        res.status(200).json({ data: createdEvents, error: null });
+    }
+    catch (error) {
+        logger_utils_1.logger.error(`Timetable Generation Error: ${error}`);
+        res.status(500).json({
+            data: null,
+            error: (0, error_util_1.errorWrapper)(error, "Failed to generate timetable"),
         });
     }
 });
