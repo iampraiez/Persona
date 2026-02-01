@@ -220,8 +220,10 @@ export class ApiService {
     return this.request<boolean | null>("get", "/auth/logout");
   }
 
-  async handleGoogleLogin(): Promise<void> {
-    const response = await this.axiosInstance.get("/auth/google");
+  async handleGoogleLogin(returnTo?: string): Promise<void> {
+    const response = await this.axiosInstance.get("/auth/google", {
+      params: { returnTo },
+    });
     window.location.href = response.data.data;
   }
 
