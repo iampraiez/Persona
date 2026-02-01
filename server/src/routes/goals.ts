@@ -94,27 +94,24 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Prepare update data
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (totalDays !== undefined) updateData.totalDays = totalDays;
 
-    // Handle steps update if provided
     if (steps !== undefined && Array.isArray(steps)) {
-      // Delete all existing steps and recreate them
       await prisma.step.deleteMany({
         where: { goalId: id },
       });
 
-      // Create new steps (don't include goalId - Prisma sets it automatically via relation)
-      // Also filter out unknown fields like skippedIsImportant which might be coming from frontend
-      const stepsToCreate = steps.map(({ title, description, dueDate, isCompleted }: any) => ({
-        title,
-        description,
-        dueDate,
-        isCompleted: isCompleted || false,
-      }));
+      const stepsToCreate = steps.map(
+        ({ title, description, dueDate, isCompleted }: any) => ({
+          title,
+          description,
+          dueDate,
+          isCompleted: isCompleted || false,
+        }),
+      );
 
       updateData.steps = {
         create: stepsToCreate,
@@ -162,12 +159,10 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Delete associated steps first to avoid foreign key constraint
     await prisma.step.deleteMany({
       where: { goalId: id },
     });
 
-    // Then delete the goal
     await prisma.goal.delete({
       where: { id },
     });

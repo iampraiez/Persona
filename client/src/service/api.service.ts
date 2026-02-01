@@ -293,13 +293,6 @@ export class ApiService {
     });
   }
 
-  async getPublicKey(): Promise<{ publicKey: string }> {
-    return this.request<{ publicKey: string }>(
-      "get",
-      "/notification/public-key",
-    );
-  }
-
   async getSuggestions(): Promise<AiSuggestion[]> {
     return this.request<AiSuggestion[]>("get", "/ai/suggestions");
   }

@@ -23,16 +23,7 @@ export async function subscribeUser() {
       return;
     }
 
-    const vapidKeyFromEnv = env.data?.VITE_PUBLIC_VAPID_KEY;
-    let publicKey = vapidKeyFromEnv;
-
-    if (!publicKey || publicKey.length < 20) {
-      console.log("Fetching public key from server...");
-      const response = await api.getPublicKey();
-      publicKey = response.publicKey;
-    }
-
-    console.log("Attempting to subscribe with key:", publicKey);
+    const publicKey = env.data?.VITE_PUBLIC_VAPID_KEY;
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicKey),
