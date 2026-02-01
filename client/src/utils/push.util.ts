@@ -1,16 +1,7 @@
 import { api } from "../service/api.service";
 import { useAuthStore } from "../store/auth.store";
 import { env } from "../config/env";
-
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
-
-  const raw = atob(base64);
-  return new Uint8Array([...raw].map((char) => char.charCodeAt(0)));
-}
+import { urlBase64ToUint8Array } from "./notification.utils";
 
 export async function subscribeUser() {
   if (useAuthStore.getState().isDemo) return;
@@ -21,33 +12,30 @@ export async function subscribeUser() {
 
   try {
     const registration = await navigator.serviceWorker.register("/sw.js");
-    const existingSubscription = await registration.pushManager.getSubscription();
-    
+
+    await navigator.serviceWorker.ready;
+
+    const existingSubscription =
+      await registration.pushManager.getSubscription();
+
     if (existingSubscription) {
       await api.saveSubscription(existingSubscription);
       return;
     }
 
-    const vapidKey = env.data?.VITE_PUBLIC_VAPID_KEY;
-    if (vapidKey && vapidKey.length > 10) { // Simple length check to avoid empty/short invalid strings
-        try {
-          const subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidKey),
-          });
-          await api.saveSubscription(subscription);
-          return;
-        } catch (e) {
-             console.error("VAPID sub failed, trying server key...", e);
-             // Fallthrough to server key if VAPID fails
-        }
+    const vapidKeyFromEnv = env.data?.VITE_PUBLIC_VAPID_KEY;
+    let publicKey = vapidKeyFromEnv;
+
+    if (!publicKey || publicKey.length < 20) {
+      console.log("Fetching public key from server...");
+      const response = await api.getPublicKey();
+      publicKey = response.publicKey;
     }
 
-    const publicKey = await api.getPublicKey();
-
+    console.log("Attempting to subscribe with key:", publicKey);
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicKey.publicKey),
+      applicationServerKey: urlBase64ToUint8Array(publicKey),
     });
 
     await api.saveSubscription(subscription);

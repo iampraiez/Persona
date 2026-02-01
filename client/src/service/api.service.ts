@@ -120,7 +120,6 @@ export class ApiService {
   private setupInterceptors(): void {
     this.axiosInstance.interceptors.response.use(
       (response) => {
-        console.log("response interceptor triggered", response);
         return response;
       },
       async (error: AxiosError) => {

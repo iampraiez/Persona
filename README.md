@@ -12,21 +12,21 @@
 
 ## 🌟 Overview
 
-**TimeForge** is an AI-powered productivity ecosystem designed to help you reclaim your schedule. Unlike traditional calendars, TimeForge leverages the **Gemini API** to intelligently break down complex goals into manageable steps, provides real-time adaptive suggestions, and ensures you stay on track with a robust notification system.
+**TimeForge** is an AI-powered productivity ecosystem designed to help you reclaim your schedule. Leveraging the **Google Gemini API**, TimeForge intelligently generates multi-day schedules, breaks down complex goals into actionable roadmaps, and provides deep productivity insights.
 
-Whether you're a student, professional, or hobbyist, TimeForge provides the tools to visualize your progress and optimize your daily routine with a premium, high-performance interface.
+With a premium user experience featuring glassmorphism and fluid animations, TimeForge transforms how you manage your time, ensuring consistency through a robust Web Push notification system.
 
 ---
 
 ## ✨ Key Features
 
-- 🤖 **AI-Powered Goal Breakdown** – Input a high-level goal and let AI generate a structured roadmap with actionable steps and deadlines.
-- 📅 **24/7 Dynamic Scheduler** – A sleek, interactive timetable for managing your daily events and habits with ease.
-- 🔔 **Dual Notification System** – Receive both "Upcoming" reminders and "Starting Now" alerts via Web Push and in-app notifications.
-- 📊 **Advanced Analytics** – Visualize your productivity trends, goal completion rates, and weekly performance with interactive charts.
-- 🌓 **Premium Aesthetics** – A stunning dark-mode-first design featuring glassmorphism, smooth Framer Motion animations, and a responsive layout.
-- 🔐 **Secure Authentication** – Seamless and secure login experience using Google OAuth.
-- 🔄 **Adaptive Suggestions** – Missed a goal? TimeForge suggests alternative activities to keep your momentum going.
+- 🤖 **AI-Driven Scheduling** – Generate optimized timetables for single days or multi-day ranges based on your goals and preferences.
+- 📅 **Advanced Timetable Management** – Sleek interface to manage events, with powerful batch actions like copying or clearing events across date ranges.
+- � **Intelligent Analytics** – Track your performance with interactive charts and receive AI-generated insights to optimize your focus and habits.
+- 🔔 **Web Push Notifications** – Stay informed with a dual-layer notification system (Upcoming and "Starting Now" alerts) that works even when the app is closed.
+- 🎯 **Goal Progress Tracking** – Break down ambitious life goals into manageable steps, each with its own tracking and deadlines.
+- 🔐 **Enterprise-Grade Security** – Robust authentication via Google OAuth, coupled with comprehensive rate limiting and security headers.
+- 🌓 **Premium UI/UX** – High-performance interface built with Framer Motion, featuring a dark-mode-first aesthetic and a fully responsive layout.
 
 ---
 
@@ -34,31 +34,32 @@ Whether you're a student, professional, or hobbyist, TimeForge provides the tool
 
 ### Frontend
 - **Framework**: React 18 with Vite
-- **Styling**: Tailwind CSS (Custom Design System)
+- **Styling**: Vanilla CSS (Premium Design System)
 - **Animations**: Framer Motion
 - **State Management**: Zustand
 - **Data Fetching**: TanStack Query (React Query)
+- **Utility**: Date-fns
 
 ### Backend
 - **Runtime**: Node.js
 - **Framework**: Express.js
-- **Database**: PostgreSQL
-- **ORM**: Prisma
+- **Type Safety**: TypeScript
+- **Database**: PostgreSQL (Prisma ORM)
+- **Security**: Express-Rate-Limit & Helmet
 
-### Infrastructure & Services
-- **AI**: Google Gemini API
+### AI & Services
+- **AI Engine**: Google Gemini API
 - **Auth**: Google OAuth 2.0
 - **Notifications**: Web Push (VAPID)
-- **Deployment**: Vercel
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js** (v18 or higher)
+- **Node.js** (v18+)
 - **PostgreSQL** instance
-- **Google Cloud Console** account (for OAuth)
+- **Google Cloud Console** credentials
 - **Gemini API Key**
 
 ### Installation
@@ -72,35 +73,24 @@ Whether you're a student, professional, or hobbyist, TimeForge provides the tool
 2. **Backend Setup**
    ```bash
    cd server
-   npm install
+   pnpm install
    ```
-   Create a `.env` file in the `server` directory:
-   ```env
-   PORT=3000
-   DATABASE_URL="postgresql://user:password@localhost:5432/timeforge"
-   JWT_SECRET="your_jwt_secret"
-   GOOGLE_CLIENT_ID="your_google_client_id"
-   GOOGLE_CLIENT_SECRET="your_google_client_secret"
-   GEMINI_API_KEY="your_gemini_api_key"
-   VAPID_PUBLIC_KEY="your_vapid_public_key"
-   VAPID_PRIVATE_KEY="your_vapid_private_key"
-   CLIENT_URL="http://localhost:5173"
-   BACKEND_URL="http://localhost:3000"
-   ```
+   Create a `.env` file in the `server` directory using the provided schema.
 
 3. **Frontend Setup**
    ```bash
    cd ../client
-   npm install
+   pnpm install
    ```
    Create a `.env` file in the `client` directory:
    ```env
-   VITE_API_URL="http://localhost:3000/api"
+   VITE_API_URL="your_backend_url"
+   VITE_PUBLIC_VAPID_KEY="your_vapid_public_key"
    ```
 
-4. **Run the Application**
-   - **Server**: `npm run dev` (in `/server`)
-   - **Client**: `npm run dev` (in `/client`)
+4. **Run Locally**
+   - **Server**: `pnpm dev`
+   - **Client**: `pnpm dev`
 
 ---
 
@@ -108,20 +98,20 @@ Whether you're a student, professional, or hobbyist, TimeForge provides the tool
 
 ```text
 Persona/
-├── client/                # React Frontend
+├── client/                # React Frontend (Vite)
 │   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── hooks/         # Custom React hooks
-│   │   ├── pages/         # Page-level components
-│   │   ├── store/         # Zustand state stores
-│   │   └── service/       # API interaction layer
-├── server/                # Express Backend
+│   │   ├── components/    # Reusable UI & Layout
+│   │   ├── hooks/         # React Query & Logic hooks
+│   │   ├── pages/         # Dashboard, Timetable, Analytics
+│   │   ├── service/       # API Clients
+│   │   └── store/         # Zustand Stores
+├── server/                # Express Backend (TypeScript)
 │   ├── src/
-│   │   ├── routes/        # API endpoints
-│   │   ├── services/      # Business logic
-│   │   ├── middleware/    # Auth & Error handling
-│   │   └── scheduler.ts   # Cron jobs for notifications
-│   └── prisma/            # Database schema & migrations
+│   │   ├── routes/        # API Routing
+│   │   ├── services/      # AI & Business Logic
+│   │   ├── middleware/    # Auth, Security, Rate Limiting
+│   │   └── scheduler.ts   # Notification Engine
+│   └── prisma/            # Database Schema
 ```
 
 ---
@@ -133,5 +123,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
-  Built with ❤️ by <a href="https://github.com/iampraiez">iampraiez</a>
+  Built with ✨ by <a href="https://github.com/iampraiez">iampraiez</a>
 </div>

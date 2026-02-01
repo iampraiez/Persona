@@ -16,7 +16,7 @@ export const useInsights = () => {
     queryKey: ["insights"],
     queryFn: () => getApi().getSuggestions(),
     staleTime: 1000 * 60 * 5,
-    enabled: false, // Disable automatic fetching
+    enabled: false,
     initialData: user?.cachedInsights,
   });
 
@@ -24,10 +24,9 @@ export const useInsights = () => {
     mutationFn: () => getApi().getSuggestions(),
     onSuccess: (data) => {
       queryClient.setQueryData(["insights"], data);
-      queryClient.invalidateQueries({ queryKey: ["user"] }); // Update credits
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
-    onError: (error: Error) => {
-      console.log("Error generating insights:", error);
+    onError: () => {
       return "Error generating insights";
     },
   });

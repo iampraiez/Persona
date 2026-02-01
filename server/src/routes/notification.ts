@@ -2,7 +2,6 @@ import { Router, type Request, type Response } from "express";
 import { prisma } from "../lib/prisma";
 import { logger } from "../utils/logger.utils";
 import { errorWrapper } from "../utils/error.util";
-import { env } from "../config/env";
 
 const router = Router();
 
@@ -116,23 +115,6 @@ router.post("/save-subscription",async (req: Request, res: Response): Promise<vo
     res.status(500).json({ 
       data: null, 
       error: errorWrapper(error, "Failed to save subscription") 
-    });
-  }
-});
-
-router.get("/public-key", async (req: Request, res: Response): Promise<void> => {
-  try {
-    const publicKey = env.data?.VAPID_PUBLIC_KEY;
-    if (!publicKey) {
-      res.status(500).json({ error: "VAPID keys not configured", data: null });
-      return;
-    }
-    res.status(200).json({ data: { publicKey }, error: null });
-  } catch (error: unknown) {
-    logger.error(`Get Public Key Error: ${error}`);
-    res.status(500).json({ 
-      data: null, 
-      error: errorWrapper(error, "Failed to get public key") 
     });
   }
 });

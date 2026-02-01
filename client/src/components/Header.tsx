@@ -12,12 +12,14 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 import { useThemeStore } from "../store/theme.store";
 import { useAuthStore } from "../store/auth.store";
 import { useNotifications } from "../hooks/useNotifications";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 import { subscribeUser } from "../utils/push.util";
 import { Notification as NotificationType } from "../service/api.service";
 
@@ -168,20 +170,26 @@ const Header = ({ openSidebar }: HeaderProps) => {
               <button
                 className="p-2 rounded-lg hover:bg-secondary transition-colors relative"
                 onClick={async () => {
-                  if (!notificationsOpen) {
+                  const becomingOpen = !notificationsOpen;
+                  setNotificationsOpen(becomingOpen);
+
+                  if (becomingOpen) {
                     if ("Notification" in window) {
                       if (Notification.permission === "default") {
-                        const permission =
-                          await Notification.requestPermission();
+                        const permission = await Notification.requestPermission();
                         if (permission === "granted") {
                           subscribeUser();
+                          toast.success("Notifications enabled!");
+                        } else if (permission === "denied") {
+                          toast.warning("Notification permission denied. Please reset it in your browser settings to enable alerts.");
                         }
                       } else if (Notification.permission === "granted") {
                         subscribeUser();
+                      } else if (Notification.permission === "denied") {
+                        toast.warning("Notification permission denied. Please reset it in your browser settings to enable alerts.");
                       }
                     }
                   }
-                  setNotificationsOpen(!notificationsOpen);
                 }}
                 title="Notifications"
               >
@@ -233,7 +241,7 @@ const Header = ({ openSidebar }: HeaderProps) => {
                                     {noti.body}
                                   </p>
                                   <p className="text-[10px] text-foreground/50 mt-1">
-                                    {noti.timestamp.toString()}
+                                    {formatDistanceToNow(new Date(noti.timestamp), { addSuffix: true })}
                                   </p>
                                 </div>
                                 {!noti.isRead && (

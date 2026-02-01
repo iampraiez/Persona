@@ -531,7 +531,6 @@ class DemoService {
     message: string;
     expiresAt: string;
   }> {
-    console.log("Demo: Account deletion requested");
     const expiry = new Date();
     expiry.setMinutes(expiry.getMinutes() + 5);
     return {
@@ -541,7 +540,6 @@ class DemoService {
   }
 
   async deleteAccount(code: string): Promise<{ message: string }> {
-    console.log("Demo: Account deleted with code:", code);
     if (code.length !== 6) {
       throw new Error("Invalid verification code");
     }
@@ -554,7 +552,6 @@ class DemoService {
     notificationsEnabled?: boolean;
     defaultNotifyBefore?: number;
   }): Promise<string> {
-    console.log("Demo: Profile updated", data);
     if (data.name) {
       this.user.name = data.name;
     }
