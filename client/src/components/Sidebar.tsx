@@ -27,7 +27,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
   const navItems = [
     {
-      to: "/",
+      to: "/dashboard",
       label: "Dashboard",
       icon: <LayoutDashboard className="h-5 w-5" />,
     },
