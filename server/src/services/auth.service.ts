@@ -16,7 +16,7 @@ const isProduction = env.data?.NODE_ENV === "production";
 export const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: isProduction,
-  sameSite: isProduction ? "none" : ("lax" as const),
+  sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: "/",
 };
