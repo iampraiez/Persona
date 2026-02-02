@@ -34,7 +34,7 @@ const CTASection: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               Join the users who have already started optimizing their time and
-              achieved their goals with Persona.
+              achieved their goals with Timeforge.
             </motion.p>
 
             <motion.div

@@ -12,7 +12,7 @@ const Pricing: React.FC = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple Pricing</h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
-            Persona is free for individuals. No hidden fees, no credit card required.
+            Timeforge is free for individuals. No hidden fees, no credit card required.
           </p>
         </div>
 
