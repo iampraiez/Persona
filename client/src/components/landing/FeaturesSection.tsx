@@ -108,7 +108,7 @@ const FeaturesSection: React.FC = () => {
             Powerful Features
           </h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
-            TimeForge combines intelligent scheduling with goal tracking to help
+            Persona combines intelligent scheduling with goal tracking to help
             you make the most of your time.
           </p>
         </motion.div>

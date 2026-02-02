@@ -33,8 +33,8 @@ const CTASection: React.FC = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              Join thousands of users who have already optimized their time and
-              achieved their goals with TimeForge.
+              Join the users who have already started optimizing their time and
+              achieved their goals with Persona.
             </motion.p>
 
             <motion.div

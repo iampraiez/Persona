@@ -54,7 +54,7 @@ const HeroSection: React.FC = () => {
               variants={itemVariants}
               className="text-lg text-foreground/70 mb-8 max-w-lg"
             >
-              TimeForge combines AI-powered scheduling with goal tracking to
+              Persona combines AI-powered scheduling with goal tracking to
               help you optimize your time and achieve what matters most.
             </motion.p>
             <motion.div 
@@ -95,7 +95,7 @@ const HeroSection: React.FC = () => {
             >
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-accent" />
-                <span className="text-sm font-medium">10k+ Users</span>
+                <span className="text-sm font-medium">Smart Planning</span>
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-5 h-5 text-accent" />

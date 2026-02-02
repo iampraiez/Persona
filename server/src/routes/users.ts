@@ -6,7 +6,6 @@ import { EmailService } from "../services/email.service";
 
 const router: Router = Router();
 
-// Generate random 6-digit code
 function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -41,7 +40,7 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
             description: true,
             createdAt: true,
             steps: true,
-            totalDays: true
+            totalDays: true,
           },
           take: 5,
           orderBy: {
@@ -63,7 +62,6 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check for daily reset
     const now = new Date();
     const lastReset = new Date(user.lastAiReset);
     const isNewDay =
@@ -73,8 +71,6 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
 
     if (isNewDay && user) {
       // Reset credits to 3
-      logger.info(`User: ${JSON.stringify(user)}`)
-      logger.info(`User: ${req.user}`)
       await prisma.user.update({
         where: { email: req.user },
         data: {
@@ -82,10 +78,9 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
           lastAiReset: now,
         },
       });
-      user.aiCredits = 3; // Update local object for response
+      user.aiCredits = 3;
     }
 
-    // Check if cached insights are valid (from today)
     let validCachedInsights = null;
     if (user.cachedInsights && user.lastInsightsDate) {
       const lastInsightsDate = new Date(user.lastInsightsDate);
@@ -93,20 +88,22 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
         now.getDate() === lastInsightsDate.getDate() &&
         now.getMonth() === lastInsightsDate.getMonth() &&
         now.getFullYear() === lastInsightsDate.getFullYear();
-      
+
       if (isSameDay) {
         validCachedInsights = user.cachedInsights;
       }
     }
 
-    const formattedGoals = user.goals.map(goal => {
+    const formattedGoals = user.goals.map((goal) => {
       const totalSteps = goal.steps.length;
-      const completedSteps = goal.steps.filter((step: { isCompleted: boolean }) => step.isCompleted).length;
+      const completedSteps = goal.steps.filter(
+        (step: { isCompleted: boolean }) => step.isCompleted,
+      ).length;
       const percentage = totalSteps > 0 ? completedSteps / totalSteps : 0;
       const { steps, ...goalWithoutSteps } = goal;
       return {
         ...goalWithoutSteps,
-        percentage
+        percentage,
       };
     });
 
@@ -123,15 +120,22 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
     });
 
     const totalEventsThisWeek = weeklyEvents.length;
-    const completedEventsThisWeek = weeklyEvents.filter((e) => e.isCompleted).length;
-    const specialEventsThisWeek = weeklyEvents.filter((e) => e.isSpecial).length;
-    
+    const completedEventsThisWeek = weeklyEvents.filter(
+      (e) => e.isCompleted,
+    ).length;
+    const specialEventsThisWeek = weeklyEvents.filter(
+      (e) => e.isSpecial,
+    ).length;
+
     // Calculate aggregate goal progress
-    const aggregateGoalProgress = formattedGoals.length > 0
-      ? Math.round(
-          formattedGoals.reduce((sum, goal) => sum + goal.percentage, 0) / formattedGoals.length * 100
-        )
-      : 0;
+    const aggregateGoalProgress =
+      formattedGoals.length > 0
+        ? Math.round(
+            (formattedGoals.reduce((sum, goal) => sum + goal.percentage, 0) /
+              formattedGoals.length) *
+              100,
+          )
+        : 0;
 
     const weeklySummary = {
       totalEvents: totalEventsThisWeek,
@@ -151,7 +155,6 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({ data: responseData, error: null });
   } catch (error: unknown) {
-    logger.error(`Error getting user: ${error}`);
     res.status(500).json({
       data: null,
       error: errorWrapper(error, "Failed to get user"),
@@ -166,7 +169,9 @@ router.put("/", async (req: Request, res: Response) => {
       ...(name !== undefined && { name }),
       ...(image !== undefined && { image }),
       ...(notificationsEnabled !== undefined && { notificationsEnabled }),
-      ...(defaultNotifyBefore !== undefined && { defaultNotifyBefore: parseInt(defaultNotifyBefore) }),
+      ...(defaultNotifyBefore !== undefined && {
+        defaultNotifyBefore: parseInt(defaultNotifyBefore),
+      }),
     };
     await prisma.user.update({
       where: { email: req.user },
@@ -175,7 +180,6 @@ router.put("/", async (req: Request, res: Response) => {
 
     res.status(200).json({ data: "User updated", error: null });
   } catch (error: unknown) {
-    logger.error(`Error updating user: ${error}`);
     res.status(500).json({
       data: null,
       error: errorWrapper(error, "Failed to update user"),
@@ -183,11 +187,8 @@ router.put("/", async (req: Request, res: Response) => {
   }
 });
 
-// Request account deletion - send verification code
 router.post("/request-delete", async (req: Request, res: Response): Promise<void> => {
   try {
-    logger.info(`Account deletion requested for user: ${req.user}`);
-    
     const user = await prisma.user.findUnique({
       where: { email: req.user },
     });
@@ -198,14 +199,14 @@ router.post("/request-delete", async (req: Request, res: Response): Promise<void
       return;
     }
 
-    // Generate 6-digit code
     const code = generateCode();
     const expiry = new Date();
-    expiry.setMinutes(expiry.getMinutes() + 5); // 5 minutes from now
+    expiry.setMinutes(expiry.getMinutes() + 5);
 
-    logger.info(`Generated deletion code for ${user.email}: ${code}, expires at ${expiry.toISOString()}`);
+    logger.info(
+      `Generated deletion code for ${user.email}: ${code}, expires at ${expiry.toISOString()}`,
+    );
 
-    // Save code and expiry to database
     await prisma.user.update({
       where: { email: req.user },
       data: {
@@ -216,18 +217,19 @@ router.post("/request-delete", async (req: Request, res: Response): Promise<void
 
     logger.info(`Saved deletion code to database for ${user.email}`);
 
-    // Send email with code
     try {
       await EmailService.sendDeleteAccountCode(user.email, code);
       logger.info(`Email sent successfully to ${user.email}`);
     } catch (emailError) {
       logger.error(`Failed to send email: ${emailError}`);
-      // Continue anyway - code is saved, user can try again
     }
 
-    res.status(200).json({ 
-      data: { message: "Verification code sent to email", expiresAt: expiry.toISOString() }, 
-      error: null 
+    res.status(200).json({
+      data: {
+        message: "Verification code sent to email",
+        expiresAt: expiry.toISOString(),
+      },
+      error: null,
     });
   } catch (error: unknown) {
     logger.error(`Error requesting account deletion: ${error}`);
@@ -238,13 +240,9 @@ router.post("/request-delete", async (req: Request, res: Response): Promise<void
   }
 });
 
-// Verify code and delete account
 router.post("/delete-account", async (req: Request, res: Response): Promise<void> => {
   try {
     const { code } = req.body;
-
-    logger.info(`Account deletion verification requested for user: ${req.user}`);
-
     if (!code) {
       logger.error(`No code provided`);
       res.status(400).json({ data: null, error: "Verification code required" });
@@ -261,7 +259,6 @@ router.post("/delete-account", async (req: Request, res: Response): Promise<void
       return;
     }
 
-    // Check if code exists and is valid
     if (!user.deleteAccountCode || !user.deleteAccountCodeExpiry) {
       logger.error(`No deletion request found for ${user.email}`);
       res.status(400).json({ data: null, error: "No deletion request found. Please request a new code." });

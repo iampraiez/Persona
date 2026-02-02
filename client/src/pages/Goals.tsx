@@ -668,211 +668,214 @@ const Goals: React.FC = () => {
           </motion.div>
         )}
       </motion.div>
-      {/* New Goal Modal */}
-      {showNewGoalModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <AnimatePresence>
+        {showNewGoalModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-card rounded-xl p-8 w-full max-w-md md:max-w-2xl mx-4 max-h-[90vh] overflow-y-auto shadow-2xl border border-border"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="bg-card rounded-xl p-8 w-full max-w-md md:max-w-2xl mx-auto max-h-[90vh] overflow-y-auto shadow-2xl border border-border"
             >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">
-                {newGoal.id ? "Edit Goal" : "New Goal"}
-              </h2>
-              <button
-                className="p-1 rounded-full hover:bg-secondary"
-                onClick={() => {
-                  setShowNewGoalModal(false);
-                  setNewGoal({
-                    id: "",
-                    title: "",
-                    description: "",
-                    totalDays: 0,
-                    createdAt: new Date().toISOString(),
-                    userId: "",
-                    steps: [],
-                  });
-                }}
-              >
-                <X className="h-5 w-5 text-foreground/70" />
-              </button>
-            </div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">
+                  {newGoal.id ? "Edit Goal" : "New Goal"}
+                </h2>
+                <button
+                  className="p-1 rounded-full hover:bg-secondary"
+                  onClick={() => {
+                    setShowNewGoalModal(false);
+                    setNewGoal({
+                      id: "",
+                      title: "",
+                      description: "",
+                      totalDays: 0,
+                      createdAt: new Date().toISOString(),
+                      userId: "",
+                      steps: [],
+                    });
+                  }}
+                >
+                  <X className="h-5 w-5 text-foreground/70" />
+                </button>
+              </div>
 
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Goal Title
-                </label>
-                <input
-                  type="text"
-                  className="input w-full"
-                  placeholder="What do you want to achieve?"
-                  value={newGoal.title}
-                  onChange={(e) =>
-                    setNewGoal((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Description (optional)
-                </label>
-                <textarea
-                  className="input w-full h-24"
-                  placeholder="Describe your goal in detail"
-                  value={newGoal.description}
-                  onChange={(e) =>
-                    setNewGoal((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Time Frame (days)
-                </label>
-                <input
-                  type="number"
-                  className="input w-full"
-                  placeholder="30"
-                  min="1"
-                  value={newGoal.totalDays?.toString() || ""}
-                  onChange={(e) =>
-                    setNewGoal((prev) => ({
-                      ...prev,
-                      totalDays: e.target.value ? Number(e.target.value) : 0,
-                    }))
-                  }
-                />
-              </div>
-              <div className="border-t border-border pt-4 mt-4">
-                <h3 className="text-sm font-medium mb-3">Steps</h3>
-                <p className="text-xs text-foreground/70 mb-4">
-                  You can define your own steps or let the AI generate steps for
-                  you.
-                </p>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex-1">
-                    <label className="block text-xs font-medium mb-1">
-                      Step Count
-                    </label>
-                    <input
-                      type="number"
-                      className="input w-full text-sm"
-                      min="1"
-                      max="30"
-                      value={stepCount}
-                      onChange={(e) => handleStepCountChange(Number(e.target.value))}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="flex-[2] btn bg-accent/10 text-accent hover:bg-accent/20 mt-5"
-                    onClick={() =>
-                      generateSteps(
-                        newGoal.title || newGoal.description || "",
-                        newGoal.totalDays || 0,
-                        stepCount
-                      )
+              <form className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Goal Title
+                  </label>
+                  <input
+                    type="text"
+                    className="input w-full"
+                    placeholder="What do you want to achieve?"
+                    value={newGoal.title}
+                    onChange={(e) =>
+                      setNewGoal((prev) => ({ ...prev, title: e.target.value }))
                     }
-                  >
-                    {generatingSteps ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      "Generate Steps with AI"
-                    )}
-                  </button>
+                  />
                 </div>
-                <div className="space-y-3">
-                  {newGoal.steps.map((step, index) => (
-                    <div key={index} className="p-3 bg-secondary rounded-md">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">
-                          Step {index + 1}
-                        </span>
-                        {newGoal.steps.length > 1 && (
-                          <button
-                            type="button"
-                            className="text-destructive hover:text-destructive/80"
-                            onClick={() => removeStep(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Description (optional)
+                  </label>
+                  <textarea
+                    className="input w-full h-24"
+                    placeholder="Describe your goal in detail"
+                    value={newGoal.description}
+                    onChange={(e) =>
+                      setNewGoal((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Time Frame (days)
+                  </label>
+                  <input
+                    type="number"
+                    className="input w-full"
+                    placeholder="30"
+                    min="1"
+                    value={newGoal.totalDays?.toString() || ""}
+                    onChange={(e) =>
+                      setNewGoal((prev) => ({
+                        ...prev,
+                        totalDays: e.target.value ? Number(e.target.value) : 0,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="border-t border-border pt-4 mt-4">
+                  <h3 className="text-sm font-medium mb-3">Steps</h3>
+                  <p className="text-xs text-foreground/70 mb-4">
+                    You can define your own steps or let the AI generate steps for
+                    you.
+                  </p>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex-1">
+                      <label className="block text-xs font-medium mb-1">
+                        Step Count
+                      </label>
                       <input
-                        type="text"
-                        className="input w-full text-sm mb-2"
-                        placeholder={`Step ${index + 1} title`}
-                        value={step.title}
-                        onChange={(e) =>
-                          updateStep(index, "title", e.target.value)
-                        }
-                      />
-                      <textarea
-                        className="input w-full text-sm mb-2"
-                        placeholder={`Step ${index + 1} description (optional)`}
-                        value={step.description}
-                        onChange={(e) =>
-                          updateStep(index, "description", e.target.value)
-                        }
-                      />
-                      <input
-                        type="date"
+                        type="number"
                         className="input w-full text-sm"
-                        value={formatDateToYMD(step.dueDate)}
+                        min="1"
+                        max="30"
+                        value={stepCount}
                         onChange={(e) =>
-                          updateStep(
-                            index,
-                            "dueDate",
-                            convertYMDToISOString(e.target.value)
-                          )
+                          handleStepCountChange(Number(e.target.value))
                         }
                       />
                     </div>
-                  ))}
+                    <button
+                      type="button"
+                      className="flex-[2] btn bg-accent/10 text-accent hover:bg-accent/20 mt-5"
+                      onClick={() =>
+                        generateSteps(
+                          newGoal.title || newGoal.description || "",
+                          newGoal.totalDays || 0,
+                          stepCount
+                        )
+                      }
+                    >
+                      {generatingSteps ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        "Generate Steps with AI"
+                      )}
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    {newGoal.steps.map((step, index) => (
+                      <div key={index} className="p-3 bg-secondary rounded-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">
+                            Step {index + 1}
+                          </span>
+                          {newGoal.steps.length > 1 && (
+                            <button
+                              type="button"
+                              className="text-destructive hover:text-destructive/80"
+                              onClick={() => removeStep(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          className="input w-full text-sm mb-2"
+                          placeholder={`Step ${index + 1} title`}
+                          value={step.title}
+                          onChange={(e) =>
+                            updateStep(index, "title", e.target.value)
+                          }
+                        />
+                        <textarea
+                          className="input w-full text-sm mb-2"
+                          placeholder={`Step ${index + 1} description (optional)`}
+                          value={step.description}
+                          onChange={(e) =>
+                            updateStep(index, "description", e.target.value)
+                          }
+                        />
+                        <input
+                          type="date"
+                          className="input w-full text-sm"
+                          value={formatDateToYMD(step.dueDate)}
+                          onChange={(e) =>
+                            updateStep(
+                              index,
+                              "dueDate",
+                              convertYMDToISOString(e.target.value)
+                            )
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="w-full mt-3 p-2 text-sm rounded-md border border-dashed border-border hover:bg-secondary"
+                    onClick={addStep}
+                  >
+                    + Add Step
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="w-full mt-3 p-2 text-sm rounded-md border border-dashed border-border hover:bg-secondary"
-                  onClick={addStep}
-                >
-                  + Add Step
-                </button>
-              </div>
-              <div className="flex justify-end space-x-2 pt-4">
-                <button
-                  type="button"
-                  className="btn bg-secondary hover:bg-secondary/80"
-                  onClick={() => setShowNewGoalModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-accent disabled:opacity-50"
-                  disabled={isCreating || isUpdating}
-                  onClick={(e) =>
-                    newGoal.id ? handleUpdateGoal(e) : handleCreateGoal(e)
-                  }
-                >
-                  {isCreating || isUpdating ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : newGoal.id ? (
-                    "Update Goal"
-                  ) : (
-                    "Create Goal"
-                  )}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+                <div className="flex justify-end space-x-2 pt-4">
+                  <button
+                    type="button"
+                    className="btn bg-secondary hover:bg-secondary/80"
+                    onClick={() => setShowNewGoalModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-accent disabled:opacity-50"
+                    disabled={isCreating || isUpdating}
+                    onClick={(e) =>
+                      newGoal.id ? handleUpdateGoal(e) : handleCreateGoal(e)
+                    }
+                  >
+                    {isCreating || isUpdating ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : newGoal.id ? (
+                      "Update Goal"
+                    ) : (
+                      "Create Goal"
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

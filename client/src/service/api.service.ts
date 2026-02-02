@@ -171,13 +171,20 @@ export class ApiService {
       try {
         await this.axiosInstance.get("/auth/refresh");
         this.isRefreshing = false;
-        // Retry the original request
         return this.axiosInstance(originalRequest);
       } catch (refreshError) {
         this.isRefreshing = false;
 
-        // Redirect to login if refresh fails
-        if (![PATHS.LOGIN, PATHS.HOME].includes(window.location.pathname)) {
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        try {
+          await this.logout();
+        } catch {
+          // Ignore
+        }
+
+        if (window.location.pathname !== PATHS.LOGIN && window.location.pathname !== PATHS.HOME) {
           window.location.href = PATHS.LOGIN;
         }
         return Promise.reject(refreshError);
