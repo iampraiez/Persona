@@ -23,10 +23,12 @@ model User {
   deleteAccountCodeExpiry DateTime?
   lastAiReset             DateTime       @default(now())
   lastInsightsDate        DateTime?
-  notificationsEnabled    Boolean        @default(true)
+  notificationsEnabled    Boolean            @default(true)
+  purchasedAiCredits    Int                @default(0)
   events                  Event[]
   goals                   Goal[]
   notifications           Notification[]
+  pushSubscriptions       PushSubscription[]
 }
 
 model Event {
@@ -41,6 +43,7 @@ model Event {
   isSpecial          Boolean  @default(false)
   userId             String
   notifyBefore       Int      @default(15)
+  focusDuration      Int      @default(0)
   user               User     @relation(fields: [userId], references: [id])
 }
 
@@ -73,6 +76,7 @@ model PushSubscription {
   p256dh    String
   userId    String
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Notification {
