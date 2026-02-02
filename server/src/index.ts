@@ -27,13 +27,19 @@ const corsOptions =  {
 
       const allowedOrigins = [
         CLIENT,
+        "http://localhost:5173",
+        "https://timeforge-persona.vercel.app",
       ];
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+       const isAllowed = allowedOrigins.some((allowedOrigin) =>
+         origin.startsWith(allowedOrigin),
+       );
+
+       if (isAllowed) {
+         callback(null, true);
+       } else {
+         callback(new Error(`CORS: ${origin} not allowed`));
+       }
     },
     credentials: true,
   }
