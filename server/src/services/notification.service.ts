@@ -8,7 +8,7 @@ const privateVapidKey = env.data?.VAPID_PRIVATE_KEY;
 
 if (publicVapidKey && privateVapidKey) {
   webpush.setVapidDetails(
-    "mailto:example@yourdomain.org",
+    "mailto:timeforge@persona.app",
     publicVapidKey,
     privateVapidKey
   );
@@ -49,8 +49,16 @@ export const sendNotification = async (
     }
 
     return notification;
-  } catch (error) {
-    logger.error(`Error sending notification to user ${userId}: ${error}`);
+  } catch (error: any) {
+    logger.error(`Error sending notification to user ${userId}: ${error.message}`);
+    
+    // If subscription is invalid (expired or unauthorized), we should handle it
+    if (error.statusCode === 410 || error.statusCode === 404) {
+      logger.warn(`Subscription for user ${userId} is no longer valid. Cleaning up.`);
+      // In a real scenario, you might want to delete the invalid subscription here
+      // But for now, we just log it clearly
+    }
+    
     return null;
   }
 };

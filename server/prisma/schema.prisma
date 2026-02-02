@@ -8,57 +8,51 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  image     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  refreshToken          String?   @unique
-  refreshTokenExpiresAt DateTime?
-
-  events    Event[]
-  goals     Goal[]
-  notifications Notification[] 
-
-  aiCredits             Int       @default(3)
-  purchasedAiCredits    Int       @default(0)
-  lastAiReset           DateTime  @default(now())
-  cachedInsights    Json?
-  lastInsightsDate  DateTime?
-  deleteAccountCode String?
+  id                      String         @id @default(uuid())
+  email                   String         @unique
+  name                    String?
+  image                   String?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+  refreshToken            String?        @unique
+  refreshTokenExpiresAt   DateTime?
+  aiCredits               Int            @default(3)
+  cachedInsights          Json?
+  defaultNotifyBefore     Int            @default(15)
+  deleteAccountCode       String?
   deleteAccountCodeExpiry DateTime?
-  notificationsEnabled Boolean @default(true)
-  defaultNotifyBefore Int @default(15) 
+  lastAiReset             DateTime       @default(now())
+  lastInsightsDate        DateTime?
+  notificationsEnabled    Boolean        @default(true)
+  events                  Event[]
+  goals                   Goal[]
+  notifications           Notification[]
 }
 
 model Event {
-  id                  String    @id @default(uuid())
-  title               String
-  description         String?
-  startTime           DateTime
-  endTime             DateTime
-  isCompleted         Boolean   @default(false)
-  skippedReason       String?
-  skippedIsImportant  Boolean   @default(false)
-  isSpecial           Boolean   @default(false)
-  notifyBefore        Int       @default(15)
-  focusDuration       Int       @default(0)
-  userId              String
-  user                User      @relation(fields: [userId], references: [id])
+  id                 String   @id @default(uuid())
+  title              String
+  description        String?
+  startTime          DateTime
+  endTime            DateTime
+  isCompleted        Boolean  @default(false)
+  skippedReason      String?
+  skippedIsImportant Boolean  @default(false)
+  isSpecial          Boolean  @default(false)
+  userId             String
+  notifyBefore       Int      @default(15)
+  user               User     @relation(fields: [userId], references: [id])
 }
 
 model Goal {
-  id           String    @id @default(uuid())
-  title        String
-  description  String?
-  totalDays    Int
-  createdAt    DateTime  @default(now())
-  userId       String
-  user         User      @relation(fields: [userId], references: [id])
-
-  steps        Step[]
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  totalDays   Int
+  createdAt   DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  steps       Step[]
 }
 
 model Step {
@@ -67,18 +61,18 @@ model Step {
   description String?
   dueDate     DateTime
   isCompleted Boolean   @default(false)
-  completedAt DateTime?
   goalId      String
+  completedAt DateTime?
   goal        Goal      @relation(fields: [goalId], references: [id])
 }
 
 model PushSubscription {
-  id          String   @id @default(cuid())
-  endpoint    String   @unique
-  auth        String
-  p256dh      String
-  userId      String   
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  auth      String
+  p256dh    String
+  userId    String
+  createdAt DateTime @default(now())
 }
 
 model Notification {
@@ -86,7 +80,7 @@ model Notification {
   userId    String
   title     String
   body      String
-  isRead    Boolean  @default(false)
   timestamp DateTime @default(now())
+  isRead    Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id])
 }

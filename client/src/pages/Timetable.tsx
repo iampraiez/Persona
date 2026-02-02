@@ -785,15 +785,6 @@ const Timetable = () => {
                   <Target className="h-4 w-4" />
                   Focus
                 </button>
-                <button
-                  className="btn bg-secondary hover:bg-secondary/90"
-                  onClick={() => {
-                    setShowEventDetailsModal(false);
-                    setShow(false);
-                  }}
-                >
-                  Close
-                </button>
               </div>
             </div>
           </motion.div>

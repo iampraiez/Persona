@@ -18,12 +18,24 @@ export async function subscribeUser() {
     const existingSubscription =
       await registration.pushManager.getSubscription();
 
-    if (existingSubscription) {
-      await api.saveSubscription(existingSubscription);
+    const publicKey = env.data?.VITE_PUBLIC_VAPID_KEY;
+    if (!publicKey) {
+      console.error("VAPID public key is missing");
       return;
     }
 
-    const publicKey = env.data?.VITE_PUBLIC_VAPID_KEY;
+    if (existingSubscription) {
+      try {
+        // Try to save existing one first
+        await api.saveSubscription(existingSubscription);
+        return;
+      } catch (err) {
+        // If saving fails (maybe VAPID mismatch), unsubscribe and re-subscribe
+        console.warn("Existing subscription invalid or mismatch, re-subscribing...");
+        await existingSubscription.unsubscribe();
+      }
+    }
+
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicKey),
@@ -31,6 +43,6 @@ export async function subscribeUser() {
 
     await api.saveSubscription(subscription);
   } catch (error) {
-    console.error("Error subscribing user:", error);
+    console.error("Error subscribing user to push notifications:", error);
   }
 }
