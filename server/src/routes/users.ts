@@ -50,6 +50,7 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
         },
         notifications: true,
         aiCredits: true,
+        purchasedAiCredits: true,
         lastAiReset: true,
         cachedInsights: true,
         lastInsightsDate: true,

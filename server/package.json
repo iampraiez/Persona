@@ -20,6 +20,7 @@
     "@prisma/adapter-pg": "5.22.0",
     "@prisma/client": "5.22.0",
     "@sendgrid/mail": "^8.1.6",
+    "axios": "^1.13.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "date-fns": "^4.1.0",

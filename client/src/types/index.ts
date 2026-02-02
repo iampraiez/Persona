@@ -3,6 +3,8 @@ export interface User {
   email: string;
   name?: string;
   image?: string;
+  aiCredits: number;
+  purchasedAiCredits: number;
 }
 
 export interface Event {
@@ -62,4 +64,12 @@ export interface AnalyticsData {
 export interface AiSuggestion {
   message: string;
   type: "schedule" | "goal" | "focus";
+}
+
+export interface PaymentPlan {
+  id: string;
+  name: string;
+  credits: number;
+  price: number;
+  description: string;
 }

@@ -20,6 +20,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FocusSession = lazy(() => import("./pages/FocusSession"));
+const BuyCredits = lazy(() => import("./pages/BuyCredits"));
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -65,6 +66,7 @@ function App() {
                   <Route path="analytics" element={<Analytics />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="focus/:id" element={<FocusSession />} />
+                  <Route path="buy-credits" element={<BuyCredits />} />
                 </Route>
                 <Route
                   path="*"

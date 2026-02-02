@@ -9,6 +9,7 @@ import {
   Target,
   Activity,
   Loader2,
+  Zap,
   Plus,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -75,6 +76,19 @@ const Dashboard = () => {
         <p className="text-sm text-foreground/70 mt-1">
           Here's what's happening with your schedule and goals
         </p>
+      </div>
+
+      <div className="flex flex-wrap gap-4 mb-8">
+        <button 
+          onClick={() => navigate("/buy-credits")}
+          className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent hover:bg-accent/20 rounded-xl transition-all font-semibold border border-accent/20"
+        >
+          <Zap className="h-4 w-4 fill-current" />
+          Refill AI Energy
+          {user?.purchasedAiCredits && user.purchasedAiCredits > 0 ? (
+            <span className="ml-2 px-2 py-0.5 bg-accent text-white rounded-md text-[10px]">+{user.purchasedAiCredits}</span>
+          ) : null}
+        </button>
       </div>
 
       {isUserLoading ? (

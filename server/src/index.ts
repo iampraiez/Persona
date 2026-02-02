@@ -10,6 +10,7 @@ import goalRoutes from "./routes/goals";
 import aiRoutes from "./routes/ai";
 import analyticsRoutes from "./routes/analytics";
 import subRoute from "./routes/notification";
+import paymentsRoute from "./routes/payments";
 import { logger } from "./utils/logger.utils";
 import { shutdown } from "./lib/prisma";
 import { errorHandler } from "./utils/error.util";
@@ -54,6 +55,7 @@ app.use("/api/goals", authMiddleware, eventWriteRateLimiter, goalRoutes);
 app.use("/api/ai", authMiddleware, aiRateLimiter, aiRoutes);
 app.use("/api/analytics", authMiddleware, analyticsRoutes);
 app.use("/api/notification", authMiddleware, eventWriteRateLimiter, subRoute);
+app.use("/api/payments", authMiddleware, paymentsRoute);
 
 app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({

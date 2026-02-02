@@ -39,8 +39,8 @@ router.get("/suggestions", async (req: Request, res: Response): Promise<void> =>
       }
     }
 
-    if (user.aiCredits <= 0) {
-      res.status(403).json({ error: "Daily AI limit reached (3/3)", data: null });
+    if (user.aiCredits <= 0 && user.purchasedAiCredits <= 0) {
+      res.status(403).json({ error: "AI Limit reached. Please purchase more credits.", data: null });
       return;
     }
 
@@ -84,7 +84,8 @@ router.get("/suggestions", async (req: Request, res: Response): Promise<void> =>
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        aiCredits: { decrement: 1 },
+        aiCredits: user.aiCredits > 0 ? { decrement: 1 } : undefined,
+        purchasedAiCredits: user.aiCredits <= 0 ? { decrement: 1 } : undefined,
         cachedInsights: suggestions as any, 
         lastInsightsDate: now,
       },
@@ -129,8 +130,8 @@ router.post("/generate-steps",  async (req: Request, res: Response): Promise<voi
     }
 
     // Check credits
-    if (user.aiCredits <= 0) {
-      res.status(403).json({ error: "Daily AI limit reached (3/3)", data: null });
+    if (user.aiCredits <= 0 && user.purchasedAiCredits <= 0) {
+      res.status(403).json({ error: "AI Limit reached. Please purchase more credits.", data: null });
       return;
     }
 
@@ -142,7 +143,8 @@ router.post("/generate-steps",  async (req: Request, res: Response): Promise<voi
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        aiCredits: { decrement: 1 },
+        aiCredits: user.aiCredits > 0 ? { decrement: 1 } : undefined,
+        purchasedAiCredits: user.aiCredits <= 0 ? { decrement: 1 } : undefined,
       },
     });
 
@@ -170,8 +172,8 @@ router.post("/generate-timetable", async (req: Request, res: Response): Promise<
       return;
     }
 
-    if (user.aiCredits <= 0) {
-      res.status(403).json({ error: "Daily AI limit reached (3/3)", data: null });
+    if (user.aiCredits <= 0 && user.purchasedAiCredits <= 0) {
+      res.status(403).json({ error: "AI Limit reached. Please purchase more credits.", data: null });
       return;
     }
 
@@ -206,7 +208,8 @@ router.post("/generate-timetable", async (req: Request, res: Response): Promise<
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        aiCredits: { decrement: 1 },
+        aiCredits: user.aiCredits > 0 ? { decrement: 1 } : undefined,
+        purchasedAiCredits: user.aiCredits <= 0 ? { decrement: 1 } : undefined,
       },
     });
 

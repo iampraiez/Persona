@@ -23,6 +23,9 @@ importers:
       '@sendgrid/mail':
         specifier: ^8.1.6
         version: 8.1.6
+      axios:
+        specifier: ^1.13.4
+        version: 1.13.4
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7

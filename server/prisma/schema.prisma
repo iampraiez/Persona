@@ -22,8 +22,9 @@ model User {
   goals     Goal[]
   notifications Notification[] 
 
-  aiCredits         Int       @default(3)
-  lastAiReset       DateTime  @default(now())
+  aiCredits             Int       @default(3)
+  purchasedAiCredits    Int       @default(0)
+  lastAiReset           DateTime  @default(now())
   cachedInsights    Json?
   lastInsightsDate  DateTime?
   deleteAccountCode String?

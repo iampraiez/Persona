@@ -66,11 +66,11 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       />
 
       <motion.nav
-        className="fixed md:static top-0 left-0 bottom-0 h-screen w-64 bg-card z-50 border-r border-border flex flex-col"
+        className="fixed top-0 left-0 bottom-0 h-screen w-64 bg-card z-50 border-r border-border flex flex-col"
         initial="closed"
         animate={open ? "open" : "closed"}
         variants={sidebarVariants}
-        transition={{ type: "spring", damping: 20, stiffness: 150 }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
       >
         <div className="p-4 flex items-center justify-between border-b border-border">
           <div className="flex items-center space-x-2">

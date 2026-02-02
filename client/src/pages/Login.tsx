@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { api } from "../service/api.service";
 import { useAuthStore } from "../store/auth.store";
-import { useQueryClient } from "@tanstack/react-query";
+import { useUser } from "../hooks/useUser";
 
 const Login = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
+  const { refetch } = useUser();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,12 +25,14 @@ const Login = () => {
 
     if (success === "true") {
       setIsLoading(true);
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      refetch().then(() => {
+        setIsLoading(false);
+      });
     } else if (errorParam) {
       setError("Authentication failed. Please try again.");
       setTimeout(() => setError(null), 3000);
     }
-  }, [queryClient]);
+  }, [refetch]);
 
   const handleGoogleLogin = async () => {
     try {

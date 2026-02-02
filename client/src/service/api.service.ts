@@ -18,6 +18,7 @@ export interface User {
   notifications: Notification[] | [];
   weeklySummary?: WeeklySummary | null;
   aiCredits?: number | 0;
+  purchasedAiCredits?: number | 0;
   cachedInsights?: AiSuggestion[] | null;
   notificationsEnabled: boolean | true;
   defaultNotifyBefore: number | 5;
@@ -173,6 +174,7 @@ export class ApiService {
       try {
         await this.axiosInstance.get("/auth/refresh");
         this.isRefreshing = false;
+        this.onRefreshed();
         return this.axiosInstance(originalRequest);
       } catch (refreshError: any) {
         this.isRefreshing = false;
@@ -198,11 +200,15 @@ export class ApiService {
     }
 
     return new Promise((resolve) => {
-      this.refreshSubscribers.push((token: string) => {
-        originalRequest.headers.Authorization = `Bearer ${token}`;
+      this.refreshSubscribers.push(() => {
         resolve(this.axiosInstance(originalRequest));
       });
     });
+  }
+
+  private onRefreshed(): void {
+    this.refreshSubscribers.forEach((callback) => callback(""));
+    this.refreshSubscribers = [];
   }
 
   private async request<T>(
@@ -387,6 +393,14 @@ export class ApiService {
     defaultNotifyBefore?: number;
   }): Promise<string> {
     return this.request<string>("put", "/users", data);
+  }
+
+  async initializePayment(planId: string): Promise<{ authorization_url: string; reference: string }> {
+    return this.request("post", "/payments/initialize", { planId });
+  }
+
+  async verifyPayment(reference: string): Promise<void> {
+    await this.request("get", `/payments/verify/${reference}`);
   }
 }
 

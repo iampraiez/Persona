@@ -12,6 +12,7 @@ const envValidator = z.object({
     VAPID_PRIVATE_KEY: z.string().min(1),
     BACKEND_URL: z.string().min(1),
     CLIENT_URL: z.string().min(1),
+    PAYSTACK_SECRET_KEY: z.string().min(1),
 });
 
 export const env = envValidator.safeParse(process.env);
