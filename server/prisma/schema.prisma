@@ -43,6 +43,7 @@ model Event {
   skippedIsImportant  Boolean   @default(false)
   isSpecial           Boolean   @default(false)
   notifyBefore        Int       @default(15)
+  focusDuration       Int       @default(0)
   userId              String
   user                User      @relation(fields: [userId], references: [id])
 }

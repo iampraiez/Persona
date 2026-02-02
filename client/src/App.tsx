@@ -19,6 +19,7 @@ const Analytics = lazy(() => import("./pages/Analytics"));
 const Settings = lazy(() => import("./pages/Settings"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const FocusSession = lazy(() => import("./pages/FocusSession"));
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -63,6 +64,7 @@ function App() {
                   <Route path="goals" element={<Goals />} />
                   <Route path="analytics" element={<Analytics />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="focus/:id" element={<FocusSession />} />
                 </Route>
                 <Route
                   path="*"

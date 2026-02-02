@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import {
   Calendar,
@@ -12,6 +13,7 @@ import {
   Sparkles,
   Trash2,
   MoreVertical,
+  Target,
 } from "lucide-react";
 import { api } from "../service/api.service";
 import { motion, AnimatePresence } from "framer-motion";
@@ -49,7 +51,6 @@ const Timetable = () => {
   const [show, setShow] = useState<boolean>(false);
   const [important, setImportant] = useState<boolean>(false);
 
-  // AI & Utility State
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiDescription, setAiDescription] = useState("");
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
@@ -63,6 +64,7 @@ const Timetable = () => {
   const [clearRange, setClearRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Set default ranges to selected date
@@ -775,6 +777,13 @@ const Timetable = () => {
                 >
                   <Copy className="h-4 w-4" />
                   Duplicate
+                </button>
+                <button
+                  onClick={() => navigate(`/focus/${selectedEvent.id}`)}
+                  className="btn bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-2"
+                >
+                  <Target className="h-4 w-4" />
+                  Focus
                 </button>
                 <button
                   className="btn bg-secondary hover:bg-secondary/90"

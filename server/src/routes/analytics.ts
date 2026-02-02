@@ -72,6 +72,9 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
     
     // Calculate Focus Time (hours)
     const focusTime = events.reduce((acc, curr) => {
+      if (curr.focusDuration && curr.focusDuration > 0) {
+        return acc + (curr.focusDuration / 3600);
+      }
       if (curr.startTime && curr.endTime && curr.isCompleted) {
         const duration = (new Date(curr.endTime).getTime() - new Date(curr.startTime).getTime()) / (1000 * 60 * 60);
         return acc + duration;

@@ -164,6 +164,16 @@ const Dashboard = () => {
                         weekday: "short",
                       })}
                     </div>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/focus/${event.id}`);
+                      }}
+                      className="ml-2 p-1.5 rounded-full hover:bg-primary/10 text-primary transition-colors"
+                      title="Start Focus Session"
+                    >
+                      <Target className="h-4 w-4" />
+                    </button>
                   </div>
                 ))
               ) : (

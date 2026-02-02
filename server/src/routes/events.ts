@@ -160,6 +160,7 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
       isCompleted,
       skippedIsImportant,
       skippedReason,
+      focusDuration,
     } = req.body;
 
     const event = await prisma.event.findFirst({
@@ -184,6 +185,7 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
         isCompleted,
         skippedIsImportant,
         skippedReason,
+        focusDuration: focusDuration !== undefined ? parseInt(focusDuration) : undefined,
       },
     });
 

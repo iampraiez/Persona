@@ -28,6 +28,7 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
             startTime: true,
             isSpecial: true,
             isCompleted: true,
+            focusDuration: true,
           },
           orderBy: {
             startTime: "desc",

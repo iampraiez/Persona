@@ -16,6 +16,7 @@ export interface Event {
   skippedIsImportant: boolean;
   isSpecial: boolean;
   notifyBefore: number;
+  focusDuration?: number;
   userId: string;
 }
 
