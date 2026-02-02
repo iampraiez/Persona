@@ -141,7 +141,7 @@ router.put("/:id", async (req, res) => {
         const { title, description, startTime, endTime, isCompleted, skippedIsImportant, skippedReason, } = req.body;
         const event = await prisma_1.prisma.event.findFirst({
             where: {
-                id,
+                id: id,
                 userId: user.id,
             },
         });
@@ -150,7 +150,7 @@ router.put("/:id", async (req, res) => {
             return;
         }
         const updatedEvent = await prisma_1.prisma.event.update({
-            where: { id },
+            where: { id: id },
             data: {
                 title,
                 description,
@@ -182,7 +182,7 @@ router.put("/:id/skip", async (req, res) => {
         const { skippedReason, skippedIsImportant } = req.body;
         const event = await prisma_1.prisma.event.findFirst({
             where: {
-                id,
+                id: id,
                 userId: user.id,
             },
         });
@@ -191,7 +191,7 @@ router.put("/:id/skip", async (req, res) => {
             return;
         }
         const updatedEvent = await prisma_1.prisma.event.update({
-            where: { id },
+            where: { id: id },
             data: {
                 isCompleted: false,
                 skippedReason,
@@ -219,7 +219,7 @@ router.delete("/:id", async (req, res) => {
         const { id } = req.params;
         const event = await prisma_1.prisma.event.findFirst({
             where: {
-                id,
+                id: id,
                 userId: user.id,
             },
         });
@@ -228,7 +228,7 @@ router.delete("/:id", async (req, res) => {
             return;
         }
         await prisma_1.prisma.event.delete({
-            where: { id },
+            where: { id: id },
         });
         res.status(200).json({ data: "Event deleted successfully", error: null });
     }

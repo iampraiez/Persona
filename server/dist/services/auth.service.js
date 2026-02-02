@@ -14,7 +14,7 @@ const isProduction = env_1.env.data?.NODE_ENV === "production";
 exports.COOKIE_OPTIONS = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: (isProduction ? "none" : "lax"),
+    sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
 };
@@ -23,11 +23,12 @@ exports.ACCESS_TOKEN_OPTIONS = {
     maxAge: 20 * 60 * 1000,
 };
 class AuthService {
-    static async getGoogleAuthUrl() {
+    static async getGoogleAuthUrl(returnTo) {
         return exports.oAuth2Client.generateAuthUrl({
             scope: ["profile", "email"],
             access_type: "offline",
             prompt: "consent",
+            state: returnTo ? Buffer.from(JSON.stringify({ returnTo })).toString("base64") : undefined,
         });
     }
     static async handleGoogleCallback(code) {

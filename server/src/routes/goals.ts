@@ -86,7 +86,7 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
     const { title, description, totalDays, steps } = req.body;
 
     const goal = await prisma.goal.findFirst({
-      where: { id, userId: user.id },
+      where: { id: id as string, userId: user.id },
     });
 
     if (!goal) {
@@ -101,7 +101,7 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
 
     if (steps !== undefined && Array.isArray(steps)) {
       await prisma.step.deleteMany({
-        where: { goalId: id },
+        where: { goalId: id as string },
       });
 
       const stepsToCreate = steps.map(
@@ -119,7 +119,7 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
     }
 
     const updatedGoal = await prisma.goal.update({
-      where: { id },
+      where: { id: id as string },
       data: updateData,
       include: {
         steps: {
@@ -151,7 +151,7 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     const goal = await prisma.goal.findFirst({
-      where: { id, userId: user.id },
+      where: { id: id as string, userId: user.id },
     });
 
     if (!goal) {
@@ -160,11 +160,11 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
     }
 
     await prisma.step.deleteMany({
-      where: { goalId: id },
+      where: { goalId: id as string },
     });
 
     await prisma.goal.delete({
-      where: { id },
+      where: { id: id as string },
     });
 
     res.status(200).json({ data: "Goal deleted successfully", error: null });
@@ -185,8 +185,8 @@ router.put(
 
       const updatedStep = await prisma.step.update({
         where: {
-          goalId: id,
-          id: stepid,
+          goalId: id as string,
+          id: stepid as string,
         },
         data: { 
           isCompleted: true,

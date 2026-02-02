@@ -37,7 +37,6 @@ const express_1 = require("express");
 const prisma_1 = require("../lib/prisma");
 const logger_utils_1 = require("../utils/logger.utils");
 const error_util_1 = require("../utils/error.util");
-const env_1 = require("../config/env");
 const router = (0, express_1.Router)();
 router.get("/", async (req, res) => {
     try {
@@ -69,14 +68,14 @@ router.delete("/:id", async (req, res) => {
         }
         const { id } = req.params;
         const notification = await prisma_1.prisma.notification.findFirst({
-            where: { id, userId: user.id },
+            where: { id: id, userId: user.id },
         });
         if (!notification) {
             res.status(404).json({ error: "Notification not found", data: null });
             return;
         }
         await prisma_1.prisma.notification.delete({
-            where: { id },
+            where: { id: id },
         });
         res.status(200).json({ data: "Notification deleted successfully", error: null });
     }
@@ -141,23 +140,6 @@ router.post("/save-subscription", async (req, res) => {
         });
     }
 });
-router.get("/public-key", async (req, res) => {
-    try {
-        const publicKey = env_1.env.data?.VAPID_PUBLIC_KEY;
-        if (!publicKey) {
-            res.status(500).json({ error: "VAPID keys not configured", data: null });
-            return;
-        }
-        res.status(200).json({ data: { publicKey }, error: null });
-    }
-    catch (error) {
-        logger_utils_1.logger.error(`Get Public Key Error: ${error}`);
-        res.status(500).json({
-            data: null,
-            error: (0, error_util_1.errorWrapper)(error, "Failed to get public key")
-        });
-    }
-});
 router.put("/:id/read", async (req, res) => {
     try {
         const user = await prisma_1.prisma.user.findUnique({ where: { email: req.user } });
@@ -167,7 +149,7 @@ router.put("/:id/read", async (req, res) => {
         }
         const { id } = req.params;
         await prisma_1.prisma.notification.update({
-            where: { id, userId: user.id },
+            where: { id: id, userId: user.id },
             data: { isRead: true },
         });
         res.status(200).json({ data: "Notification marked as read", error: null });

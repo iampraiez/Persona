@@ -29,7 +29,7 @@ model User {
   deleteAccountCode String?
   deleteAccountCodeExpiry DateTime?
   notificationsEnabled Boolean @default(true)
-  defaultNotifyBefore Int @default(15) // Minutes before event to notify
+  defaultNotifyBefore Int @default(15) 
 }
 
 model Event {
@@ -42,7 +42,7 @@ model Event {
   skippedReason       String?
   skippedIsImportant  Boolean   @default(false)
   isSpecial           Boolean   @default(false)
-  notifyBefore        Int       @default(15) // Minutes before event to notify
+  notifyBefore        Int       @default(15)
   userId              String
   user                User      @relation(fields: [userId], references: [id])
 }

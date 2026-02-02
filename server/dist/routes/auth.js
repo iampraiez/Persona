@@ -9,7 +9,8 @@ const router = (0, express_1.Router)();
 const FRONTEND_URL = env_1.env.data?.CLIENT_URL || "http://localhost:5173";
 router.get("/google", async (req, res) => {
     try {
-        const authUrl = await auth_service_1.AuthService.getGoogleAuthUrl();
+        const returnTo = req.query.returnTo;
+        const authUrl = await auth_service_1.AuthService.getGoogleAuthUrl(returnTo);
         res.json({ data: authUrl, error: null });
     }
     catch (error) {
@@ -21,18 +22,30 @@ router.get("/google", async (req, res) => {
     }
 });
 router.get("/google/callback", async (req, res) => {
-    const { code } = req.query;
+    const { code, state } = req.query;
+    let returnTo = FRONTEND_URL;
+    if (state) {
+        try {
+            const decodedState = JSON.parse(Buffer.from(state, "base64").toString());
+            if (decodedState.returnTo) {
+                returnTo = decodedState.returnTo;
+            }
+        }
+        catch (e) {
+            logger_utils_1.logger.error(`Failed to parse state: ${e}`);
+        }
+    }
     if (!code)
-        return res.redirect(`${FRONTEND_URL}/login?error=auth_failed`);
+        return res.redirect(`${returnTo}/login?error=auth_failed`);
     try {
         const { accessToken, refreshToken } = await auth_service_1.AuthService.handleGoogleCallback(code);
         res.cookie("access_token", accessToken, auth_service_1.ACCESS_TOKEN_OPTIONS);
         res.cookie("refresh_token", refreshToken, auth_service_1.COOKIE_OPTIONS);
-        return res.redirect(`${FRONTEND_URL}/login?success=true`);
+        return res.redirect(`${returnTo}/login?success=true`);
     }
     catch (error) {
         logger_utils_1.logger.error(`Google Auth Error: ${error}`);
-        return res.redirect(`${FRONTEND_URL}/login?error=auth_failed`);
+        return res.redirect(`${returnTo}/login?error=auth_failed`);
     }
 });
 router.get("/refresh", async (req, res) => {

@@ -81,13 +81,12 @@ router.put("/:id", async (req, res) => {
         const { id } = req.params;
         const { title, description, totalDays, steps } = req.body;
         const goal = await prisma_1.prisma.goal.findFirst({
-            where: { id, userId: user.id },
+            where: { id: id, userId: user.id },
         });
         if (!goal) {
             res.status(404).json({ error: "Goal not found", data: null });
             return;
         }
-        // Prepare update data
         const updateData = {};
         if (title !== undefined)
             updateData.title = title;
@@ -95,14 +94,10 @@ router.put("/:id", async (req, res) => {
             updateData.description = description;
         if (totalDays !== undefined)
             updateData.totalDays = totalDays;
-        // Handle steps update if provided
         if (steps !== undefined && Array.isArray(steps)) {
-            // Delete all existing steps and recreate them
             await prisma_1.prisma.step.deleteMany({
                 where: { goalId: id },
             });
-            // Create new steps (don't include goalId - Prisma sets it automatically via relation)
-            // Also filter out unknown fields like skippedIsImportant which might be coming from frontend
             const stepsToCreate = steps.map(({ title, description, dueDate, isCompleted }) => ({
                 title,
                 description,
@@ -114,7 +109,7 @@ router.put("/:id", async (req, res) => {
             };
         }
         const updatedGoal = await prisma_1.prisma.goal.update({
-            where: { id },
+            where: { id: id },
             data: updateData,
             include: {
                 steps: {
@@ -143,19 +138,17 @@ router.delete("/:id", async (req, res) => {
         }
         const { id } = req.params;
         const goal = await prisma_1.prisma.goal.findFirst({
-            where: { id, userId: user.id },
+            where: { id: id, userId: user.id },
         });
         if (!goal) {
             res.status(404).json({ error: "Goal not found", data: null });
             return;
         }
-        // Delete associated steps first to avoid foreign key constraint
         await prisma_1.prisma.step.deleteMany({
             where: { goalId: id },
         });
-        // Then delete the goal
         await prisma_1.prisma.goal.delete({
-            where: { id },
+            where: { id: id },
         });
         res.status(200).json({ data: "Goal deleted successfully", error: null });
     }

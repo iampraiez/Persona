@@ -39,7 +39,7 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     const notification = await prisma.notification.findFirst({
-      where: { id, userId: user.id },
+      where: { id: id as string, userId: user.id },
     });
 
     if (!notification) {
@@ -48,7 +48,7 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
     }
 
     await prisma.notification.delete({
-      where: { id },
+      where: { id: id as string },
     });
 
     res.status(200).json({ data: "Notification deleted successfully", error: null });
@@ -130,7 +130,7 @@ router.put("/:id/read", async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     await prisma.notification.update({
-      where: { id, userId: user.id },
+      where: { id: id as string, userId: user.id },
       data: { isRead: true },
     });
 
