@@ -156,8 +156,10 @@ export class ApiService {
   }
 
   private extractErrorMessage(data: unknown): string {
-    if (typeof data === "object" && data !== null && "error" in data) {
-      return (data as { error: string }).error;
+    if (typeof data === "string") return data;
+    if (typeof data === "object" && data !== null) {
+      if ("error" in data && typeof data.error === "string") return data.error;
+      if ("message" in data && typeof data.message === "string") return data.message;
     }
     return ERROR_MESSAGES.UNEXPECTED;
   }
@@ -172,21 +174,25 @@ export class ApiService {
         await this.axiosInstance.get("/auth/refresh");
         this.isRefreshing = false;
         return this.axiosInstance(originalRequest);
-      } catch (refreshError) {
+      } catch (refreshError: any) {
         this.isRefreshing = false;
 
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        try {
-          await this.logout();
-        } catch {
-          // Ignore
-        }
+        // Only clear state and redirect if the refresh call itself returned 401
+        if (refreshError?.response?.status === STATUS_CODES.UNAUTHORIZED) {
+          localStorage.clear();
+          sessionStorage.clear();
+          
+          try {
+            await this.logout();
+          } catch {
+            // Ignore
+          }
 
-        if (window.location.pathname !== PATHS.LOGIN && window.location.pathname !== PATHS.HOME) {
-          window.location.href = PATHS.LOGIN;
+          if (window.location.pathname !== PATHS.LOGIN && window.location.pathname !== PATHS.HOME) {
+            window.location.href = PATHS.LOGIN;
+          }
         }
+        
         return Promise.reject(refreshError);
       }
     }

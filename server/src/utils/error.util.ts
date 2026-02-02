@@ -7,9 +7,10 @@ const isDevelopment = env.data?.NODE_ENV === "development";
 export function errorHandler(app: Express) {
   app.use((err: Error, req: Request, res: Response, next: any) => {
     logger.error(`Error: ${err.message}`);
+    const message = isDevelopment ? err.message : "An unexpected error occurred";
     res.status(500).json({
-      message: "An error occurred",
-      error: isDevelopment ? err : null,
+      data: null,
+      error: message,
     });
   });
 }

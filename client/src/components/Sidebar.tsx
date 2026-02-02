@@ -66,13 +66,11 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       />
 
       <motion.nav
-        className="fixed md:static top-0 left-0 bottom-0 h-screen w-64 bg-card z-30 border-r border-border flex flex-col"
+        className="fixed md:static top-0 left-0 bottom-0 h-screen w-64 bg-card z-50 border-r border-border flex flex-col"
         initial="closed"
         animate={open ? "open" : "closed"}
         variants={sidebarVariants}
-        onClick={() => setOpen(false)}
         transition={{ type: "spring", damping: 20, stiffness: 150 }}
-        style={{ position: "fixed" }}
       >
         <div className="p-4 flex items-center justify-between border-b border-border">
           <div className="flex items-center space-x-2">
@@ -115,6 +113,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               <li key={item.to}>
                 <NavLink
                   to={item.to}
+                  onClick={() => setOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
                       isActive

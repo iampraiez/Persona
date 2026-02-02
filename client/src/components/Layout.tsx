@@ -1,13 +1,16 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import CopyEventsModal from './CopyEventsModal';
 import { startOfWeek, format } from 'date-fns';
+import { useUser } from '../hooks/useUser';
+import Loader from './Loader';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
+  const { isLoading: isUserLoading } = useUser();
 
   useEffect(() => {
     const lastSeenWeek = localStorage.getItem('last_seen_week');
@@ -32,8 +35,20 @@ const Layout = () => {
         <Header openSidebar={() => setSidebarOpen(true)} />
         
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="max-w-7xl mx-auto">
-            <Outlet />
+          <div className="max-w-7xl mx-auto h-full">
+            {isUserLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <Loader />
+              </div>
+            ) : (
+              <Suspense fallback={
+                <div className="flex items-center justify-center h-full">
+                  <Loader />
+                </div>
+              }>
+                <Outlet />
+              </Suspense>
+            )}
           </div>
         </main>
       </div>
