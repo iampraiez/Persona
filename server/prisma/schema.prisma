@@ -75,7 +75,7 @@ model PushSubscription {
   endpoint    String   @unique
   auth        String
   p256dh      String
-  userId      String   // Added to associate with User
+  userId      String   
   createdAt   DateTime @default(now())
 }
 
