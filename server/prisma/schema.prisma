@@ -8,23 +8,23 @@ datasource db {
 }
 
 model User {
-  id                      String         @id @default(uuid())
-  email                   String         @unique
+  id                      String             @id @default(uuid())
+  email                   String             @unique
   name                    String?
   image                   String?
-  createdAt               DateTime       @default(now())
-  updatedAt               DateTime       @updatedAt
-  refreshToken            String?        @unique
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  refreshToken            String?            @unique
   refreshTokenExpiresAt   DateTime?
-  aiCredits               Int            @default(3)
+  aiCredits               Int                @default(3)
   cachedInsights          Json?
-  defaultNotifyBefore     Int            @default(15)
+  defaultNotifyBefore     Int                @default(15)
   deleteAccountCode       String?
   deleteAccountCodeExpiry DateTime?
-  lastAiReset             DateTime       @default(now())
+  lastAiReset             DateTime           @default(now())
   lastInsightsDate        DateTime?
   notificationsEnabled    Boolean            @default(true)
-  purchasedAiCredits    Int                @default(0)
+  purchasedAiCredits      Int                @default(0)
   events                  Event[]
   goals                   Goal[]
   notifications           Notification[]
@@ -43,7 +43,7 @@ model Event {
   isSpecial          Boolean  @default(false)
   userId             String
   notifyBefore       Int      @default(15)
-  focusDuration      Int      @default(0)
+  focusDuration     Int      @default(25)
   user               User     @relation(fields: [userId], references: [id])
 }
 
