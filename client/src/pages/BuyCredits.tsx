@@ -90,6 +90,12 @@ const BuyCredits = () => {
 
     if (status === "success" && reference) {
       handleVerify(reference);
+    } else if (status === "cancelled") {
+      toast.info("Payment cancelled.");
+      navigate("/buy-credits", { replace: true });
+    } else if (status === "failed") {
+      toast.error("Payment failed. Please try again.");
+      navigate("/buy-credits", { replace: true });
     }
   }, [searchParams]);
 
