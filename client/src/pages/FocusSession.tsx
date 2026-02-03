@@ -272,7 +272,7 @@ const FocusSession = () => {
                 initial={{ opacity: 0, y: 100 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 100 }}
-                className="absolute inset-x-0 bottom-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[600px] h-[60vh] md:h-[500px] bg-card/90 backdrop-blur-xl border border-white/10 md:rounded-3xl rounded-t-3xl shadow-2xl z-40 flex flex-col overflow-hidden"
+                className="absolute inset-x-0 bottom-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[600px] h-[70vh] md:h-[500px] bg-card/90 backdrop-blur-xl border border-white/10 md:rounded-3xl rounded-t-3xl shadow-2xl z-40 flex flex-col overflow-hidden"
             >
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                     <h3 className="font-bold text-lg flex items-center gap-2">

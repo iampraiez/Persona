@@ -399,8 +399,8 @@ export class ApiService {
     return this.request("post", "/payments/initialize", { planId });
   }
 
-  async verifyPayment(reference: string): Promise<void> {
-    await this.request("get", `/payments/verify/${reference}`);
+  async verifyPayment(reference: string): Promise<{ status: string; message: string }> {
+    return this.request<{ status: string; message: string }>("get", `/payments/verify/${reference}`);
   }
 }
 

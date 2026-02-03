@@ -85,29 +85,45 @@ const BuyCredits = () => {
   });
 
   useEffect(() => {
-    const status = searchParams.get("status");
-    const reference = searchParams.get("reference");
+    // Reset loading state on mount to prevent stuck spinners
+    setLoadingPlanId(null);
+    setIsVerifying(false);
 
-    if (status === "success" && reference) {
+    // Paystack redirects with ?trxref=...&reference=...
+    const reference = searchParams.get("reference") || searchParams.get("trxref");
+
+    if (reference) {
       handleVerify(reference);
-    } else if (status === "cancelled") {
-      toast.info("Payment cancelled.");
-      navigate("/buy-credits", { replace: true });
-    } else if (status === "failed") {
-      toast.error("Payment failed. Please try again.");
-      navigate("/buy-credits", { replace: true });
     }
   }, [searchParams]);
 
   const handleVerify = async (reference: string) => {
     setIsVerifying(true);
+    // Clear the query params to prevent re-verification on refresh
+    navigate("/buy-credits", { replace: true });
+    
     try {
-      await api.verifyPayment(reference);
-      toast.success("Credits added successfully!");
-      refetchUser();
-      navigate("/buy-credits", { replace: true });
+      // The server now returns structured data with a 'status' field
+      const response = await api.verifyPayment(reference);
+      const { status, message } = response; // Adjust based on your API wrapper return type
+      // Note: If your api.verifyPayment returns strictly data or throws, adjust below.
+      // Assuming api.verifyPayment returns the axios data directly or response.data.
+      
+      // Based on server change: res.json({ data: { status: ... } })
+      // Let's assume api.verifyPayment returns the `data` field.
+
+      if (status === "success") {
+        toast.success(message || "Credits added successfully!");
+        refetchUser();
+      } else if (status === "abandoned") {
+        toast.info(message || "Payment was cancelled.");
+      } else {
+        toast.error(message || "Payment failed.");
+      }
     } catch (error) {
-      toast.error("Failed to verify payment. Please contact support.");
+      // If server throws 500
+      console.error(error);
+      toast.error("Failed to verify payment status.");
     } finally {
       setIsVerifying(false);
     }

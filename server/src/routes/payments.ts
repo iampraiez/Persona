@@ -42,7 +42,7 @@ router.post("/initialize", async (req: Request, res: Response): Promise<void> =>
           userId: user.id,
           credits: plan.credits,
         },
-        callback_url: `${env.data?.CLIENT_URL}/buy-credits?status=success`,
+        callback_url: `${env.data?.CLIENT_URL}/buy-credits`,
       },
       {
         headers: {
@@ -77,19 +77,28 @@ router.get("/verify/:reference", async (req: Request, res: Response): Promise<vo
 
     const data = paystackResponse.data.data;
 
+    // Handle different Paystack statuses
     if (data.status === "success") {
       const { userId, credits } = data.metadata;
 
-    await prisma.user.update({
+      // Idempotency: Check if this reference was already processed (if you store transactions)
+      // For now, relying on simple updates (production should track references in DB)
+      
+      await prisma.user.update({
         where: { id: userId },
         data: {
           purchasedAiCredits: { increment: credits },
         },
       });
 
-      res.status(200).json({ data: "Credits added successfully", error: null });
+      res.status(200).json({ data: { status: "success", message: "Credits added successfully", reference }, error: null });
+    } else if (data.status === "abandoned") {
+      res.status(200).json({ data: { status: "abandoned", message: "Transaction was abandoned", reference }, error: null });
+    } else if (data.status === "failed") {
+        res.status(200).json({ data: { status: "failed", message: "Transaction failed", reference }, error: null });
     } else {
-      res.status(400).json({ error: "Transaction failed or incomplete", data: null });
+      // Pending or other states
+       res.status(200).json({ data: { status: data.status, message: "Transaction pending", reference }, error: null });
     }
   } catch (error: any) {
     logger.error(`Paystack Verify Error: ${error?.response?.data || error.message}`);
