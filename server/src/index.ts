@@ -2,6 +2,8 @@ import express, { type Request, type Response, type Express } from "express";
 import "dotenv/config";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import compression from "compression";
 import { authMiddleware } from "./middleware/auth";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
@@ -44,10 +46,17 @@ const corsOptions =  {
     },
     credentials: true,
   }
+
+// Security & Performance Middleware
+app.use(helmet());
+app.use(compression());
+
+// Standard Middleware
 app.use(express.json());  
 app.use(cookieParser());
 app.use(cors(corsOptions));
 
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes); 
 app.use("/api/events", authMiddleware, eventWriteRateLimiter, eventRoutes); 

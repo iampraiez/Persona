@@ -6,6 +6,7 @@ import CopyEventsModal from './CopyEventsModal';
 import { startOfWeek, format } from 'date-fns';
 import { useUser } from '../hooks/useUser';
 import Loader from './Loader';
+import FeedbackWidget from './FeedbackWidget';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -57,6 +58,7 @@ const Layout = () => {
         isOpen={showCopyModal} 
         onClose={handleCloseModal} 
       />
+      <FeedbackWidget />
     </div>
   );
 };
