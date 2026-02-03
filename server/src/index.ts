@@ -60,11 +60,18 @@ app.use(cors(corsOptions));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes); 
 app.use("/api/events", authMiddleware, eventWriteRateLimiter, eventRoutes); 
+import feedbackRoutes from "./routes/feedback";
+
+// ... Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes); 
+app.use("/api/events", authMiddleware, eventWriteRateLimiter, eventRoutes); 
 app.use("/api/goals", authMiddleware, eventWriteRateLimiter, goalRoutes); 
 app.use("/api/ai", authMiddleware, aiRateLimiter, aiRoutes);
 app.use("/api/analytics", authMiddleware, analyticsRoutes);
 app.use("/api/notification", authMiddleware, eventWriteRateLimiter, subRoute);
 app.use("/api/payments", authMiddleware, paymentsRoute);
+app.use("/api/feedback", authMiddleware, feedbackRoutes);
 
 app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({

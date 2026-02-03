@@ -402,6 +402,10 @@ export class ApiService {
   async verifyPayment(reference: string): Promise<{ status: string; message: string }> {
     return this.request<{ status: string; message: string }>("get", `/payments/verify/${reference}`);
   }
+
+  async sendFeedback(message: string): Promise<void> {
+    await this.request("post", "/feedback", { message });
+  }
 }
 
 export const api = ApiService.getInstance();

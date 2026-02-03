@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MessageSquare, X, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
+import { api } from "../service/api.service";
 
 const FeedbackWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,13 +14,17 @@ const FeedbackWidget = () => {
     if (!message.trim()) return;
 
     setIsSending(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    setIsSending(false);
-    setMessage("");
-    setIsOpen(false);
-    toast.success("Thanks for your feedback! We'll look into it.");
+    try {
+        await api.sendFeedback(message);
+        toast.success("Thanks for your feedback! We'll look into it.");
+        setIsOpen(false);
+        setMessage("");
+    } catch (error) {
+        toast.error("Failed to send feedback. Please try again.");
+        console.error(error);
+    } finally {
+        setIsSending(false);
+    }
   };
 
   return (
