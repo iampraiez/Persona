@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import { prisma } from "./lib/prisma";
-import { sendNotification } from "./services/notification.service";
+import { NotificationService } from "./services/notification.service";
 import { logger } from "./utils/logger.utils";
 
 export const startScheduler = () => {
@@ -40,7 +40,7 @@ export const startScheduler = () => {
              });
              
              if (!existingNotif) {
-               await sendNotification(event.userId, title, body);
+               await NotificationService.sendNotification(event.userId, title, body);
              }
            }
         }
@@ -62,7 +62,7 @@ export const startScheduler = () => {
              });
              
              if (!existingNotif) {
-               await sendNotification(event.userId, title, body);
+               await NotificationService.sendNotification(event.userId, title, body);
              }
            }
         }

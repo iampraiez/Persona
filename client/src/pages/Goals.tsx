@@ -160,8 +160,12 @@ const Goals: React.FC = () => {
     value: Step[K]
   ) => {
     setNewGoal((prev) => {
-      const updatedSteps = [...prev.steps];
-      updatedSteps[index] = { ...updatedSteps[index], [field]: value };
+      const updatedSteps = [...prev.steps]; 
+      let finalValue = value;
+      if (field === "dueDate" && typeof value === "string") {
+        finalValue = new Date(value).toISOString() as Step[K];
+      }
+      updatedSteps[index] = { ...updatedSteps[index], [field]: finalValue };
       return { ...prev, steps: updatedSteps };
     });
   };
@@ -240,7 +244,10 @@ const Goals: React.FC = () => {
       title: newGoal.title,
       description: newGoal.description,
       totalDays: newGoal.totalDays,
-      steps: newGoal.steps,
+      steps: newGoal.steps.map((s) => ({
+        ...s,
+        dueDate: new Date(s.dueDate).toISOString(),
+      })),
     };
 
     updateGoal(
@@ -362,7 +369,7 @@ const Goals: React.FC = () => {
 
   return (
     <div className="min-h-screen" ref={modalRef}>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between mb-6"
@@ -378,15 +385,15 @@ const Goals: React.FC = () => {
           New Goal
         </motion.button>
       </motion.div>
-      <motion.div 
+      <motion.div
         variants={{
           hidden: { opacity: 0 },
           show: {
             opacity: 1,
             transition: {
-              staggerChildren: 0.1
-            }
-          }
+              staggerChildren: 0.1,
+            },
+          },
         }}
         initial="hidden"
         animate="show"
@@ -398,7 +405,7 @@ const Goals: React.FC = () => {
             const isOpened = optionsModalOpen === goal.id;
             const steps = goal.steps || [];
             const completedSteps = steps.filter(
-              (step) => step.isCompleted
+              (step) => step.isCompleted,
             ).length;
             const progressPercentage =
               steps.length > 0
@@ -406,14 +413,14 @@ const Goals: React.FC = () => {
                 : 0;
             const elapsedDays = differenceInDays(
               new Date(),
-              new Date(goal.createdAt)
+              new Date(goal.createdAt),
             );
             if (!goal.totalDays) return;
 
             const remainingDays = goal.totalDays - elapsedDays;
             const timePercentage = Math.min(
               100,
-              Math.round((elapsedDays / goal.totalDays) * 100)
+              Math.round((elapsedDays / goal.totalDays) * 100),
             );
 
             return (
@@ -422,7 +429,7 @@ const Goals: React.FC = () => {
                 layout
                 variants={{
                   hidden: { opacity: 0, y: 20 },
-                  show: { opacity: 1, y: 0 }
+                  show: { opacity: 1, y: 0 },
                 }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 className="bg-card rounded-lg shadow-sm overflow-hidden border border-border/50 hover:border-accent/30 transition-colors"
@@ -526,13 +533,17 @@ const Goals: React.FC = () => {
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${timePercentage}%` }}
-                          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                          transition={{
+                            duration: 0.8,
+                            ease: "easeOut",
+                            delay: 0.2,
+                          }}
                           className={`h-full rounded-full ${
                             timePercentage > 75
                               ? "bg-destructive"
                               : timePercentage > 50
-                              ? "bg-warning"
-                              : "bg-success"
+                                ? "bg-warning"
+                                : "bg-success"
                           }`}
                         ></motion.div>
                       </div>
@@ -574,13 +585,13 @@ const Goals: React.FC = () => {
                                   : "bg-secondary"
                               }`}
                             >
-                              <motion.div 
+                              <motion.div
                                 className="flex-shrink-0 mt-0.5"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                               >
                                 {step.isCompleted ? (
-                                  <motion.div 
+                                  <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     className="w-5 h-5 rounded-full bg-success flex items-center justify-center"
@@ -633,7 +644,7 @@ const Goals: React.FC = () => {
                                 )}
                               </div>
                             </div>
-                          )
+                          ),
                         )
                       ) : (
                         <div className="p-4 bg-secondary rounded-md text-center text-muted-foreground">
@@ -647,7 +658,7 @@ const Goals: React.FC = () => {
             );
           })
         ) : (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="p-12 rounded-xl bg-card border-2 border-dashed border-border text-center"
@@ -657,7 +668,8 @@ const Goals: React.FC = () => {
             </div>
             <h3 className="text-xl font-semibold mb-2">No goals found</h3>
             <p className="text-foreground/60 mb-6 max-w-sm mx-auto">
-              You haven't set any goals yet. Start by creating a new goal and let AI help you break it down!
+              You haven't set any goals yet. Start by creating a new goal and
+              let AI help you break it down!
             </p>
             <button
               className="btn btn-accent"
@@ -752,8 +764,8 @@ const Goals: React.FC = () => {
                 <div className="border-t border-border pt-4 mt-4">
                   <h3 className="text-sm font-medium mb-3">Steps</h3>
                   <p className="text-xs text-foreground/70 mb-4">
-                    You can define your own steps or let the AI generate steps for
-                    you.
+                    You can define your own steps or let the AI generate steps
+                    for you.
                   </p>
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex-1">
@@ -778,7 +790,7 @@ const Goals: React.FC = () => {
                         generateSteps(
                           newGoal.title || newGoal.description || "",
                           newGoal.totalDays || 0,
-                          stepCount
+                          stepCount,
                         )
                       }
                     >
@@ -831,7 +843,7 @@ const Goals: React.FC = () => {
                             updateStep(
                               index,
                               "dueDate",
-                              convertYMDToISOString(e.target.value)
+                              convertYMDToISOString(e.target.value),
                             )
                           }
                         />
@@ -847,13 +859,6 @@ const Goals: React.FC = () => {
                   </button>
                 </div>
                 <div className="flex justify-end space-x-2 pt-4">
-                  <button
-                    type="button"
-                    className="btn bg-secondary hover:bg-secondary/80"
-                    onClick={() => setShowNewGoalModal(false)}
-                  >
-                    Cancel
-                  </button>
                   <button
                     type="submit"
                     className="btn btn-accent disabled:opacity-50"

@@ -176,10 +176,10 @@ export class ApiService {
         this.isRefreshing = false;
         this.onRefreshed();
         return this.axiosInstance(originalRequest);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (refreshError: any) {
         this.isRefreshing = false;
 
-        // Only clear state and redirect if the refresh call itself returned 401
         if (refreshError?.response?.status === STATUS_CODES.UNAUTHORIZED) {
           localStorage.clear();
           sessionStorage.clear();
@@ -187,7 +187,7 @@ export class ApiService {
           try {
             await this.logout();
           } catch {
-            // Ignore
+            //
           }
 
           if (window.location.pathname !== PATHS.LOGIN && window.location.pathname !== PATHS.HOME) {

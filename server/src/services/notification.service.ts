@@ -16,49 +16,82 @@ if (publicVapidKey && privateVapidKey) {
   logger.warn("VAPID keys are missing. Push notifications will not work.");
 }
 
-export const sendNotification = async (
-  userId: string,
-  title: string,
-  body: string
-) => {
-  try {
-    const notification = await prisma.notification.create({
-      data: {userId,title, body},
-    });
+export class NotificationService {
+  static async sendNotification(userId: string, title: string, body: string) {
+    try {
+      const notification = await prisma.notification.create({
+        data: { userId, title, body },
+      });
 
-    const subscriptionRecord = await prisma.pushSubscription.findFirst({
-      where: { userId },
-    });
+      const subscriptionRecord = await prisma.pushSubscription.findFirst({
+        where: { userId },
+      });
 
-    if (subscriptionRecord) {
-      const subscription = {
-        endpoint: subscriptionRecord.endpoint,
-        keys: {
-          auth: subscriptionRecord.auth,
-          p256dh: subscriptionRecord.p256dh,
-        },
-      };
+      if (subscriptionRecord) {
+        const subscription = {
+          endpoint: subscriptionRecord.endpoint,
+          keys: {
+            auth: subscriptionRecord.auth,
+            p256dh: subscriptionRecord.p256dh,
+          },
+        };
 
-      await webpush.sendNotification(
-        subscription,
-        JSON.stringify({ title, body, id: notification.id })
-      );
-      logger.info(`Notification sent to user ${userId}`);
-    } else {
-      logger.info(`No push subscription found for user ${userId}`);
+        await webpush.sendNotification(
+          subscription,
+          JSON.stringify({ title, body, id: notification.id })
+        );
+        logger.info(`Notification sent to user ${userId}`);
+      }
+
+      return notification;
+    } catch (error: any) {
+      logger.error(`Error sending notification to user ${userId}: ${error.message}`);
+      return null;
     }
-
-    return notification;
-  } catch (error: any) {
-    logger.error(`Error sending notification to user ${userId}: ${error.message}`);
-    
-    // If subscription is invalid (expired or unauthorized), we should handle it
-    if (error.statusCode === 410 || error.statusCode === 404) {
-      logger.warn(`Subscription for user ${userId} is no longer valid. Cleaning up.`);
-      // In a real scenario, you might want to delete the invalid subscription here
-      // But for now, we just log it clearly
-    }
-    
-    return null;
   }
-};
+
+  static async getUserNotifications(userId: string) {
+    return prisma.notification.findMany({
+      where: { userId },
+      orderBy: { timestamp: "desc" },
+    });
+  }
+
+  static async deleteNotification(userId: string, id: string) {
+    const notification = await prisma.notification.findFirst({
+        where: { id, userId }
+    });
+    if (!notification) throw new Error("Notification not found");
+    
+    return prisma.notification.delete({ where: { id } });
+  }
+
+  static async deleteAllNotifications(userId: string) {
+    return prisma.notification.deleteMany({ where: { userId } });
+  }
+
+  static async saveSubscription(userId: string, subscription: any) {
+    const sub = typeof subscription === 'string' ? JSON.parse(subscription) : subscription;
+    return prisma.pushSubscription.upsert({
+      where: { endpoint: sub.endpoint },
+      update: {
+        auth: sub.keys.auth,
+        p256dh: sub.keys.p256dh,
+        userId,
+      },
+      create: {
+        endpoint: sub.endpoint,
+        auth: sub.keys.auth,
+        p256dh: sub.keys.p256dh,
+        userId,
+      },
+    });
+  }
+
+  static async markAsRead(userId: string, id: string) {
+    return prisma.notification.update({
+      where: { id, userId },
+      data: { isRead: true },
+    });
+  }
+}

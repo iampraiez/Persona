@@ -105,7 +105,11 @@ const Timetable = () => {
       return;
     }
 
-    createEvent(newEvent, {
+    createEvent({
+      ...newEvent,
+      startTime: new Date(newEvent.startTime).toISOString(),
+      endTime: new Date(newEvent.endTime).toISOString(),
+    }, {
       onSuccess: () => {
         setShowNewEventModal(false);
         setNewEvent({

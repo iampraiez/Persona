@@ -5,49 +5,57 @@ import { api } from "../service/api.service";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 
-// Premium SVG Icons (Phosphor-inspired)
 const IconWrapper = ({ children, className = "h-6 w-6" }: { children: React.ReactNode, className?: string }) => (
   <svg viewBox="0 0 256 256" className={className} fill="currentColor">
     {children}
   </svg>
 );
 
+type UnknownObject = {
+  [key: string]: unknown;
+};
+
+
 const Icons = {
-  Sparkles: (props: any) => (
+  Sparkles: (props: UnknownObject) => (
     <IconWrapper {...props}>
       <path d="M213.66,122.34a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32-11.32l32-32A8,8,0,0,1,213.66,122.34ZM117.66,34.34a8,8,0,0,0-11.32,0l-32,32a8,8,0,0,0,11.32,11.32l32-32A8,8,0,0,0,117.66,34.34Zm-32,152a8,8,0,0,0-11.32,0l-32,32a8,8,0,0,0,11.32,11.32l32-32A8,8,0,0,0,85.66,186.34Zm136-112a8,8,0,0,0-11.32,0l-32,32A8,8,0,0,0,189.66,117.66l32-32A8,8,0,0,0,221.66,74.34Zm-160,8a8,8,0,0,0-11.32,0l-32,32a8,8,0,0,0,11.32,11.32l32-32A8,8,0,0,0,61.66,82.34ZM152,24a8,8,0,0,0-8,8V64a8,8,0,0,0,16,0V32A8,8,0,0,0,152,24Zm0,168a8,8,0,0,0-8,8v32a8,8,0,0,0,16,0V200A8,8,0,0,0,152,192Zm-64-64a8,8,0,0,0-8,8v32a8,8,0,0,0,16,0V136A8,8,0,0,0,88,128Zm128,0a8,8,0,0,0-8,8v32a8,8,0,0,0,16,0V136A8,8,0,0,0,216,128Z" />
     </IconWrapper>
   ),
-  Zap: (props: any) => (
+  Zap: (props: UnknownObject) => (
     <IconWrapper {...props}>
       <path d="M215.79,118.17a8,8,0,0,0-7.79-6.17H152L176,32a8,8,0,0,0-13.56-6.84l-120,136a8,8,0,0,0,6,13.34h56L80,224a8,8,0,0,0,13.56,6.84l120-136A8,8,0,0,0,215.79,118.17ZM109.83,190.49l15-56.49H76.17L146.17,65.51l-15,56.49h48.66Z" />
     </IconWrapper>
   ),
-  CreditCard: (props: any) => (
+  CreditCard: (props: UnknownObject) => (
     <IconWrapper {...props}>
       <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64ZM32,192V104H224v88Z" />
     </IconWrapper>
   ),
-  Check: (props: any) => (
+  Check: (props: UnknownObject) => (
     <IconWrapper {...props}>
       <path d="M104,192a8.5,8.5,0,0,1-5.66-2.34l-56-56a8,8,0,0,1,11.32-11.32L104,172.69l98.34-98.35a8,8,0,0,1,11.32,11.32l-104,104A8.5,8.5,0,0,1,104,192Z" />
     </IconWrapper>
   ),
-  ArrowLeft: (props: any) => (
+  ArrowLeft: (props: UnknownObject) => (
     <IconWrapper {...props}>
       <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z" />
     </IconWrapper>
   ),
-  Spinner: (props: any) => (
+  Spinner: (props: UnknownObject) => (
     <IconWrapper {...props} className={`${props.className} animate-spin`}>
-      <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z" opacity="0.2" /><path d="M232,128a104,104,0,0,1-104,104" />
+      <path
+        d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"
+        opacity="0.2"
+      />
+      <path d="M232,128a104,104,0,0,1-104,104" />
     </IconWrapper>
   ),
-  Info: (props: any) => (
+  Info: (props: UnknownObject) => (
     <IconWrapper {...props}>
       <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v32A8,8,0,0,1,144,176Zm-12-72a12,12,0,1,1,12-12A12,12,0,0,1,132,104Z" />
     </IconWrapper>
-  )
+  ),
 };
 
 const PLANS = [
@@ -85,12 +93,11 @@ const BuyCredits = () => {
   });
 
   useEffect(() => {
-    // Reset loading state on mount to prevent stuck spinners
     setLoadingPlanId(null);
     setIsVerifying(false);
 
-    // Paystack redirects with ?trxref=...&reference=...
-    const reference = searchParams.get("reference") || searchParams.get("trxref");
+    const reference =
+      searchParams.get("reference") || searchParams.get("trxref");
 
     if (reference) {
       handleVerify(reference);
@@ -99,19 +106,13 @@ const BuyCredits = () => {
 
   const handleVerify = async (reference: string) => {
     setIsVerifying(true);
-    // Clear the query params to prevent re-verification on refresh
     navigate("/buy-credits", { replace: true });
     
     try {
-      // The server now returns structured data with a 'status' field
       const response = await api.verifyPayment(reference);
-      const { status, message } = response; // Adjust based on your API wrapper return type
-      // Note: If your api.verifyPayment returns strictly data or throws, adjust below.
-      // Assuming api.verifyPayment returns the axios data directly or response.data.
-      
-      // Based on server change: res.json({ data: { status: ... } })
-      // Let's assume api.verifyPayment returns the `data` field.
+      const { status, message } = response;
 
+      console.log("Payment verification response:", response);
       if (status === "success") {
         toast.success(message || "Credits added successfully!");
         refetchUser();
@@ -121,7 +122,6 @@ const BuyCredits = () => {
         toast.error(message || "Payment failed.");
       }
     } catch (error) {
-      // If server throws 500
       console.error(error);
       toast.error("Failed to verify payment status.");
     } finally {
@@ -134,11 +134,10 @@ const BuyCredits = () => {
     try {
       const { authorization_url } = await api.initializePayment(planId);
       window.location.href = authorization_url;
-    } catch (error) {
+    } catch {
       toast.error("Failed to start payment process");
       setLoadingPlanId(null);
     }
-    // No finally here because window.location.href will redirect away
   };
 
   return (
