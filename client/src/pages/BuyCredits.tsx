@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../service/api.service";
+import { demoApi } from "../service/demo.service";
+import { useAuthStore } from "../store/auth.store";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 
@@ -86,10 +88,11 @@ const BuyCredits = () => {
   const navigate = useNavigate();
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const { isDemo } = useAuthStore();
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["user"],
-    queryFn: () => api.getUser(),
+    queryFn: () => (isDemo ? demoApi : api).getUser(),
   });
 
   useEffect(() => {
@@ -99,10 +102,10 @@ const BuyCredits = () => {
     const reference =
       searchParams.get("reference") || searchParams.get("trxref");
 
-    if (reference) {
+    if (reference && !isDemo) {
       handleVerify(reference);
     }
-  }, [searchParams]);
+  }, [searchParams, isDemo]);
 
   const handleVerify = async (reference: string) => {
     setIsVerifying(true);
@@ -130,6 +133,10 @@ const BuyCredits = () => {
   };
 
   const handleBuy = async (planId: string) => {
+    if (isDemo) {
+      toast.info("Purchases are disabled in Demo Mode");
+      return;
+    }
     setLoadingPlanId(planId);
     try {
       const { authorization_url } = await api.initializePayment(planId);

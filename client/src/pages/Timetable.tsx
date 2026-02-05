@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, startOfWeek, addDays, isSameDay } from "date-fns";
+import { format, isSameDay, differenceInMinutes, startOfDay, getHours, getMinutes } from "date-fns";
 import {
   Calendar,
   Clock,
@@ -15,27 +15,44 @@ import {
   MoreVertical,
   Target,
 } from "lucide-react";
-import { api } from "../service/api.service";
-import { motion, AnimatePresence } from "framer-motion";
-import { Event } from "../types";
-import { useEvents } from "../hooks/useEvents";
-import { toast } from "react-toastify";
-import { Loader2 } from "lucide-react";
+import { useTimetable } from "../hooks/useTimetable";
 import { useUser } from "../hooks/useUser";
+import { useEvents } from "../hooks/useEvents";
+import { Event } from "../types";
+import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 const Timetable = () => {
-  const {
-    events,
-    createEvent,
-    updateEvent,
-    deleteEvent,
-    isLoading,
-    isCreating,
-    isUpdating,
-    isDeleting,
-  } = useEvents();
   const { data: user } = useUser();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const {
+    selectedDate, setSelectedDate,
+    weekDays,
+    eventsForSelectedDate,
+    isLoading,
+    // Modals
+    showNewEventModal, setShowNewEventModal,
+    showEventDetailsModal, setShowEventDetailsModal,
+    showAiModal, setShowAiModal,
+    showCopyModal, setShowCopyModal,
+    showClearModal, setShowClearModal,
+    isMenuOpen, setIsMenuOpen,
+    // Ranges
+    aiRange, setAiRange,
+    copyRange, setCopyRange,
+    clearRange, setClearRange,
+    copyTargetStart, setCopyTargetStart,
+    // Actions
+    handleCreateEvent,
+    handleUpdateEvent,
+    handleDeleteEvent,
+    handleAiGenerate,
+    handleCopyRange,
+    handleClearRange,
+  } = useTimetable();
+
+  const { events } = useEvents();
+
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",
@@ -43,37 +60,14 @@ const Timetable = () => {
     endTime: "",
     notifyBefore: user?.defaultNotifyBefore || 15,
   });
-  const [showNewEventModal, setShowNewEventModal] = useState<boolean>(false);
-  const [showEventDetailsModal, setShowEventDetailsModal] =
-    useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [skipps, setSkipps] = useState<string>("");
   const [show, setShow] = useState<boolean>(false);
   const [important, setImportant] = useState<boolean>(false);
-
-  const [showAiModal, setShowAiModal] = useState(false);
   const [aiDescription, setAiDescription] = useState("");
-  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
-  const [aiRange, setAiRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
 
-  const [showCopyModal, setShowCopyModal] = useState(false);
-  const [copyRange, setCopyRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
-  const [copyTargetStart, setCopyTargetStart] = useState<string>("");
-  
-  const [showClearModal, setShowClearModal] = useState(false);
-  const [clearRange, setClearRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Set default ranges to selected date
-    const dateStr = format(selectedDate, "yyyy-MM-dd");
-    setAiRange({ start: dateStr, end: dateStr });
-    setCopyRange({ start: dateStr, end: dateStr });
-    setClearRange({ start: dateStr, end: dateStr });
-    setCopyTargetStart(dateStr);
-  }, [selectedDate, showAiModal, showCopyModal, showClearModal]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -83,227 +77,84 @@ const Timetable = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-
-  const startOfCurrentWeek = startOfWeek(selectedDate, { weekStartsOn: 0 });
-  const weekDays = [...Array(7)].map((_, i) => addDays(startOfCurrentWeek, i));
-
-  const eventsForSelectedDate = events?.filter((event) =>
-    isSameDay(new Date(event.startTime), selectedDate),
-  );
+  }, [setIsMenuOpen]);
 
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
     setShowEventDetailsModal(true);
   };
 
-  async function handleNewEvent(e: React.FormEvent) {
+  const onNewEventSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEvent.title || !newEvent.startTime || !newEvent.endTime) {
       toast.error("Please fill out all fields");
       return;
     }
-
-    createEvent({
+    
+    await handleCreateEvent({
       ...newEvent,
       startTime: new Date(newEvent.startTime).toISOString(),
       endTime: new Date(newEvent.endTime).toISOString(),
-    }, {
-      onSuccess: () => {
-        setShowNewEventModal(false);
-        setNewEvent({
-          title: "",
-          description: "",
-          startTime: "",
-          endTime: "",
-          notifyBefore: user?.defaultNotifyBefore || 15,
-        });
-        toast.success("Event created successfully");
-      },
-      onError: () => {
-        toast.error("Failed to create event");
-      },
     });
-  }
 
-  async function handleMarkAsCompleted() {
-    if (!selectedEvent) return;
-    updateEvent(
-      {
-        id: selectedEvent.id,
-        event: { isCompleted: true },
-      },
-      {
-        onSuccess: () => {
-          setShowEventDetailsModal(false);
-          setSelectedEvent(null);
-          toast.success("Event marked as completed");
-        },
-        onError: () => {
-          toast.error("Failed to mark event as completed");
-        },
-      },
-    );
-  }
-
-  async function handleSkipEvent() {
-    setShow(false);
-    if (!selectedEvent) return;
-
-    updateEvent(
-      {
-        id: selectedEvent.id,
-        event: {
-          skippedIsImportant: important,
-          skippedReason: skipps,
-          isCompleted: false,
-        },
-      },
-      {
-        onSuccess: () => {
-          setShowEventDetailsModal(false);
-          setSkipps("");
-          setSelectedEvent(null);
-          toast.success("Event skipped");
-        },
-        onError: () => {
-          toast.error("Failed to skip event");
-        },
-      },
-    );
-  }
-
-  async function handleResetStatus() {
-    if (!selectedEvent) return;
-
-    updateEvent(
-      {
-        id: selectedEvent.id,
-        event: {
-          isCompleted: false,
-          skippedIsImportant: false,
-          skippedReason: "",
-        },
-      },
-      {
-        onSuccess: () => {
-          setShowEventDetailsModal(false);
-          toast.success("Event status reset");
-        },
-        onError: () => {
-          toast.error("Failed to reset event status");
-        },
-      },
-    );
-  }
-
-  async function handleDeleteEvent() {
-    if (!selectedEvent) return;
-
-    deleteEvent(selectedEvent.id, {
-      onSuccess: () => {
-        setShowEventDetailsModal(false);
-        setSelectedEvent(null);
-        toast.success("Event deleted");
-      },
-      onError: () => {
-        toast.error("Failed to delete event");
-      },
+    setNewEvent({
+      title: "",
+      description: "",
+      startTime: "",
+      endTime: "",
+      notifyBefore: user?.defaultNotifyBefore || 15,
     });
-  }
+  };
+
+  const onMarkAsCompleted = () => {
+    if (!selectedEvent) return;
+    handleUpdateEvent(selectedEvent.id, { isCompleted: true });
+    setSelectedEvent(null);
+    toast.success("Completed");
+  };
+
+  const onSkipEvent = () => {
+    if (!selectedEvent) return;
+    handleUpdateEvent(selectedEvent.id, {
+      skippedIsImportant: important,
+      skippedReason: skipps,
+      isCompleted: false,
+    });
+    setSkipps("");
+    setSelectedEvent(null);
+    toast.success("Skipped");
+  };
+
+  const onResetStatus = () => {
+    if (!selectedEvent) return;
+    handleUpdateEvent(selectedEvent.id, {
+      isCompleted: false,
+      skippedIsImportant: false,
+      skippedReason: "",
+    });
+    setSelectedEvent(null);
+    toast.success("Reset");
+  };
+
+  const onDeleteClick = () => {
+    if (!selectedEvent) return;
+    if (confirm("Delete this event?")) {
+      handleDeleteEvent(selectedEvent.id);
+      setSelectedEvent(null);
+    }
+  };
 
   const handleDuplicateEvent = () => {
     if (!selectedEvent) return;
     setNewEvent({
       title: `${selectedEvent.title} (Copy)`,
       description: selectedEvent.description || "",
-      startTime: format(
-        new Date(selectedEvent.startTime),
-        "yyyy-MM-dd'T'HH:mm",
-      ),
+      startTime: format(new Date(selectedEvent.startTime), "yyyy-MM-dd'T'HH:mm"),
       endTime: format(new Date(selectedEvent.endTime), "yyyy-MM-dd'T'HH:mm"),
       notifyBefore: selectedEvent.notifyBefore,
     });
     setShowEventDetailsModal(false);
     setShowNewEventModal(true);
-  };
-
-  const handleAiGenerate = async () => {
-    if (!aiDescription) {
-      toast.error("Please describe your schedule");
-      return;
-    }
-    if (!aiRange.start || !aiRange.end) {
-       toast.error("Please select a date range");
-       return;
-    }
-
-    try {
-      setIsGeneratingAi(true);
-      const start = new Date(aiRange.start);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(aiRange.end);
-      end.setHours(23, 59, 59, 999);
-
-      await api.generateTimetable(aiDescription, {
-        start: start.toISOString(),
-        end: end.toISOString(),
-      });
-      
-      toast.success("Timetable generated successfully!");
-      setShowAiModal(false);
-      setAiDescription("");
-      window.location.reload(); 
-    } catch {
-      toast.error("Failed to generate timetable. Check if you have credits.");
-    } finally {
-      setIsGeneratingAi(false);
-    }
-  };
-
-  const handleCopyRange = async () => {
-    try {
-      if (!copyRange.start || !copyRange.end || !copyTargetStart) return;
-      
-      const sStart = new Date(copyRange.start);
-      sStart.setHours(0, 0, 0, 0);
-      const sEnd = new Date(copyRange.end);
-      sEnd.setHours(23, 59, 59, 999);
-      const tStart = new Date(copyTargetStart);
-      tStart.setHours(0, 0, 0, 0);
-
-      await api.copyEvents(
-        sStart.toISOString(),
-        sEnd.toISOString(),
-        tStart.toISOString()
-      );
-      
-      toast.success("Events copied successfully!");
-      setShowCopyModal(false);
-       window.location.reload();
-    } catch {
-       toast.error("Failed to copy events");
-    }
-  };
-
-  const handleClearRange = async () => {
-    if (!confirm("Are you sure you want to clear events in this range?"))
-      return;
-
-    try {
-      const start = new Date(clearRange.start);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(clearRange.end);
-      end.setHours(23, 59, 59, 999);
-
-      await api.deleteEventsRange(start.toISOString(), end.toISOString());
-      toast.success("Events cleared successfully");
-      setShowClearModal(false);
-      window.location.reload();
-    } catch {
-      toast.error("Failed to clear events");
-    }
   };
   //Page begins
   if (isLoading) {
@@ -420,103 +271,147 @@ const Timetable = () => {
 
         <div className="space-y-1">
           {/* Time slots (24 hours) */}
-          {[...Array(24)].map((_, hour) => {
-            const hourEvents = eventsForSelectedDate?.filter((event) => {
-              const eventHour = new Date(event.startTime).getHours();
-              return eventHour === hour;
-            });
-
-            return (
-              <div key={hour} className="flex">
-                <div className="w-16 text-xs text-foreground/70 pt-2 pr-4 text-right">
-                  {hour === 0
-                    ? "12 AM"
-                    : hour < 12
-                      ? `${hour} AM`
-                      : hour === 12
-                        ? "12 PM"
-                        : `${hour - 12} PM`}
+          {/* Timeline Container */}
+          <div className="relative min-h-[1920px]" style={{ height: '1920px' }}>
+            
+            {/* Background Grid & Time Labels */}
+            <div className="absolute inset-0 z-0">
+               {[...Array(24)].map((_, hour) => (
+                <div 
+                  key={`grid-${hour}`} 
+                  className="group flex h-20 border-b border-border/40 hover:bg-accent/[0.02] transition-colors"
+                >
+                  {/* Time Label */}
+                  <div className="w-16 text-[10px] md:text-xs text-foreground/40 pt-2 pr-4 text-right font-medium shrink-0 select-none">
+                    {hour === 0 ? "12 AM" : hour < 12 ? `${hour} AM` : hour === 12 ? "12 PM" : `${hour - 12} PM`}
+                  </div>
+                  
+                  {/* Hour Slot Click Target */}
+                  <div 
+                    className="flex-1 relative cursor-pointer border-l border-border/40"
+                    onClick={() => {
+                       const date = new Date(selectedDate);
+                       date.setHours(hour, 0, 0, 0);
+                       setNewEvent(prev => ({ 
+                         ...prev, 
+                         startTime: format(date, "yyyy-MM-dd'T'HH:mm"),
+                         endTime: format(new Date(date.getTime() + 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm")
+                       }));
+                       setShowNewEventModal(true);
+                    }}
+                  >
+                     <div className="opacity-0 group-hover:opacity-100 absolute left-4 top-1/2 -translate-y-1/2 text-xs text-accent font-medium flex items-center gap-1 transition-opacity">
+                        <Plus className="h-3 w-3" /> Add Event
+                     </div>
+                  </div>
                 </div>
-                <div className="flex-1 min-h-[60px] border-l border-border pl-4 relative">
-                  {hourEvents && hourEvents.length > 0 ? (
-                    hourEvents.map((event) => (
-                      <motion.div
-                        key={event.id}
-                        initial={{ x: -10, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        className={`
-                          p-2 mb-1 rounded-md cursor-pointer
-                          ${
-                            event.isCompleted
-                              ? "bg-success/20 hover:bg-success/30"
-                              : event.skippedReason
-                                ? "bg-warning/20 hover:bg-warning/30"
-                                : "bg-secondary hover:bg-secondary/80"
-                          }
-                        `}
-                        onClick={() => handleEventClick(event)}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-medium">{event.title}</h3>
-                              {event.isSpecial && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/20 text-accent font-medium uppercase tracking-wider">
-                                  Special
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center text-xs text-foreground/70 mt-1">
-                              <Clock className="h-3 w-3 mr-1" />
-                              {format(
-                                new Date(event.startTime),
-                                "h:mm a",
-                              )} - {format(new Date(event.endTime), "h:mm a")}
-                            </div>
-                          </div>
-                          {event.isCompleted && (
-                            <span className="text-success">
-                              <CheckCircle className="h-5 w-5" />
-                            </span>
-                          )}
-                          {event.skippedReason && (
-                            <span className="text-warning">
-                              <XCircle className="h-5 w-5" />
-                            </span>
-                          )}
-                        </div>
-                      </motion.div>
-                    ))
-                  ) : (
-                    <div className="h-full flex items-center justify-center">
-                      <div
-                        className="w-full h-[1px] bg-border/50 cursor-pointer hover:bg-accent/30 transition-colors"
-                        onClick={() => setShowNewEventModal(true)}
-                      ></div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-          {(!eventsForSelectedDate || eventsForSelectedDate.length === 0) && (
-            <div className="mt-8 p-8 text-center bg-secondary/30 rounded-lg border border-dashed border-border">
-              <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-20" />
-              <h3 className="text-lg font-medium text-foreground/70">
-                No events scheduled
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                You have a clear schedule for{" "}
-                {format(selectedDate, "EEEE, MMMM d")}.
-              </p>
-              <button
-                onClick={() => setShowNewEventModal(true)}
-                className="mt-4 text-sm bg-accent/10 text-accent px-4 py-2 rounded-md hover:bg-accent/20 transition-colors"
-              >
-                Add an event
-              </button>
+               ))}
             </div>
-          )}
+
+            {/* Events Layer */}
+            <div className="absolute top-0 left-16 right-0 bottom-0 z-10 pointer-events-none">
+              {eventsForSelectedDate?.map((event) => {
+                const startTime = new Date(event.startTime);
+                const endTime = new Date(event.endTime);
+                
+                // Calculate position relative to the day (00:00 - 23:59)
+                const startOfDayDate = startOfDay(selectedDate);
+                
+                // Get offset in minutes from start of day
+                let startMinutes = differenceInMinutes(startTime, startOfDayDate);
+                // Handle events starting previous day
+                if (startMinutes < 0) startMinutes = 0;
+
+                let endMinutes = differenceInMinutes(endTime, startOfDayDate);
+                // Handle events ending next day
+                if (endMinutes > 1440) endMinutes = 1440;
+
+                const durationMinutes = endMinutes - startMinutes;
+                
+                // 80px per hour = 1.3333px per minute
+                const PIXELS_PER_MINUTE = 80 / 60;
+                const top = startMinutes * PIXELS_PER_MINUTE;
+                const height = durationMinutes * PIXELS_PER_MINUTE;
+                
+                // Skip if duration is invalid or 0
+                if (durationMinutes <= 0) return null;
+
+                const isSpecial = event.isSpecial;
+
+                return (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, scale: 0.95, x: -10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    className={`
+                      absolute left-2 right-4 rounded-xl border-l-[6px] shadow-sm backdrop-blur-sm pointer-events-auto cursor-pointer
+                      flex flex-col overflow-hidden hover:shadow-md hover:scale-[1.01] transition-all z-20 group
+                      ${
+                        event.isCompleted
+                          ? "bg-success/10 border-success text-success-foreground"
+                          : event.skippedReason
+                            ? "bg-warning/10 border-warning text-warning-foreground"
+                            : isSpecial
+                              ? "bg-gradient-to-r from-accent/20 to-purple-500/10 border-accent text-accent-foreground"
+                              : "bg-card/80 border-secondary-foreground/30 text-card-foreground shadow-sm"
+                      }
+                    `}
+                    style={{
+                      top: `${top}px`,
+                      height: `${Math.max(height, 40)}px`, // Minimum height for visibility
+                    }}
+                    onClick={() => handleEventClick(event)}
+                  >
+                    <div className="p-3 flex flex-col h-full justify-between">
+                       {/* Header: Title & Icons */}
+                       <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                             <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="font-bold text-sm leading-tight truncate">{event.title}</h3>
+                                {isSpecial && (
+                                  <Sparkles className="h-3 w-3 text-accent animate-pulse" />
+                                )}
+                             </div>
+                             {(height > 50) && (
+                               <p className="text-[10px] opacity-70 mt-1 line-clamp-2 leading-relaxed">
+                                  {event.description || "No description"}
+                               </p>
+                             )}
+                          </div>
+                      
+                          <div className="shrink-0 flex gap-1">
+                             {event.isCompleted && <CheckCircle className="h-4 w-4 text-success" />}
+                             {event.skippedReason && <XCircle className="h-4 w-4 text-warning" />}
+                          </div>
+                       </div>
+
+                       {/* Footer: Time */}
+                       {(height > 30) && (
+                         <div className="flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium opacity-80 uppercase tracking-wide">
+                            <Clock className="h-3 w-3" />
+                            {format(startTime, "h:mm a")} - {format(endTime, "h:mm a")}
+                         </div>
+                       )}
+                    </div>
+                    
+                    {/* Decorative Gloss Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none opacity-50" />
+                  </motion.div>
+                );
+              })}
+              
+              {(!eventsForSelectedDate || eventsForSelectedDate.length === 0) && (
+                 <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
+                     <div className="text-center opacity-30">
+                        <Calendar className="h-16 w-16 mx-auto mb-2 text-muted-foreground" />
+                        <p className="font-medium text-lg">No events today</p>
+                     </div>
+                 </div>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -625,15 +520,10 @@ const Timetable = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-accent disabled:opacity-50"
-                  disabled={isCreating}
-                  onClick={(e) => handleNewEvent(e)}
+                  className="btn btn-accent"
+                  onClick={(e) => onNewEventSubmit(e)}
                 >
-                  {isCreating ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    "Create Event"
-                  )}
+                  Create Event
                 </button>
               </div>
             </form>
@@ -685,27 +575,24 @@ const Timetable = () => {
                 {!selectedEvent.isCompleted && !selectedEvent.skippedReason ? (
                   <>
                     <button
-                      onClick={handleMarkAsCompleted}
-                      disabled={isUpdating}
-                      className="flex-1 btn bg-success/20 text-success hover:bg-success/30 disabled:opacity-50"
+                      onClick={onMarkAsCompleted}
+                      className="flex-1 btn bg-success/20 text-success hover:bg-success/30"
                     >
-                      {isUpdating ? "Updating..." : "Mark as Completed"}
+                      Mark as Completed
                     </button>
                     <button
                       onClick={() => setShow(true)}
-                      disabled={isUpdating}
-                      className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30 disabled:opacity-50"
+                      className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30"
                     >
                       Skip Event
                     </button>
                   </>
                 ) : (
                   <button
-                    onClick={handleResetStatus}
-                    disabled={isUpdating}
-                    className="flex-1 btn bg-secondary hover:bg-secondary/90 disabled:opacity-50"
+                    onClick={onResetStatus}
+                    className="flex-1 btn bg-secondary hover:bg-secondary/90"
                   >
-                    {isUpdating ? "Resetting..." : "Reset Status"}
+                    Reset Status
                   </button>
                 )}
               </div>
@@ -737,11 +624,10 @@ const Timetable = () => {
                     </button>
                   </div>
                   <button
-                    onClick={handleSkipEvent}
-                    disabled={isUpdating}
-                    className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30 disabled:opacity-50"
+                    onClick={onSkipEvent}
+                    className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30"
                   >
-                    {isUpdating ? "Skipping..." : "Submit"}
+                    Submit Skip
                   </button>
                 </>
               )}
@@ -769,11 +655,10 @@ const Timetable = () => {
 
               <div className="flex justify-end space-x-2 pt-2">
                 <button
-                  onClick={handleDeleteEvent}
-                  disabled={isDeleting}
-                  className="btn bg-destructive/20 text-destructive hover:bg-destructive/30 disabled:opacity-50"
+                  onClick={onDeleteClick}
+                  className="btn bg-destructive/20 text-destructive hover:bg-destructive/30"
                 >
-                  {isDeleting ? "Deleting..." : "Delete"}
+                  Delete
                 </button>
                 <button
                   onClick={handleDuplicateEvent}
@@ -855,15 +740,10 @@ const Timetable = () => {
                   Cancel
                 </button>
                 <button
-                  onClick={handleAiGenerate}
-                  disabled={isGeneratingAi}
+                  onClick={() => handleAiGenerate(aiDescription)}
                   className="btn btn-accent flex items-center gap-2"
                 >
-                  {isGeneratingAi ? (
-                     <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-4 w-4" />
-                  )}
+                  <Sparkles className="h-4 w-4" />
                   Generate
                 </button>
               </div>
@@ -1005,6 +885,6 @@ const Timetable = () => {
       )}
     </div>
   );
-};;
+};
 
 export default Timetable;

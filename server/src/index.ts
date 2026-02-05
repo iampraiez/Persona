@@ -13,6 +13,7 @@ import aiRoutes from "./routes/ai";
 import analyticsRoutes from "./routes/analytics";
 import subRoute from "./routes/notification";
 import paymentsRoute from "./routes/payments";
+import feedbackRoutes from "./routes/feedback";
 import { logger } from "./utils/logger.utils";
 import { shutdown } from "./lib/prisma";
 import { errorHandler } from "./utils/error.util";
@@ -55,13 +56,7 @@ app.use(compression());
 app.use(express.json());  
 app.use(cookieParser());
 app.use(cors(corsOptions));
-
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes); 
-app.use("/api/events", authMiddleware, eventWriteRateLimiter, eventRoutes); 
-import feedbackRoutes from "./routes/feedback";
-
+ 
 // ... Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes); 
@@ -71,7 +66,7 @@ app.use("/api/ai", authMiddleware, aiRateLimiter, aiRoutes);
 app.use("/api/analytics", authMiddleware, analyticsRoutes);
 app.use("/api/notification", authMiddleware, eventWriteRateLimiter, subRoute);
 app.use("/api/payments", authMiddleware, paymentsRoute);
-app.use("/api/feedback", authMiddleware, feedbackRoutes);
+app.use("/api/feedback", authMiddleware, eventWriteRateLimiter, feedbackRoutes);
 
 app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({

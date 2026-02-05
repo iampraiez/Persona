@@ -560,6 +560,27 @@ class DemoService {
     }
     return "User updated";
   }
+
+  async generateTimetable(
+    description: string,
+    range: { start: string; end: string },
+  ): Promise<Event[]> {
+    console.log("Demo: Generating timetable", description, range);
+    return this.events;
+  }
+
+  async copyEvents(
+    sourceStart: string,
+    sourceEnd: string,
+    targetStart: string,
+  ): Promise<Event[]> {
+    console.log("Demo: Copying events", sourceStart, sourceEnd, targetStart);
+    return this.events;
+  }
+
+  async deleteEventsRange(start: string, end: string): Promise<void> {
+    console.log("Demo: Deleting events range", start, end);
+  }
 }
 
 export const demoApi = new DemoService();

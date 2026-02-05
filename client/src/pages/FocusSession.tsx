@@ -96,9 +96,9 @@ const FocusSession = () => {
   const [showSoundLibrary, setShowSoundLibrary] = useState(false);
   const [isInterfaceVisible, setIsInterfaceVisible] = useState(true);
 
-  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (event) {
@@ -275,7 +275,13 @@ const FocusSession = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 relative z-10">
         {/* Timer Display */}
-       
+        <motion.div
+           animate={{ 
+             opacity: isInterfaceVisible ? 1 : 0,
+             filter: isInterfaceVisible ? "blur(0px)" : "blur(10px)",
+           }}
+           className="relative mb-24 md:mb-12 flex items-center justify-center transition-all duration-700"
+        >
           <svg className="w-[280px] h-[280px] md:w-96 md:h-96 transform -rotate-90">
             <circle
               cx="50%"
@@ -306,6 +312,7 @@ const FocusSession = () => {
               Remaining
             </p>
           </div>
+        </motion.div>
 
         {/* Floating Controls Bar (Bottom) */}
         <motion.div

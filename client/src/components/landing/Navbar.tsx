@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { useThemeStore } from "../../store/theme.store";
 import { useAuthStore } from "../../store/auth.store";
 
@@ -126,47 +127,60 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-card shadow-lg border-b border-border">
-          <div className="px-4 mx-auto max-w-7xl py-4 flex flex-col space-y-4">
-            <a
-              href="#features"
-              className="font-medium py-2 hover:text-accent transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Features
-            </a>
-            <a
-              href="#benefits"
-              className="font-medium py-2 hover:text-accent transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Benefits
-            </a>
-            {isAuthenticated ? (
-              <button
-                className="btn btn-accent w-full"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate("/dashboard");
-                }}
-              >
-                Go to Dashboard
-              </button>
-            ) : (
-              <button
-                className="btn btn-accent w-full"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate("/login");
-                }}
-              >
-                Get Started
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="md:hidden absolute top-full left-0 right-0 p-4 z-50"
+          >
+            <div className="bg-background/95 backdrop-blur-2xl border border-border/50 rounded-2xl shadow-xl p-6 flex flex-col space-y-6">
+              <div className="space-y-4">
+                <a
+                  href="#features"
+                  className="block text-lg font-medium hover:text-accent transition-colors px-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Features
+                </a>
+                <a
+                  href="#benefits"
+                  className="block text-lg font-medium hover:text-accent transition-colors px-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Benefits
+                </a>
+              </div>
+              
+              <div className="pt-4 border-t border-border/40">
+                {isAuthenticated ? (
+                  <button
+                    className="btn btn-accent w-full py-4 text-base"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/dashboard");
+                    }}
+                  >
+                    Go to Dashboard
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-accent w-full py-4 text-base"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/login");
+                    }}
+                  >
+                    Get Started
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };
