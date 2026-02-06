@@ -22,6 +22,7 @@ import { env } from "./config/env";
 import { aiRateLimiter, eventWriteRateLimiter } from "./middleware/rateLimiter";
 
 const app: Express = express();
+app.set('trust proxy', 1); 
 
 startScheduler();
 const CLIENT: string = env.data?.CLIENT_URL || "http://localhost:5173";
