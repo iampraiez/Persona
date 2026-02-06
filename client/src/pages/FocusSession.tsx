@@ -113,21 +113,25 @@ const FocusSession = () => {
   }, [event]);
 
   useEffect(() => {
-    if (isActive && timeLeft > 0) {
+    if (isActive) {
       timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            setIsActive(false);
+            handleComplete();
+            return 0;
+          }
+          return prev - 1;
+        });
         setTotalFocusTime((prev) => prev + 1);
       }, 1000);
-    } else if (timeLeft === 0) {
-      setIsActive(false);
-      handleComplete();
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
     }
+
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isActive, timeLeft]);
+  }, [isActive]);
 
   useEffect(() => {
     if (audioRef.current) {
