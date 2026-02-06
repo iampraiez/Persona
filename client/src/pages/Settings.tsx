@@ -36,10 +36,14 @@ const Settings = () => {
     timeRemaining,
     isDeleting,
     isSendingCode,
+    isLoggingOut,
     handleSaveProfile,
     handleRequestDelete,
     handleDeleteAccount,
   } = useSettings();
+
+// ... (skipping lines, need to target button area differently)
+
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -241,11 +245,16 @@ const Settings = () => {
           >
             <h2 className="text-lg font-semibold mb-4">Session</h2>
             <button
-              className="w-full btn bg-secondary hover:bg-secondary/80 flex items-center justify-center gap-2"
+              className="w-full btn bg-secondary hover:bg-secondary/80 flex items-center justify-center gap-2 disabled:opacity-50"
               onClick={logout}
+              disabled={isLoggingOut}
             >
-              <LogOut className="h-5 w-5" />
-              Sign out
+              {isLoggingOut ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <LogOut className="h-5 w-5" />
+              )}
+              {isLoggingOut ? "Signing out..." : "Sign out"}
             </button>
           </motion.div>
 

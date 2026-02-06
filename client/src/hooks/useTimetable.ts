@@ -17,8 +17,10 @@ import { useAuthStore } from "../store/auth.store";
 import { demoApi } from "../service/demo.service";
 import { api } from "../service/api.service";
 import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useTimetable = () => {
+  const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const { 
     events, 
@@ -158,7 +160,8 @@ export const useTimetable = () => {
       });
       toast.success("Schedule generated");
       setShowAiModal(false);
-      window.location.reload();
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
     } catch {
       toast.error("Generation failed");
     } finally {
@@ -183,7 +186,8 @@ export const useTimetable = () => {
       );
       toast.success("Events copied successfully");
       setShowCopyModal(false);
-      window.location.reload();
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
     } catch {
       toast.error("Failed to copy events");
     } finally {
@@ -202,7 +206,8 @@ export const useTimetable = () => {
       await getApi().deleteEventsRange(start.toISOString(), end.toISOString());
       toast.success("Events cleared successfully");
       setShowClearModal(false);
-      window.location.reload();
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
     } catch {
       toast.error("Failed to clear events");
     } finally {

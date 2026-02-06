@@ -11,6 +11,7 @@ import {
   ChevronUp,
   Settings,
   LogOut,
+  Loader2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useThemeStore } from "../store/theme.store";
@@ -29,7 +30,7 @@ interface HeaderProps {
 
 const Header = ({ openSidebar }: HeaderProps) => {
   const { theme, toggleTheme } = useThemeStore();
-  const { user } = useAuthStore();
+  const { user, isLoggingOut } = useAuthStore();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const location = useLocation();
 
@@ -343,11 +344,16 @@ const Header = ({ openSidebar }: HeaderProps) => {
                         Settings
                       </button>
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
                         onClick={() => useAuthStore.getState().logout()}
+                        disabled={isLoggingOut}
                       >
-                        <LogOut className="h-4 w-4" />
-                        Sign out
+                        {isLoggingOut ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <LogOut className="h-4 w-4" />
+                        )}
+                        {isLoggingOut ? "Signing out..." : "Sign out"}
                       </button>
                     </div>
                   </motion.div>

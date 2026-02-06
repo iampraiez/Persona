@@ -11,6 +11,7 @@ interface UseSettingsReturn {
   setTheme: (theme: "light" | "dark") => void;
   user: User | null | undefined;
   logout: () => void;
+  isLoggingOut: boolean;
   name: string;
   setName: (name: string) => void;
   profileSaving: boolean;
@@ -34,7 +35,7 @@ interface UseSettingsReturn {
 
 export const useSettings = (): UseSettingsReturn => {
   const { theme, setTheme } = useThemeStore();
-  const { logout, isDemo } = useAuthStore();
+  const { logout, isDemo, isLoggingOut } = useAuthStore();
   const { data: user, refetch } = useUser();
   const [name, setName] = useState("");
   const [profileSaving, setProfileSaving] = useState(false);
@@ -164,6 +165,7 @@ export const useSettings = (): UseSettingsReturn => {
     setTheme,
     user,
     logout,
+    isLoggingOut,
     name,
     setName,
     profileSaving,

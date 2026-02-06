@@ -42,6 +42,7 @@ import { toast } from "react-toastify";
 import { useAnalytics } from "../hooks/useAnalytics";
 import { useInsights } from "../hooks/useInsights";
 import { useUser } from "../hooks/useUser";
+import { useGoals } from "../hooks/useGoals";
 
 const COLORS = ["#8B5CF6", "#3B82F6", "#14B8A6", "#F97316"];
 
@@ -86,6 +87,7 @@ const Analytics = () => {
   const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(range, currentDate);
   const { suggestions, generateInsights, isGenerating, isError: insightsError } = useInsights();
   const { data: user } = useUser();
+  const { goals } = useGoals();
 
    const {
      totalEvents = 0,
@@ -454,11 +456,11 @@ const Analytics = () => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium flex items-center gap-2">
             <Target className="h-5 w-5 text-accent" />
-            Goal Progress
+            Detailed Goal Analysis
           </h3>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {isAnalyticsLoading ? (
             <div className="space-y-4 animate-pulse">
               {[...Array(3)].map((_, i) => (
@@ -471,27 +473,63 @@ const Analytics = () => {
                 </div>
               ))}
             </div>
-          ) : goalProgressData.length > 0 ? (
-            goalProgressData.map(
-              (goal: { id: string; name: string; progress: number }) => (
-                <div key={goal.id} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">{goal.name}</span>
-                    <span className="text-sm bg-accent/20 text-accent px-2 py-0.5 rounded-full">
-                      {goal.progress}%
-                    </span>
+          ) : goals && goals.length > 0 ? (
+            goals.map((goal: any) => {
+              const totalSteps = goal.steps.length;
+              const completedSteps = goal.steps.filter((s: any) => s.isCompleted).length;
+              const progress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+              
+              const createdAt = new Date(goal.createdAt);
+              const deadline = new Date(createdAt.getTime() + goal.totalDays * 24 * 60 * 60 * 1000);
+              const daysLeft = Math.max(0, Math.ceil((deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
+              
+              let status = "On Track";
+              let statusColor = "text-success";
+              
+              if (progress < 50 && daysLeft < (goal.totalDays / 2)) {
+                 status = "Behind";
+                 statusColor = "text-warning";
+              }
+              if (daysLeft === 0 && progress < 100) {
+                 status = "Overdue";
+                 statusColor = "text-destructive";
+              }
+              if (progress === 100) {
+                 status = "Completed";
+                 statusColor = "text-success";
+              }
+
+              return (
+                <div key={goal.id} className="p-4 border border-border rounded-lg bg-secondary/10">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                        <h4 className="font-semibold text-lg">{goal.title}</h4>
+                        <p className="text-xs text-foreground/60">{completedSteps} of {totalSteps} steps completed</p>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium bg-card border border-border ${statusColor}`}>
+                        {status}
+                    </div>
                   </div>
-                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                  
+                  <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-2">
                     <div
                       className="h-full bg-accent rounded-full transition-all duration-500"
-                      style={{ width: `${goal.progress}%` }}
+                      style={{ width: `${progress}%` }}
                     ></div>
                   </div>
+                  
+                  <div className="flex justify-between text-xs text-foreground/70">
+                    <span>{daysLeft} days left</span>
+                    <span>{progress}%</span>
+                  </div>
                 </div>
-              ),
-            )
+              );
+            })
           ) : (
-            <p className="text-sm text-muted-foreground">No goals set yet.</p>
+            <div className="text-center py-8 text-muted-foreground bg-secondary/20 rounded-lg">
+                <Target className="h-8 w-8 mx-auto mb-2 opacity-50"/>
+                <p>No goals set yet. Create a goal to see detailed analytics.</p>
+            </div>
           )}
         </div>
       </motion.div>

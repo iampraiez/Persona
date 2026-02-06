@@ -45,6 +45,18 @@ export class NotificationService {
 
       return notification;
     } catch (error: any) {
+      if (error.statusCode === 410 || error.statusCode === 404) {
+        logger.warn(`Subscription expired or not found for user ${userId}. removing subscription.`);
+        const subscriptionRecord = await prisma.pushSubscription.findFirst({
+          where: { userId },
+        });
+
+        if (subscriptionRecord) {
+             await prisma.pushSubscription.deleteMany({
+                where: { endpoint: subscriptionRecord.endpoint } 
+             });
+        }
+      }
       logger.error(`Error sending notification to user ${userId}: ${error.message}`);
       return null;
     }

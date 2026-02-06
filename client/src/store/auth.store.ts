@@ -10,6 +10,7 @@ interface AuthState {
   setAuthenticated: (isAuthenticated: boolean) => void;
   loginDemo: () => void;
   logout: () => void;
+  isLoggingOut: boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -18,6 +19,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isDemo: false,
+      isLoggingOut: false,
 
       setUser: (user) => set({ user }),
       setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
@@ -41,6 +43,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
+        set({ isLoggingOut: true });
         try {
           const { isDemo } = useAuthStore.getState();
           if (!isDemo) {
@@ -49,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           console.error("Logout error");
         } finally {
-          set({ user: null, isAuthenticated: false, isDemo: false });
+          set({ user: null, isAuthenticated: false, isDemo: false, isLoggingOut: false });
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
         }
