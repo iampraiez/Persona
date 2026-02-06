@@ -354,12 +354,12 @@ const Timetable = () => {
                       flex flex-col overflow-hidden hover:shadow-md hover:scale-[1.01] transition-all z-20 group
                       ${
                         event.isCompleted
-                          ? "bg-success/10 border-success text-success-foreground"
+                          ? "bg-success/20 border-success text-success-foreground shadow-[0_0_15px_rgba(34,197,94,0.15)] ring-1 ring-success/20"
                           : event.skippedReason
-                            ? "bg-warning/10 border-warning text-warning-foreground"
+                            ? "bg-warning/15 border-warning text-warning-foreground opacity-90"
                             : isSpecial
-                              ? "bg-gradient-to-r from-accent/20 to-purple-500/10 border-accent text-accent-foreground"
-                              : "bg-card/80 border-secondary-foreground/30 text-card-foreground shadow-sm"
+                              ? "bg-gradient-to-r from-accent/20 to-purple-500/10 border-accent text-accent-foreground shadow-accent/5"
+                              : "bg-card/90 border-border text-card-foreground shadow-sm"
                       }
                     `}
                     style={{
@@ -373,8 +373,10 @@ const Timetable = () => {
                        <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
                              <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="font-bold text-sm leading-tight truncate">{event.title}</h3>
-                                {isSpecial && (
+                                <h3 className={`font-bold text-sm leading-tight truncate ${event.isCompleted ? 'line-through opacity-70' : ''}`}>
+                                  {event.title}
+                                </h3>
+                                {isSpecial && !event.isCompleted && (
                                   <Sparkles className="h-3 w-3 text-accent animate-pulse" />
                                 )}
                              </div>
@@ -393,7 +395,7 @@ const Timetable = () => {
 
                        {/* Footer: Time */}
                        {(height > 30) && (
-                         <div className="flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium opacity-80 uppercase tracking-wide">
+                         <div className={`flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium uppercase tracking-wide ${event.isCompleted ? 'opacity-40' : 'opacity-80'}`}>
                             <Clock className="h-3 w-3" />
                             {format(startTime, "h:mm a")} - {format(endTime, "h:mm a")}
                          </div>
@@ -578,51 +580,87 @@ const Timetable = () => {
                 </span>
               </div>
 
-              <div className="border-t border-border pt-4 grid grid-cols-2 gap-3">
+              <div className="border-t border-border pt-4">
                 {!selectedEvent.isCompleted && !selectedEvent.skippedReason ? (
-                  <>
-                    <button
-                      onClick={onMarkAsCompleted}
-                      disabled={isUpdating}
-                      className="btn bg-success/10 text-success hover:bg-success/20 flex flex-col items-center justify-center gap-1 h-auto py-3 disabled:opacity-50"
-                    >
-                      {isUpdating ? <Loader2 className="h-5 w-5 animate-spin" /> : <div className="p-1 bg-success/20 rounded-full"><Check className="h-4 w-4" /></div>}
-                      <span className="text-xs font-semibold">Complete</span>
-                    </button>
-                    <button
-                      onClick={() => setShow(true)}
-                      disabled={isUpdating}
-                      className="btn bg-warning/10 text-warning hover:bg-warning/20 flex flex-col items-center justify-center gap-1 h-auto py-3"
-                    >
-                      <div className="p-1 bg-warning/20 rounded-full"><RotateCcw className="h-4 w-4" /></div>
-                      <span className="text-xs font-semibold">Skip</span>
-                    </button>
-                    <button
-                      onClick={onDeleteClick}
-                      disabled={isDeleting}
-                      className="col-span-2 btn bg-destructive/10 text-destructive hover:bg-destructive/20 flex items-center justify-center gap-2"
-                    >
-                      {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                      <span>Delete Event</span>
-                    </button>
-                  </>
-                ) : (
-                   <div className="col-span-2 text-center p-3 bg-secondary/50 rounded-lg">
-                      {selectedEvent.isCompleted ? (
-                          <div className="flex items-center justify-center gap-2 text-success font-medium">
-                              <Check className="h-5 w-5" /> Completed
-                          </div>
-                      ) : (
-                          <div className="text-warning font-medium">
-                              Skipped: {selectedEvent.skippedReason}
-                          </div>
-                      )}
-                      <button 
-                        onClick={onDeleteClick}
-                        className="text-xs text-destructive hover:underline mt-2 flex items-center justify-center gap-1 mx-auto"
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={onMarkAsCompleted}
+                        disabled={isUpdating}
+                        className="btn bg-success/10 text-success hover:bg-success/20 flex flex-col items-center justify-center gap-2 py-4 border border-success/20 transition-all active:scale-95"
                       >
-                         <Trash2 className="h-3 w-3" /> Delete
+                        {isUpdating ? (
+                          <Loader2 className="h-6 w-6 animate-spin" />
+                        ) : (
+                          <div className="p-2 bg-success/20 rounded-xl shadow-inner">
+                            <Check className="h-5 w-5" />
+                          </div>
+                        )}
+                        <span className="text-sm font-bold tracking-tight">Complete</span>
                       </button>
+                      <button
+                        onClick={() => setShow(true)}
+                        disabled={isUpdating}
+                        className="btn bg-warning/10 text-warning hover:bg-warning/20 flex flex-col items-center justify-center gap-2 py-4 border border-warning/20 transition-all active:scale-95"
+                      >
+                        <div className="p-2 bg-warning/20 rounded-xl shadow-inner">
+                          <RotateCcw className="h-5 w-5" />
+                        </div>
+                        <span className="text-sm font-bold tracking-tight">Skip</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                       <button
+                          onClick={onDeleteClick}
+                          disabled={isDeleting}
+                          className="flex-1 btn bg-destructive/5 text-destructive/60 hover:bg-destructive/10 hover:text-destructive flex items-center justify-center gap-2 py-2.5 text-xs transition-colors"
+                        >
+                          {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                          Delete Permanentally
+                        </button>
+                    </div>
+                  </div>
+                ) : (
+                   <div className="space-y-4">
+                      <div className="flex flex-col items-center p-6 bg-secondary/20 rounded-2xl border border-secondary/30 relative overflow-hidden">
+                        <div className="absolute top-2 right-2 flex gap-1">
+                             {selectedEvent.isCompleted ? (
+                               <CheckCircle className="h-5 w-5 text-success/50" />
+                             ) : (
+                               <XCircle className="h-5 w-5 text-warning/50" />
+                             )}
+                        </div>
+                        
+                        <div className={`p-3 rounded-2xl mb-3 shadow-lg ${selectedEvent.isCompleted ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                           {selectedEvent.isCompleted ? <Check className="h-8 w-8" /> : <RotateCcw className="h-8 w-8" />}
+                        </div>
+                        
+                        <h4 className="text-lg font-bold">
+                          {selectedEvent.isCompleted ? "Great job!" : "Schedule skipped"}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {selectedEvent.isCompleted ? "This event is marked as done." : `Skipped: ${selectedEvent.skippedReason || "No reason provided"}`}
+                        </p>
+
+                        <div className="mt-5 w-full pt-4 border-t border-secondary/20 flex gap-2">
+                           <button 
+                             onClick={() => handleUpdateEvent(selectedEvent.id, { isCompleted: false, skippedReason: null })}
+                             disabled={isUpdating}
+                             className="flex-1 btn bg-card text-foreground hover:bg-secondary border border-border flex items-center justify-center gap-2 py-2 text-sm"
+                           >
+                              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+                              Reset Status
+                           </button>
+                           <button 
+                             onClick={onDeleteClick}
+                             disabled={isDeleting}
+                             className="btn aspect-square bg-destructive/10 text-destructive hover:bg-destructive/20 p-2"
+                           >
+                              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                           </button>
+                        </div>
+                      </div>
                    </div>
                 )}
               </div>

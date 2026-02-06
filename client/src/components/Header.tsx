@@ -224,7 +224,7 @@ const Header = ({ openSidebar }: HeaderProps) => {
                     {notifications.length > 0 ? (
                       <div className="max-h-80 overflow-y-auto">
                         {[...notifications]
-                          .reverse()
+                          // .reverse()
                           .slice(0, number)
                           .map((noti: NotificationType) => (
                             <div
