@@ -14,6 +14,10 @@ import {
   Trash2,
   MoreVertical,
   Target,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Check,
 } from "lucide-react";
 import { useTimetable } from "../hooks/useTimetable";
 import { useUser } from "../hooks/useUser";
@@ -29,20 +33,18 @@ const Timetable = () => {
     selectedDate, setSelectedDate,
     weekDays,
     eventsForSelectedDate,
+    navigateWeek,
     isLoading,
-    // Modals
     showNewEventModal, setShowNewEventModal,
     showEventDetailsModal, setShowEventDetailsModal,
     showAiModal, setShowAiModal,
     showCopyModal, setShowCopyModal,
     showClearModal, setShowClearModal,
     isMenuOpen, setIsMenuOpen,
-    // Ranges
     aiRange, setAiRange,
     copyRange, setCopyRange,
     clearRange, setClearRange,
     copyTargetStart, setCopyTargetStart,
-    // Actions
     handleCreateEvent,
     handleUpdateEvent,
     handleDeleteEvent,
@@ -131,17 +133,6 @@ const Timetable = () => {
     toast.success("Skipped");
   };
 
-  const onResetStatus = () => {
-    if (!selectedEvent) return;
-    handleUpdateEvent(selectedEvent.id, {
-      isCompleted: false,
-      skippedIsImportant: false,
-      skippedReason: "",
-    });
-    setSelectedEvent(null);
-    toast.success("Reset");
-  };
-
   const onDeleteClick = () => {
     if (!selectedEvent) return;
     if (confirm("Delete this event?")) {
@@ -162,7 +153,8 @@ const Timetable = () => {
     setShowEventDetailsModal(false);
     setShowNewEventModal(true);
   };
-  //Page begins
+
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -174,7 +166,14 @@ const Timetable = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Weekly Timetable</h1>
+        <div>
+           <h1 className="text-2xl font-bold">Weekly Timetable</h1>
+           <div className="flex items-center gap-2 mt-1">
+             <button onClick={() => navigateWeek('prev')} className="p-1 hover:bg-secondary rounded-full"><ChevronLeft className="h-4 w-4" /></button>
+             <p className="text-foreground/70 text-sm">{format(weekDays[0], "MMM d")} - {format(weekDays[6], "yyyy")}</p>
+             <button onClick={() => navigateWeek('next')} className="p-1 hover:bg-secondary rounded-full"><ChevronRight className="h-4 w-4" /></button>
+           </div>
+        </div>
         <div className="flex gap-2 relative" ref={menuRef}>
           <button
             className="btn btn-accent flex items-center gap-2"
@@ -579,34 +578,52 @@ const Timetable = () => {
                 </span>
               </div>
 
-              <div className="border-t border-border pt-4 flex space-x-2">
+              <div className="border-t border-border pt-4 grid grid-cols-2 gap-3">
                 {!selectedEvent.isCompleted && !selectedEvent.skippedReason ? (
                   <>
                     <button
                       onClick={onMarkAsCompleted}
                       disabled={isUpdating}
-                      className="flex-1 btn bg-success/20 text-success hover:bg-success/30 flex items-center justify-center gap-2"
+                      className="btn bg-success/10 text-success hover:bg-success/20 flex flex-col items-center justify-center gap-1 h-auto py-3 disabled:opacity-50"
                     >
-                      {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                      Mark as Completed
+                      {isUpdating ? <Loader2 className="h-5 w-5 animate-spin" /> : <div className="p-1 bg-success/20 rounded-full"><Check className="h-4 w-4" /></div>}
+                      <span className="text-xs font-semibold">Complete</span>
                     </button>
                     <button
                       onClick={() => setShow(true)}
                       disabled={isUpdating}
-                      className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30"
+                      className="btn bg-warning/10 text-warning hover:bg-warning/20 flex flex-col items-center justify-center gap-1 h-auto py-3"
                     >
-                      Skip Event
+                      <div className="p-1 bg-warning/20 rounded-full"><RotateCcw className="h-4 w-4" /></div>
+                      <span className="text-xs font-semibold">Skip</span>
+                    </button>
+                    <button
+                      onClick={onDeleteClick}
+                      disabled={isDeleting}
+                      className="col-span-2 btn bg-destructive/10 text-destructive hover:bg-destructive/20 flex items-center justify-center gap-2"
+                    >
+                      {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                      <span>Delete Event</span>
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={onResetStatus}
-                    disabled={isUpdating}
-                    className="flex-1 btn bg-secondary hover:bg-secondary/90 flex items-center justify-center gap-2"
-                  >
-                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                    Reset Status
-                  </button>
+                   <div className="col-span-2 text-center p-3 bg-secondary/50 rounded-lg">
+                      {selectedEvent.isCompleted ? (
+                          <div className="flex items-center justify-center gap-2 text-success font-medium">
+                              <Check className="h-5 w-5" /> Completed
+                          </div>
+                      ) : (
+                          <div className="text-warning font-medium">
+                              Skipped: {selectedEvent.skippedReason}
+                          </div>
+                      )}
+                      <button 
+                        onClick={onDeleteClick}
+                        className="text-xs text-destructive hover:underline mt-2 flex items-center justify-center gap-1 mx-auto"
+                      >
+                         <Trash2 className="h-3 w-3" /> Delete
+                      </button>
+                   </div>
                 )}
               </div>
               {show && (

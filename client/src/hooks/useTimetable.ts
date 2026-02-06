@@ -250,5 +250,9 @@ export const useTimetable = () => {
     handleAiGenerate,
     handleCopyRange,
     handleClearRange,
+
+    navigateWeek: (direction: 'next' | 'prev') => {
+      setSelectedDate(prev => addDays(prev, direction === 'next' ? 7 : -7));
+    },
   };
 };

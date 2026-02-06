@@ -204,6 +204,57 @@ const Settings = () => {
             </div>
           </motion.div>
 
+          {/* Data Management */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.25 }}
+            className="bg-card rounded-lg p-6"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-accent/10 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-accent"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" x2="12" y1="15" y2="3" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold">Data Management</h2>
+            </div>
+            
+            <div className="space-y-4">
+                <p className="text-sm text-foreground/70">
+                    Export your data (events, goals, and profile settings) as a JSON file.
+                </p>
+                <button
+                    className="btn bg-secondary hover:bg-secondary/80 w-full sm:w-auto flex items-center justify-center gap-2"
+                    onClick={() => {
+                        if (!user) return;
+                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(user, null, 2));
+                        const downloadAnchorNode = document.createElement('a');
+                        downloadAnchorNode.setAttribute("href",     dataStr);
+                        downloadAnchorNode.setAttribute("download", "persona_data.json");
+                        document.body.appendChild(downloadAnchorNode); // required for firefox
+                        downloadAnchorNode.click();
+                        downloadAnchorNode.remove();
+                    }}
+                >
+                    Download Data
+                </button>
+            </div>
+          </motion.div>
+
           {/* Danger Zone */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -236,33 +287,11 @@ const Settings = () => {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Session */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.4 }}
-            className="bg-card rounded-lg p-6"
-          >
-            <h2 className="text-lg font-semibold mb-4">Session</h2>
-            <button
-              className="w-full btn bg-secondary hover:bg-secondary/80 flex items-center justify-center gap-2 disabled:opacity-50"
-              onClick={logout}
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <LogOut className="h-5 w-5" />
-              )}
-              {isLoggingOut ? "Signing out..." : "Sign out"}
-            </button>
-          </motion.div>
-
           {/* Quick Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.5 }}
+            transition={{ duration: 0.3, delay: 0.4 }}
             className="bg-card rounded-lg p-6"
           >
             <h2 className="text-lg font-semibold mb-4">Account Info</h2>
@@ -284,6 +313,28 @@ const Settings = () => {
                 <span className="font-medium">{user?.goals?.length || 0}</span>
               </div>
             </div>
+          </motion.div>
+
+          {/* Session */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.5 }}
+            className="bg-card rounded-lg p-6"
+          >
+            <h2 className="text-lg font-semibold mb-4">Session</h2>
+            <button
+              className="w-full btn bg-secondary hover:bg-secondary/80 flex items-center justify-center gap-2 disabled:opacity-50"
+              onClick={logout}
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <LogOut className="h-5 w-5" />
+              )}
+              {isLoggingOut ? "Signing out..." : "Sign out"}
+            </button>
           </motion.div>
         </div>
       </div>

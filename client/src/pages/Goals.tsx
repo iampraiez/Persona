@@ -788,7 +788,8 @@ const Goals: React.FC = () => {
                     </div>
                     <button
                       type="button"
-                      className="flex-[2] btn bg-accent/10 text-accent hover:bg-accent/20 mt-5"
+                      disabled={generatingSteps}
+                      className="flex-[2] btn bg-accent/10 text-accent hover:bg-accent/20 mt-5 disabled:opacity-50 flex justify-center items-center"
                       onClick={() =>
                         generateSteps(
                           newGoal.title || newGoal.description || "",
@@ -864,14 +865,17 @@ const Goals: React.FC = () => {
                 <div className="flex justify-end space-x-2 pt-4">
                   <button
                     type="submit"
-                    className="btn btn-accent disabled:opacity-50"
+                    className="btn btn-accent disabled:opacity-50 flex items-center gap-2"
                     disabled={isCreating || isUpdating}
                     onClick={(e) =>
                       newGoal.id ? handleUpdateGoal(e) : handleCreateGoal(e)
                     }
                   >
                     {isCreating || isUpdating ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>{isCreating ? "Creating..." : "Updating..."}</span>
+                      </>
                     ) : newGoal.id ? (
                       "Update Goal"
                     ) : (
