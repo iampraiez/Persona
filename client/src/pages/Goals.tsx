@@ -636,6 +636,9 @@ const Goals: React.FC = () => {
                                       disabled={isUpdatingStep}
                                       className="text-xs px-3 py-1 rounded-full bg-accent/10 text-accent hover:bg-accent/20 disabled:opacity-50"
                                     >
+                                      {isUpdatingStep ? (
+                                        <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                                      ) : null}
                                       {isUpdatingStep
                                         ? "Updating..."
                                         : "Mark Complete"}

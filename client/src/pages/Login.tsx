@@ -155,7 +155,14 @@ const Login = () => {
             disabled={isLoading}
             className="w-full py-2 px-4 bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors"
           >
-            {isLoading ? "Loading..." : "Try Demo"}
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Loading...</span>
+              </div>
+            ) : (
+              "Try Demo"
+            )}
           </button>
         </div>
 

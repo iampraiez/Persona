@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, isSameDay, differenceInMinutes, startOfDay, getHours, getMinutes } from "date-fns";
+import { format, isSameDay, differenceInMinutes, startOfDay } from "date-fns";
 import {
   Calendar,
   Clock,
@@ -49,6 +49,12 @@ const Timetable = () => {
     handleAiGenerate,
     handleCopyRange,
     handleClearRange,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    isGenerating,
+    isCopying,
+    isClearing,
   } = useTimetable();
 
   const { events } = useEvents();
@@ -520,10 +526,12 @@ const Timetable = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-accent"
+                  className="btn btn-accent flex items-center gap-2"
                   onClick={(e) => onNewEventSubmit(e)}
+                  disabled={isCreating}
                 >
-                  Create Event
+                  {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isCreating ? "Creating..." : "Create Event"}
                 </button>
               </div>
             </form>
@@ -576,12 +584,15 @@ const Timetable = () => {
                   <>
                     <button
                       onClick={onMarkAsCompleted}
-                      className="flex-1 btn bg-success/20 text-success hover:bg-success/30"
+                      disabled={isUpdating}
+                      className="flex-1 btn bg-success/20 text-success hover:bg-success/30 flex items-center justify-center gap-2"
                     >
+                      {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                       Mark as Completed
                     </button>
                     <button
                       onClick={() => setShow(true)}
+                      disabled={isUpdating}
                       className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30"
                     >
                       Skip Event
@@ -590,8 +601,10 @@ const Timetable = () => {
                 ) : (
                   <button
                     onClick={onResetStatus}
-                    className="flex-1 btn bg-secondary hover:bg-secondary/90"
+                    disabled={isUpdating}
+                    className="flex-1 btn bg-secondary hover:bg-secondary/90 flex items-center justify-center gap-2"
                   >
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     Reset Status
                   </button>
                 )}
@@ -625,8 +638,10 @@ const Timetable = () => {
                   </div>
                   <button
                     onClick={onSkipEvent}
-                    className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30"
+                    disabled={isUpdating}
+                    className="flex-1 btn bg-warning/20 text-warning hover:bg-warning/30 flex items-center justify-center gap-2"
                   >
+                    {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
                     Submit Skip
                   </button>
                 </>
@@ -656,8 +671,10 @@ const Timetable = () => {
               <div className="flex justify-end space-x-2 pt-2">
                 <button
                   onClick={onDeleteClick}
-                  className="btn bg-destructive/20 text-destructive hover:bg-destructive/30"
+                  disabled={isDeleting}
+                  className="btn bg-destructive/20 text-destructive hover:bg-destructive/30 flex items-center gap-2"
                 >
+                  {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
                   Delete
                 </button>
                 <button
@@ -741,10 +758,15 @@ const Timetable = () => {
                 </button>
                 <button
                   onClick={() => handleAiGenerate(aiDescription)}
+                  disabled={isGenerating}
                   className="btn btn-accent flex items-center gap-2"
                 >
-                  <Sparkles className="h-4 w-4" />
-                  Generate
+                  {isGenerating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  {isGenerating ? "Generating..." : "Generate"}
                 </button>
               </div>
             </div>
@@ -812,9 +834,11 @@ const Timetable = () => {
                 </button>
                 <button
                   onClick={handleCopyRange}
-                  className="btn btn-accent"
+                  disabled={isCopying}
+                  className="btn btn-accent flex items-center gap-2"
                 >
-                  Copy Events
+                  {isCopying && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isCopying ? "Copying..." : "Copy Events"}
                 </button>
               </div>
             </div>
@@ -874,9 +898,11 @@ const Timetable = () => {
                 </button>
                 <button
                   onClick={handleClearRange}
-                  className="btn bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  disabled={isClearing}
+                  className="btn bg-destructive hover:bg-destructive/90 text-destructive-foreground flex items-center gap-2"
                 >
-                  Clear All
+                  {isClearing && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isClearing ? "Clearing..." : "Clear All"}
                 </button>
               </div>
             </div>

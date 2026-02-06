@@ -14,8 +14,8 @@ import {
   Maximize2, 
   Minimize2,
   CheckCircle2,
-  Clock
-} from "lucide-react";
+  Clock,
+Loader2} from "lucide-react";
 import { useEvents } from "../hooks/useEvents";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
@@ -468,8 +468,9 @@ const FocusSession = () => {
         disabled={isUpdating}
         className="absolute bottom-4 right-4 md:bottom-8 md:right-8 flex items-center gap-2 text-foreground/30 hover:text-success transition-all font-medium py-2 px-4 text-sm md:text-base z-20"
       >
-        <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5" />
-        <span className="hidden md:inline">Complete Early</span>
+        {isUpdating && <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />}
+        <CheckCircle2 className={`h-4 w-4 md:h-5 md:w-5 ${isUpdating ? "hidden" : ""}`} />
+        <span className="hidden md:inline">{isUpdating ? "Completing..." : "Complete Early"}</span>
       </motion.button>
 
       <audio ref={audioRef} loop />

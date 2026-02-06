@@ -22,6 +22,22 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught an error:", error, errorInfo);
+
+    // Check for chunk load error (deployment updates)
+    if (error.message.includes("Failed to fetch dynamically imported module") || 
+        error.message.includes("Importing a module script failed")) {
+      const storageKey = "chunk_load_error_reload";
+      const lastReload = sessionStorage.getItem(storageKey);
+      
+      if (!lastReload) {
+        sessionStorage.setItem(storageKey, "true");
+        window.location.reload();
+      } else {
+        // Clear flag so next time it can try again (e.g. user manually refreshed)
+        // But for this session, we show the error UI to avoid loop
+        sessionStorage.removeItem(storageKey); 
+      }
+    }
   }
 
   render() {

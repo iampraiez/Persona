@@ -88,6 +88,9 @@ export const useTimetable = () => {
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   // Range States
   const [aiRange, setAiRange] = useState({ start: format(selectedDate, "yyyy-MM-dd"), end: format(selectedDate, "yyyy-MM-dd") });
@@ -148,6 +151,7 @@ export const useTimetable = () => {
       const end = new Date(aiRange.end);
       end.setHours(23, 59, 59, 999);
 
+      setIsGenerating(true);
       await getApi().generateTimetable(description, {
         start: start.toISOString(),
         end: end.toISOString(),
@@ -157,6 +161,8 @@ export const useTimetable = () => {
       window.location.reload();
     } catch {
       toast.error("Generation failed");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -169,6 +175,7 @@ export const useTimetable = () => {
       const tStart = new Date(copyTargetStart);
       tStart.setHours(0, 0, 0, 0);
 
+      setIsCopying(true);
       await getApi().copyEvents(
         sStart.toISOString(),
         sEnd.toISOString(),
@@ -179,6 +186,8 @@ export const useTimetable = () => {
       window.location.reload();
     } catch {
       toast.error("Failed to copy events");
+    } finally {
+      setIsCopying(false);
     }
   };
 
@@ -189,12 +198,15 @@ export const useTimetable = () => {
       const end = new Date(clearRange.end);
       end.setHours(23, 59, 59, 999);
 
+      setIsClearing(true);
       await getApi().deleteEventsRange(start.toISOString(), end.toISOString());
       toast.success("Events cleared successfully");
       setShowClearModal(false);
       window.location.reload();
     } catch {
       toast.error("Failed to clear events");
+    } finally {
+      setIsClearing(false);
     }
   };
 
@@ -208,6 +220,9 @@ export const useTimetable = () => {
     isCreating,
     isUpdating,
     isDeleting,
+    isGenerating,
+    isCopying,
+    isClearing,
     
     // Modals
     showNewEventModal, setShowNewEventModal,
