@@ -104,7 +104,7 @@ export const useTimetable = () => {
     return new Promise((resolve, reject) => {
       createEventRaw(eventData, {
         onSuccess: (data) => {
-          toast.success("Event created successfully");
+          // toast.success("Event created successfully"); // Too spammy
           setShowNewEventModal(false);
           resolve(data);
         },
@@ -118,6 +118,7 @@ export const useTimetable = () => {
 
   const handleUpdateEvent = async (id: string, eventData: Partial<Event>) => {
     return new Promise((resolve, reject) => {
+       // Optimistic update logic handled in useEvents, no need for toast here
       updateEventRaw({ id, event: eventData }, {
         onSuccess: (data) => {
           setShowEventDetailsModal(false);
@@ -134,7 +135,7 @@ export const useTimetable = () => {
     return new Promise((resolve, reject) => {
       deleteEventRaw(id, {
         onSuccess: () => {
-          toast.success("Event deleted");
+          // toast.success("Event deleted"); // Too spammy
           setShowEventDetailsModal(false);
           resolve(null);
         },

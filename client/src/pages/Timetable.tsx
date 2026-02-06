@@ -118,7 +118,7 @@ const Timetable = () => {
     if (!selectedEvent) return;
     handleUpdateEvent(selectedEvent.id, { isCompleted: true });
     setSelectedEvent(null);
-    toast.success("Completed");
+    // toast.success("Completed");
   };
 
   const onSkipEvent = () => {
@@ -130,7 +130,7 @@ const Timetable = () => {
     });
     setSkipps("");
     setSelectedEvent(null);
-    toast.success("Skipped");
+    // toast.success("Skipped");
   };
 
   const onDeleteClick = () => {

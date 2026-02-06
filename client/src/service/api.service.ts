@@ -125,22 +125,41 @@ export class ApiService {
       },
       async (error: AxiosError) => {
         if (!error.response) {
-          toast.error(ERROR_MESSAGES.NETWORK);
+          // Suppress network errors for background polls or analytics
+          const url = error.config?.url || "";
+          if (!url.includes("/analytics") && !url.includes("/events/upcoming")) {
+             toast.error(ERROR_MESSAGES.NETWORK);
+          }
           return Promise.reject(error);
         }
         const { status, data } = error.response;
-        const originalRequest = error.config;
+        const originalRequest = error.config!;
         const errorMessage = this.extractErrorMessage(data);
 
+        // Prevent infinite loops on refresh endpoints
         if (originalRequest?.url?.includes("/auth/refresh")) {
           return Promise.reject(error);
         }
 
-        if (status === STATUS_CODES.UNAUTHORIZED && originalRequest) {
+        if (status === STATUS_CODES.UNAUTHORIZED) {
+           // If we are already refreshing, queue this request
+          if (this.isRefreshing) {
+            return new Promise((resolve, reject) => {
+              this.refreshSubscribers.push((token) => {
+                if(token) {
+                   resolve(this.axiosInstance(originalRequest));
+                } else {
+                   reject(error);
+                }
+              });
+            });
+          }
+
           return this.handleUnauthorizedError(originalRequest);
         }
 
         if (status === STATUS_CODES.FORBIDDEN) {
+          // Suppress daily limit errors if they are just background checks
           if (errorMessage !== ERROR_MESSAGES.DAILY_LIMIT) {
             toast.error(errorMessage);
           }
@@ -148,7 +167,10 @@ export class ApiService {
         }
 
         if (status >= STATUS_CODES.SERVER_ERROR) {
-          toast.error(ERROR_MESSAGES.SERVER);
+           // Don't toast server errors on background analytics
+           if (!originalRequest.url?.includes("/analytics")) {
+             toast.error(ERROR_MESSAGES.SERVER);
+           }
         }
 
         return Promise.reject(error);
@@ -168,19 +190,21 @@ export class ApiService {
   private async handleUnauthorizedError(
     originalRequest: InternalAxiosRequestConfig,
   ): Promise<AxiosResponse | void> {
-    if (!this.isRefreshing) {
       this.isRefreshing = true;
 
       try {
         await this.axiosInstance.get("/auth/refresh");
         this.isRefreshing = false;
-        this.onRefreshed();
+        this.onRefreshed(true);
         return this.axiosInstance(originalRequest);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (refreshError: any) {
         this.isRefreshing = false;
+        this.onRefreshed(false);
 
-        if (refreshError?.response?.status === STATUS_CODES.UNAUTHORIZED) {
+        // Only redirect to login if the refresh DEFINITELY failed with 401/403
+        // If it's a network error during refresh, we shouldn't log them out immediately
+        if (refreshError?.response?.status === STATUS_CODES.UNAUTHORIZED || refreshError?.response?.status === STATUS_CODES.FORBIDDEN) {
           localStorage.clear();
           sessionStorage.clear();
           
@@ -197,17 +221,10 @@ export class ApiService {
         
         return Promise.reject(refreshError);
       }
-    }
-
-    return new Promise((resolve) => {
-      this.refreshSubscribers.push(() => {
-        resolve(this.axiosInstance(originalRequest));
-      });
-    });
   }
 
-  private onRefreshed(): void {
-    this.refreshSubscribers.forEach((callback) => callback(""));
+  private onRefreshed(success: boolean): void {
+    this.refreshSubscribers.forEach((callback) => callback(success ? "refreshed" : ""));
     this.refreshSubscribers = [];
   }
 
