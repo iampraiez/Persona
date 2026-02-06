@@ -34,7 +34,7 @@ function App() {
     <div className={theme}>
       <ErrorBoundary>
         <LazyMotion features={domAnimation}>
-          <Router>
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ErrorBoundary>
               <Routes>
                 <Route

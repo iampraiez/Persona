@@ -11,7 +11,7 @@ const REDIRECT_URI = `${URL}/api/auth/google/callback`;
 export const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
 
-const isProduction = env.data?.NODE_ENV === "production";
+const isProduction = env.data?.NODE_ENV === "production" && env.data?.CLIENT_URL?.startsWith("https");
 
 export const COOKIE_OPTIONS = {
   httpOnly: true,
