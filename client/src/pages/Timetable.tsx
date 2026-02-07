@@ -373,7 +373,7 @@ const Timetable = () => {
                        <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
                              <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className={`font-bold text-sm leading-tight truncate ${event.isCompleted ? 'line-through opacity-70' : ''}`}>
+                                <h3 className={`font-bold text-sm leading-tight truncate ${event.isCompleted ? 'text-success-foreground' : ''}`}>
                                   {event.title}
                                 </h3>
                                 {isSpecial && !event.isCompleted && (
@@ -395,7 +395,7 @@ const Timetable = () => {
 
                        {/* Footer: Time */}
                        {(height > 30) && (
-                         <div className={`flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium uppercase tracking-wide ${event.isCompleted ? 'opacity-40' : 'opacity-80'}`}>
+                         <div className={`flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium uppercase tracking-wide ${event.isCompleted ? 'opacity-70' : 'opacity-80'}`}>
                             <Clock className="h-3 w-3" />
                             {format(startTime, "h:mm a")} - {format(endTime, "h:mm a")}
                          </div>
@@ -587,26 +587,22 @@ const Timetable = () => {
                       <button
                         onClick={onMarkAsCompleted}
                         disabled={isUpdating}
-                        className="btn bg-success/10 text-success hover:bg-success/20 flex flex-col items-center justify-center gap-2 py-4 border border-success/20 transition-all active:scale-95"
+                        className="btn bg-success/10 text-success hover:bg-success/20 flex items-center justify-center gap-2 py-2.5 border border-success/20 transition-all active:scale-95 disabled:opacity-50"
                       >
                         {isUpdating ? (
-                          <Loader2 className="h-6 w-6 animate-spin" />
+                          <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          <div className="p-2 bg-success/20 rounded-xl shadow-inner">
-                            <Check className="h-5 w-5" />
-                          </div>
+                          <Check className="h-4 w-4" />
                         )}
-                        <span className="text-sm font-bold tracking-tight">Complete</span>
+                        <span className="text-sm font-bold">Complete</span>
                       </button>
                       <button
                         onClick={() => setShow(true)}
                         disabled={isUpdating}
-                        className="btn bg-warning/10 text-warning hover:bg-warning/20 flex flex-col items-center justify-center gap-2 py-4 border border-warning/20 transition-all active:scale-95"
+                        className="btn bg-warning/10 text-warning hover:bg-warning/20 flex items-center justify-center gap-2 py-2.5 border border-warning/20 transition-all active:scale-95"
                       >
-                        <div className="p-2 bg-warning/20 rounded-xl shadow-inner">
-                          <RotateCcw className="h-5 w-5" />
-                        </div>
-                        <span className="text-sm font-bold tracking-tight">Skip</span>
+                        <RotateCcw className="h-4 w-4" />
+                        <span className="text-sm font-bold">Skip</span>
                       </button>
                     </div>
 
@@ -645,7 +641,7 @@ const Timetable = () => {
 
                         <div className="mt-5 w-full pt-4 border-t border-secondary/20 flex gap-2">
                            <button 
-                             onClick={() => handleUpdateEvent(selectedEvent.id, { isCompleted: false, skippedReason: null })}
+                             onClick={() => handleUpdateEvent(selectedEvent.id, { isCompleted: false, skippedReason: undefined })}
                              disabled={isUpdating}
                              className="flex-1 btn bg-card text-foreground hover:bg-secondary border border-border flex items-center justify-center gap-2 py-2 text-sm"
                            >
@@ -725,23 +721,15 @@ const Timetable = () => {
 
               <div className="flex justify-end space-x-2 pt-2">
                 <button
-                  onClick={onDeleteClick}
-                  disabled={isDeleting}
-                  className="btn bg-destructive/20 text-destructive hover:bg-destructive/30 flex items-center gap-2"
-                >
-                  {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Delete
-                </button>
-                <button
                   onClick={handleDuplicateEvent}
-                  className="btn bg-accent/10 text-accent hover:bg-accent/20 flex items-center gap-2"
+                  className="btn bg-accent/10 text-accent hover:bg-accent/20 flex items-center gap-2 py-1.5"
                 >
                   <Copy className="h-4 w-4" />
                   Duplicate
                 </button>
                 <button
                   onClick={() => navigate(`/focus/${selectedEvent.id}`)}
-                  className="btn bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-2"
+                  className="btn bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-2 py-1.5"
                 >
                   <Target className="h-4 w-4" />
                   Focus
