@@ -306,11 +306,11 @@ const Settings = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-foreground/70">Total Events</span>
-                <span className="font-medium">{user?.events?.length || 0}</span>
+                <span className="font-medium">{user?.totalEvents || 0}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-foreground/70">Active Goals</span>
-                <span className="font-medium">{user?.goals?.length || 0}</span>
+                <span className="text-foreground/70">Total Goals</span>
+                <span className="font-medium">{user?.totalGoals || 0}</span>
               </div>
             </div>
           </motion.div>

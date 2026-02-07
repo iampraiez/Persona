@@ -49,6 +49,12 @@ export class UserService {
         defaultNotifyBefore: true,
         deleteAccountCode: true,
         deleteAccountCodeExpiry: true,
+        _count: {
+          select: {
+            events: true,
+            goals: true,
+          }
+        }
       },
     });
 
@@ -135,6 +141,8 @@ export class UserService {
       ...safeUser,
       events: user.events.slice(0, 5),
       goals: formattedGoals,
+      totalEvents: user._count.events,
+      totalGoals: user._count.goals,
       weeklySummary,
       aiCredits: user.aiCredits,
       cachedInsights: validCachedInsights,

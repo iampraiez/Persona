@@ -22,6 +22,8 @@ export interface User {
   cachedInsights?: AiSuggestion[] | null;
   notificationsEnabled: boolean | true;
   defaultNotifyBefore: number | 5;
+  totalEvents?: number;
+  totalGoals?: number;
 }
 
 export interface Notification {

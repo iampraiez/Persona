@@ -354,9 +354,9 @@ const Timetable = () => {
                       flex flex-col overflow-hidden hover:shadow-md hover:scale-[1.01] transition-all z-20 group
                       ${
                         event.isCompleted
-                          ? "bg-success/20 border-success text-success-foreground shadow-[0_0_15px_rgba(34,197,94,0.15)] ring-1 ring-success/20"
+                          ? "bg-success/20 border-success shadow-[0_0_15px_rgba(34,197,94,0.15)] ring-1 ring-success/20"
                           : event.skippedReason
-                            ? "bg-warning/15 border-warning text-warning-foreground opacity-90"
+                            ? "bg-warning/15 border-warning opacity-90"
                             : isSpecial
                               ? "bg-gradient-to-r from-accent/20 to-purple-500/10 border-accent text-accent-foreground shadow-accent/5"
                               : "bg-card/90 border-border text-card-foreground shadow-sm"
@@ -373,7 +373,7 @@ const Timetable = () => {
                        <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
                              <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className={`font-bold text-sm leading-tight truncate ${event.isCompleted ? 'text-success-foreground' : ''}`}>
+                                <h3 className="font-bold text-sm leading-tight truncate">
                                   {event.title}
                                 </h3>
                                 {isSpecial && !event.isCompleted && (
@@ -395,7 +395,7 @@ const Timetable = () => {
 
                        {/* Footer: Time */}
                        {(height > 30) && (
-                         <div className={`flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium uppercase tracking-wide ${event.isCompleted ? 'opacity-70' : 'opacity-80'}`}>
+                         <div className={`flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium uppercase tracking-wide opacity-80`}>
                             <Clock className="h-3 w-3" />
                             {format(startTime, "h:mm a")} - {format(endTime, "h:mm a")}
                          </div>
@@ -553,9 +553,9 @@ const Timetable = () => {
               <button
                 className="p-1 rounded-full hover:bg-secondary"
                 onClick={() => {
-                  setShowEventDetailsModal(false);
                   setSkipps("");
                   setShow(false);
+                  setImportant(false);
                 }}
               >
                 <X className="h-5 w-5" />
@@ -580,85 +580,81 @@ const Timetable = () => {
                 </span>
               </div>
 
-              <div className="border-t border-border pt-4">
-                {!selectedEvent.isCompleted && !selectedEvent.skippedReason ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={onMarkAsCompleted}
-                        disabled={isUpdating}
-                        className="btn bg-success/10 text-success hover:bg-success/20 flex items-center justify-center gap-2 py-2.5 border border-success/20 transition-all active:scale-95 disabled:opacity-50"
-                      >
-                        {isUpdating ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Check className="h-4 w-4" />
-                        )}
-                        <span className="text-sm font-bold">Complete</span>
-                      </button>
-                      <button
-                        onClick={() => setShow(true)}
-                        disabled={isUpdating}
-                        className="btn bg-warning/10 text-warning hover:bg-warning/20 flex items-center justify-center gap-2 py-2.5 border border-warning/20 transition-all active:scale-95"
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                        <span className="text-sm font-bold">Skip</span>
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                       <button
-                          onClick={onDeleteClick}
-                          disabled={isDeleting}
-                          className="flex-1 btn bg-destructive/5 text-destructive/60 hover:bg-destructive/10 hover:text-destructive flex items-center justify-center gap-2 py-2.5 text-xs transition-colors"
-                        >
-                          {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-                          Delete Permanentally
-                        </button>
-                    </div>
+              <div className="border-t border-border pt-6 space-y-6">
+                {/* Status Indicator for Completed/Skipped */}
+                {(selectedEvent.isCompleted || selectedEvent.skippedReason) && (
+                  <div className={`flex items-center justify-center gap-2 p-3 rounded-xl border ${selectedEvent.isCompleted ? 'bg-success/5 border-success/20 text-success' : 'bg-warning/5 border-warning/20 text-warning'}`}>
+                     {selectedEvent.isCompleted ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                     <span className="text-sm font-bold uppercase tracking-wider">
+                       {selectedEvent.isCompleted ? "Completed" : "Skipped"}
+                     </span>
                   </div>
-                ) : (
-                   <div className="space-y-4">
-                      <div className="flex flex-col items-center p-6 bg-secondary/20 rounded-2xl border border-secondary/30 relative overflow-hidden">
-                        <div className="absolute top-2 right-2 flex gap-1">
-                             {selectedEvent.isCompleted ? (
-                               <CheckCircle className="h-5 w-5 text-success/50" />
-                             ) : (
-                               <XCircle className="h-5 w-5 text-warning/50" />
-                             )}
-                        </div>
-                        
-                        <div className={`p-3 rounded-2xl mb-3 shadow-lg ${selectedEvent.isCompleted ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
-                           {selectedEvent.isCompleted ? <Check className="h-8 w-8" /> : <RotateCcw className="h-8 w-8" />}
-                        </div>
-                        
-                        <h4 className="text-lg font-bold">
-                          {selectedEvent.isCompleted ? "Great job!" : "Schedule skipped"}
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {selectedEvent.isCompleted ? "This event is marked as done." : `Skipped: ${selectedEvent.skippedReason || "No reason provided"}`}
-                        </p>
-
-                        <div className="mt-5 w-full pt-4 border-t border-secondary/20 flex gap-2">
-                           <button 
-                             onClick={() => handleUpdateEvent(selectedEvent.id, { isCompleted: false, skippedReason: undefined })}
-                             disabled={isUpdating}
-                             className="flex-1 btn bg-card text-foreground hover:bg-secondary border border-border flex items-center justify-center gap-2 py-2 text-sm"
-                           >
-                              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
-                              Reset Status
-                           </button>
-                           <button 
-                             onClick={onDeleteClick}
-                             disabled={isDeleting}
-                             className="btn aspect-square bg-destructive/10 text-destructive hover:bg-destructive/20 p-2"
-                           >
-                              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                           </button>
-                        </div>
-                      </div>
-                   </div>
                 )}
+
+                {/* Main Action: Focus Session */}
+                <button
+                  onClick={() => navigate(`/focus/${selectedEvent.id}`)}
+                  className="w-full btn bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 flex items-center justify-center gap-2 py-3 transition-all active:scale-95 group"
+                >
+                  <Target className="h-5 w-5" />
+                  <span className="text-sm font-bold uppercase tracking-wider">Start Focus Session</span>
+                </button>
+
+                {/* Secondary Action Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      if (selectedEvent.isCompleted || selectedEvent.skippedReason) {
+                        handleUpdateEvent(selectedEvent.id, { isCompleted: false, skippedReason: undefined });
+                      } else {
+                        onMarkAsCompleted();
+                      }
+                    }}
+                    disabled={isUpdating}
+                    className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-95 ${
+                      selectedEvent.isCompleted ? 'bg-success text-success-foreground border-success' : 'bg-success/10 text-success border-success/20 hover:bg-success/20'
+                    }`}
+                  >
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : selectedEvent.isCompleted ? <RotateCcw className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                    <span className="font-bold">{selectedEvent.isCompleted ? 'Reset' : 'Complete'}</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (selectedEvent.skippedReason) {
+                        handleUpdateEvent(selectedEvent.id, { isCompleted: false, skippedReason: undefined });
+                      } else {
+                        if (show) setImportant(false);
+                        setShow(!show);
+                      }
+                    }}
+                    disabled={isUpdating}
+                    className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-95 ${
+                      selectedEvent.skippedReason ? 'bg-warning text-white border-warning' : 'bg-warning/10 text-warning border-warning/20 hover:bg-warning/20'
+                    }`}
+                  >
+                    <RotateCcw className={`h-4 w-4 ${selectedEvent.skippedReason ? '' : 'hidden'}`} />
+                    {!selectedEvent.skippedReason && <Clock className="h-4 w-4" />}
+                    <span className="font-bold">{selectedEvent.skippedReason ? 'Reset' : 'Skip'}</span>
+                  </button>
+
+                  <button
+                    onClick={handleDuplicateEvent}
+                    className="btn bg-secondary text-secondary-foreground hover:bg-secondary/80 flex items-center justify-center gap-2 py-3 border border-border/50"
+                  >
+                    <Copy className="h-4 w-4" />
+                    <span className="font-bold">Duplicate</span>
+                  </button>
+
+                  <button
+                    onClick={onDeleteClick}
+                    disabled={isDeleting}
+                    className="btn bg-destructive/10 text-destructive hover:bg-destructive/20 flex items-center justify-center gap-2 py-3 border border-destructive/20"
+                  >
+                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    <span className="font-bold">Delete</span>
+                  </button>
+                </div>
               </div>
               {show && (
                 <>
@@ -669,15 +665,15 @@ const Timetable = () => {
                     value={skipps}
                     onChange={(e) => setSkipps(e.target.value)}
                   ></textarea>
-                  <div>
+                   <div className="flex justify-center">
                     <button
                       onClick={() => setImportant(!important)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-md border transition duration-200 
-                  ${
-                    important
-                      ? "bg-warning text-warning-foreground border-warning hover:bg-warning/90"
-                      : "border-warning text-warning hover:bg-warning/10"
-                  }`}
+                   ${
+                     important
+                       ? "bg-warning text-white border-warning hover:bg-warning/90"
+                       : "border-warning text-warning hover:bg-warning/10"
+                   }`}
                     >
                       {important ? (
                         <CheckCircle className="w-4 h-4" />
@@ -719,22 +715,6 @@ const Timetable = () => {
                 </div>
               )}
 
-              <div className="flex justify-end space-x-2 pt-2">
-                <button
-                  onClick={handleDuplicateEvent}
-                  className="btn bg-accent/10 text-accent hover:bg-accent/20 flex items-center gap-2 py-1.5"
-                >
-                  <Copy className="h-4 w-4" />
-                  Duplicate
-                </button>
-                <button
-                  onClick={() => navigate(`/focus/${selectedEvent.id}`)}
-                  className="btn bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-2 py-1.5"
-                >
-                  <Target className="h-4 w-4" />
-                  Focus
-                </button>
-              </div>
             </div>
           </motion.div>
         </div>
