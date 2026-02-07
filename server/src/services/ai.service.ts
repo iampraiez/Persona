@@ -10,7 +10,7 @@ const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY || "" });
 
 async function generateContent(prompt: string) {
   const result = await genAI.models.generateContent({
-    model: "gemini-2.0-flash", // Updated to 2.0 as per common practice if 2.5 was a typo
+    model: "gemini-2.5-flash",
     contents: prompt,
   });
   return result.text;

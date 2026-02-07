@@ -229,6 +229,21 @@ class DemoService {
     throw new Error("Event not found");
   }
 
+  async skipEvent(id: string, data: { skippedReason: string; skippedIsImportant: boolean }): Promise<void> {
+    const index = this.events.findIndex((e) => e.id === id);
+    if (index !== -1) {
+      this.events[index] = { 
+        ...this.events[index], 
+        isCompleted: false, 
+        skippedReason: data.skippedReason, 
+        skippedIsImportant: data.skippedIsImportant,
+        isSpecial: data.skippedIsImportant 
+      };
+      return;
+    }
+    throw new Error("Event not found");
+  }
+
   async deleteEvent(id: string): Promise<string | void> {
     this.events = this.events.filter((e) => e.id !== id);
     return "Event deleted successfully";

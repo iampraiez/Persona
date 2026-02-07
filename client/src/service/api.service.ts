@@ -285,6 +285,10 @@ export class ApiService {
     await this.request("put", `/events/${id}`, event);
   }
 
+  async skipEvent(id: string, data: { skippedReason: string; skippedIsImportant: boolean }): Promise<void> {
+    await this.request("put", `/events/${id}/skip`, data);
+  }
+
   async deleteEvent(id: string): Promise<void> {
     await this.request("delete", `/events/${id}`);
   }

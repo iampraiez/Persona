@@ -47,6 +47,7 @@ const Timetable = () => {
     copyTargetStart, setCopyTargetStart,
     handleCreateEvent,
     handleUpdateEvent,
+    handleSkipEvent,
     handleDeleteEvent,
     handleAiGenerate,
     handleCopyRange,
@@ -123,10 +124,9 @@ const Timetable = () => {
 
   const onSkipEvent = () => {
     if (!selectedEvent) return;
-    handleUpdateEvent(selectedEvent.id, {
+    handleSkipEvent(selectedEvent.id, {
       skippedIsImportant: important,
       skippedReason: skipps,
-      isCompleted: false,
     });
     setSkipps("");
     setSelectedEvent(null);
@@ -593,13 +593,15 @@ const Timetable = () => {
                 )}
 
                 {/* Main Action: Focus Session */}
-                <button
-                  onClick={() => navigate(`/focus/${selectedEvent.id}`)}
-                  className="w-full btn bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 flex items-center justify-center gap-2 py-3 transition-all active:scale-95 group"
-                >
-                  <Target className="h-5 w-5" />
-                  <span className="text-sm font-bold uppercase tracking-wider">Start Focus Session</span>
-                </button>
+                {!selectedEvent.isCompleted && !selectedEvent.skippedReason && (
+                  <button
+                    onClick={() => navigate(`/focus/${selectedEvent.id}`)}
+                    className="w-full btn bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 flex items-center justify-center gap-2 py-3 transition-all active:scale-95 group"
+                  >
+                    <Target className="h-5 w-5" />
+                    <span className="text-sm font-bold uppercase tracking-wider">Start Focus Session</span>
+                  </button>
+                )}
 
                 {/* Secondary Action Grid */}
                 <div className="grid grid-cols-2 gap-3">

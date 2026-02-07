@@ -28,6 +28,7 @@ export const useTimetable = () => {
     createEvent: createEventRaw,
     updateEvent: updateEventRaw,
     deleteEvent: deleteEventRaw,
+    skipEvent: skipEventRaw,
     isCreating,
     isUpdating,
     isDeleting
@@ -125,6 +126,21 @@ export const useTimetable = () => {
           resolve(data);
         },
         onError: (err) => {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const handleSkipEvent = async (id: string, data: { skippedReason: string; skippedIsImportant: boolean }) => {
+    return new Promise((resolve, reject) => {
+      skipEventRaw({ id, data }, {
+        onSuccess: (responseData: any) => {
+          setShowEventDetailsModal(false);
+          resolve(responseData);
+        },
+        onError: (err: any) => {
+          toast.error("Failed to skip event");
           reject(err);
         }
       });
@@ -247,6 +263,7 @@ export const useTimetable = () => {
     // Actions
     handleCreateEvent,
     handleUpdateEvent,
+    handleSkipEvent,
     handleDeleteEvent,
     handleAiGenerate,
     handleCopyRange,
