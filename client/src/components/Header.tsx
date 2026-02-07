@@ -39,7 +39,8 @@ const Header = ({ openSidebar }: HeaderProps) => {
   const [imgError, setImgError] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-  const { notifications, clearAllNotifications } = useNotifications();
+  const { notifications, clearAllNotifications, markAllAsRead } = useNotifications();
+  const unreadCount = notifications.filter((n: NotificationType) => !n.isRead).length;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -175,6 +176,9 @@ const Header = ({ openSidebar }: HeaderProps) => {
                   setNotificationsOpen(becomingOpen);
 
                   if (becomingOpen) {
+                    if (unreadCount > 0) {
+                      markAllAsRead();
+                    }
                     if ("Notification" in window) {
                       if (Notification.permission === "default") {
                         const permission = await Notification.requestPermission();
@@ -195,8 +199,10 @@ const Header = ({ openSidebar }: HeaderProps) => {
                 title="Notifications"
               >
                 <BellRing className="h-5 w-5" />
-                {notifications.some((n: NotificationType) => !n.isRead) && (
-                  <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full ring-2 ring-card"></span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-card">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
                 )}
               </button>
               <AnimatePresence>

@@ -79,6 +79,19 @@ export class NotificationController {
     }
   }
 
+  static async markAllRead(req: Request, res: Response) {
+    try {
+      const userId = await NotificationController.getUserId(req.user as string);
+      if (!userId) return res.status(404).json({ error: "User not found", data: null });
+
+      await NotificationService.markAllAsRead(userId);
+      res.status(200).json({ data: "All notifications marked as read", error: null });
+    } catch (error: unknown) {
+      logger.error(`Mark All Read Error: ${error}`);
+      res.status(500).json({ data: null, error: errorWrapper(error, "Failed to mark all notifications as read") });
+    }
+  }
+
   static async send(req: Request, res: Response) {
     try {
       const userId = await NotificationController.getUserId(req.user as string);

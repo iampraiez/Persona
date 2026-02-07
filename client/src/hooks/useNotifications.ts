@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "../service/api.service";
+import { api, Notification as NotificationType } from "../service/api.service";
 import { demoApi } from "../service/demo.service";
 import { useAuthStore } from "../store/auth.store";
 
@@ -45,6 +45,27 @@ export const useNotifications = () => {
     },
   });
 
+  const markAllAsReadMutation = useMutation({
+    mutationFn: () => getApi().markAllNotificationsAsRead(),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+      const previousNotifications = queryClient.getQueryData<NotificationType[]>(["notifications"]);
+
+      queryClient.setQueryData<NotificationType[]>(["notifications"], (old) => {
+        if (!old) return [];
+        return old.map((n) => ({ ...n, isRead: true }));
+      });
+
+      return { previousNotifications };
+    },
+    onError: (_err, _variables, context) => {
+      queryClient.setQueryData(["notifications"], context?.previousNotifications);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
   return {
     notifications: notificationsQuery.data || [],
     isLoading: notificationsQuery.isLoading,
@@ -52,6 +73,7 @@ export const useNotifications = () => {
     deleteNotification: deleteNotificationMutation.mutate,
     saveSubscription: saveSubscriptionMutation.mutateAsync,
     markAsRead: markAsReadMutation.mutate,
+    markAllAsRead: markAllAsReadMutation.mutate,
     clearAllNotifications: clearAllNotificationsMutation.mutate,
   };
 };

@@ -321,6 +321,10 @@ export class ApiService {
     await this.request("delete", "/notification");
   }
 
+  async markAllNotificationsAsRead(): Promise<void> {
+    await this.request("put", "/notification");
+  }
+
   async markNotificationAsRead(id: string): Promise<void> {
     await this.request("put", `/notification/${id}/read`);
   }

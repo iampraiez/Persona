@@ -301,6 +301,10 @@ class DemoService {
     return "All notifications deleted successfully";
   }
 
+  async markAllNotificationsAsRead(): Promise<void> {
+    this.notifications = this.notifications.map((n) => ({ ...n, isRead: true }));
+  }
+
   async getAnalytics(range: string, date: Date): Promise<Analytics | null> {
     const randomBetween = (min: number, max: number) =>
       Math.floor(Math.random() * (max - min + 1)) + min;
