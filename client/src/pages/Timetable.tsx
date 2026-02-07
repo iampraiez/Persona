@@ -553,6 +553,7 @@ const Timetable = () => {
               <button
                 className="p-1 rounded-full hover:bg-secondary"
                 onClick={() => {
+                  setShowEventDetailsModal(false);
                   setSkipps("");
                   setShow(false);
                   setImportant(false);
@@ -612,7 +613,7 @@ const Timetable = () => {
                     }}
                     disabled={isUpdating}
                     className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-95 ${
-                      selectedEvent.isCompleted ? 'bg-success text-success-foreground border-success' : 'bg-success/10 text-success border-success/20 hover:bg-success/20'
+                      selectedEvent.isCompleted ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20' : 'bg-success/10 text-success border-success/20 hover:bg-success/20'
                     }`}
                   >
                     {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : selectedEvent.isCompleted ? <RotateCcw className="h-4 w-4" /> : <Check className="h-4 w-4" />}
@@ -630,7 +631,7 @@ const Timetable = () => {
                     }}
                     disabled={isUpdating}
                     className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-95 ${
-                      selectedEvent.skippedReason ? 'bg-warning text-white border-warning' : 'bg-warning/10 text-warning border-warning/20 hover:bg-warning/20'
+                      selectedEvent.skippedReason ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20' : 'bg-warning/10 text-warning border-warning/20 hover:bg-warning/20'
                     }`}
                   >
                     <RotateCcw className={`h-4 w-4 ${selectedEvent.skippedReason ? '' : 'hidden'}`} />
