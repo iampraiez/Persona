@@ -129,8 +129,11 @@ export class ApiService {
         if (!error.response) {
           // Suppress network errors for background polls or analytics
           const url = error.config?.url || "";
-          if (!url.includes("/analytics") && !url.includes("/events/upcoming")) {
-             toast.error(ERROR_MESSAGES.NETWORK);
+          if (
+            !url.includes("/analytics") &&
+            !url.includes("/events/upcoming")
+          ) {
+            toast.error(ERROR_MESSAGES.NETWORK);
           }
           return Promise.reject(error);
         }
@@ -144,14 +147,14 @@ export class ApiService {
         }
 
         if (status === STATUS_CODES.UNAUTHORIZED) {
-           // If we are already refreshing, queue this request
+          // If we are already refreshing, queue this request
           if (this.isRefreshing) {
             return new Promise((resolve, reject) => {
               this.refreshSubscribers.push((token) => {
-                if(token) {
-                   resolve(this.axiosInstance(originalRequest));
+                if (token) {
+                  resolve(this.axiosInstance(originalRequest));
                 } else {
-                   reject(error);
+                  reject(error);
                 }
               });
             });
@@ -169,10 +172,10 @@ export class ApiService {
         }
 
         if (status >= STATUS_CODES.SERVER_ERROR) {
-           // Don't toast server errors on background analytics
-           if (!originalRequest.url?.includes("/analytics")) {
-             toast.error(ERROR_MESSAGES.SERVER);
-           }
+          // Don't toast server errors on background analytics
+          if (!originalRequest.url?.includes("/analytics")) {
+            toast.error(ERROR_MESSAGES.SERVER);
+          }
         }
 
         return Promise.reject(error);
@@ -184,7 +187,8 @@ export class ApiService {
     if (typeof data === "string") return data;
     if (typeof data === "object" && data !== null) {
       if ("error" in data && typeof data.error === "string") return data.error;
-      if ("message" in data && typeof data.message === "string") return data.message;
+      if ("message" in data && typeof data.message === "string")
+        return data.message;
     }
     return ERROR_MESSAGES.UNEXPECTED;
   }
@@ -192,41 +196,49 @@ export class ApiService {
   private async handleUnauthorizedError(
     originalRequest: InternalAxiosRequestConfig,
   ): Promise<AxiosResponse | void> {
-      this.isRefreshing = true;
+    this.isRefreshing = true;
 
-      try {
-        await this.axiosInstance.get("/auth/refresh");
-        this.isRefreshing = false;
-        this.onRefreshed(true);
-        return this.axiosInstance(originalRequest);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (refreshError: any) {
-        this.isRefreshing = false;
-        this.onRefreshed(false);
+    try {
+      await this.axiosInstance.get("/auth/refresh");
+      this.isRefreshing = false;
+      this.onRefreshed(true);
+      return this.axiosInstance(originalRequest);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (refreshError: any) {
+      this.isRefreshing = false;
+      this.onRefreshed(false);
 
-        // Only redirect to login if the refresh DEFINITELY failed with 401/403
-        // If it's a network error during refresh, we shouldn't log them out immediately
-        if (refreshError?.response?.status === STATUS_CODES.UNAUTHORIZED || refreshError?.response?.status === STATUS_CODES.FORBIDDEN) {
-          localStorage.clear();
-          sessionStorage.clear();
-          
-          try {
-            await this.logout();
-          } catch {
-            //
-          }
+      // Only redirect to login if the refresh DEFINITELY failed with 401/403
+      // If it's a network error during refresh, we shouldn't log them out immediately
+      if (
+        refreshError?.response?.status === STATUS_CODES.UNAUTHORIZED ||
+        refreshError?.response?.status === STATUS_CODES.FORBIDDEN
+      ) {
+        localStorage.clear();
+        sessionStorage.clear();
 
-          if (window.location.pathname !== PATHS.LOGIN && window.location.pathname !== PATHS.HOME) {
-            window.location.href = PATHS.LOGIN;
-          }
+        try {
+          await this.logout();
+        } catch {
+          //
         }
-        
-        return Promise.reject(refreshError);
+
+        if (
+          window.location.pathname !== PATHS.LOGIN &&
+          window.location.pathname !== PATHS.HOME
+        ) {
+          window.location.href = PATHS.LOGIN;
+        }
       }
+
+      return Promise.reject(refreshError);
+    }
   }
 
   private onRefreshed(success: boolean): void {
-    this.refreshSubscribers.forEach((callback) => callback(success ? "refreshed" : ""));
+    this.refreshSubscribers.forEach((callback) =>
+      callback(success ? "refreshed" : ""),
+    );
     this.refreshSubscribers = [];
   }
 
@@ -285,7 +297,10 @@ export class ApiService {
     await this.request("put", `/events/${id}`, event);
   }
 
-  async skipEvent(id: string, data: { skippedReason: string; skippedIsImportant: boolean }): Promise<void> {
+  async skipEvent(
+    id: string,
+    data: { skippedReason: string; skippedIsImportant: boolean },
+  ): Promise<void> {
     await this.request("put", `/events/${id}/skip`, data);
   }
 
@@ -422,12 +437,19 @@ export class ApiService {
     return this.request<string>("put", "/users", data);
   }
 
-  async initializePayment(planId: string): Promise<{ authorization_url: string; reference: string }> {
+  async initializePayment(
+    planId: string,
+  ): Promise<{ authorization_url: string; reference: string }> {
     return this.request("post", "/payments/initialize", { planId });
   }
 
-  async verifyPayment(reference: string): Promise<{ status: string; message: string }> {
-    return this.request<{ status: string; message: string }>("get", `/payments/verify/${reference}`);
+  async verifyPayment(
+    reference: string,
+  ): Promise<{ status: string; message: string }> {
+    return this.request<{ status: string; message: string }>(
+      "get",
+      `/payments/verify/${reference}`,
+    );
   }
 
   async sendFeedback(message: string): Promise<void> {

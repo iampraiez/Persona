@@ -42,8 +42,7 @@ const Settings = () => {
     handleDeleteAccount,
   } = useSettings();
 
-// ... (skipping lines, need to target button area differently)
-
+  // ... (skipping lines, need to target button area differently)
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -232,26 +231,32 @@ const Settings = () => {
               </div>
               <h2 className="text-lg font-semibold">Data Management</h2>
             </div>
-            
+
             <div className="space-y-4">
-                <p className="text-sm text-foreground/70">
-                    Export your data (events, goals, and profile settings) as a JSON file.
-                </p>
-                <button
-                    className="btn bg-secondary hover:bg-secondary/80 w-full sm:w-auto flex items-center justify-center gap-2"
-                    onClick={() => {
-                        if (!user) return;
-                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(user, null, 2));
-                        const downloadAnchorNode = document.createElement('a');
-                        downloadAnchorNode.setAttribute("href",     dataStr);
-                        downloadAnchorNode.setAttribute("download", "persona_data.json");
-                        document.body.appendChild(downloadAnchorNode); // required for firefox
-                        downloadAnchorNode.click();
-                        downloadAnchorNode.remove();
-                    }}
-                >
-                    Download Data
-                </button>
+              <p className="text-sm text-foreground/70">
+                Export your data (events, goals, and profile settings) as a JSON
+                file.
+              </p>
+              <button
+                className="btn bg-secondary hover:bg-secondary/80 w-full sm:w-auto flex items-center justify-center gap-2"
+                onClick={() => {
+                  if (!user) return;
+                  const dataStr =
+                    "data:text/json;charset=utf-8," +
+                    encodeURIComponent(JSON.stringify(user, null, 2));
+                  const downloadAnchorNode = document.createElement("a");
+                  downloadAnchorNode.setAttribute("href", dataStr);
+                  downloadAnchorNode.setAttribute(
+                    "download",
+                    "persona_data.json",
+                  );
+                  document.body.appendChild(downloadAnchorNode); // required for firefox
+                  downloadAnchorNode.click();
+                  downloadAnchorNode.remove();
+                }}
+              >
+                Download Data
+              </button>
             </div>
           </motion.div>
 

@@ -81,7 +81,7 @@ export class AiService {
     ];
 
     await this.deductCredit(userId, user);
-    
+
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -149,9 +149,12 @@ export class AiService {
     return createdEvents;
   }
 
-  private static async deductCredit(userId: string, user: { aiCredits: number; purchasedAiCredits: number }) {
+  private static async deductCredit(
+    userId: string,
+    user: { aiCredits: number; purchasedAiCredits: number },
+  ) {
     const useFree = user.aiCredits > 0;
-    
+
     return prisma.user.update({
       where: { id: userId },
       data: {

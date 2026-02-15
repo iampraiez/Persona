@@ -39,19 +39,20 @@ const Dashboard = () => {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const { events } = useEvents(); 
+  const { events } = useEvents();
 
   const now = new Date();
-  
-  const todaysEvents = events?.filter((event: Event) => {
-    const eventDate = new Date(event.startTime);
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-    
-    return eventDate >= startOfDay && eventDate <= endOfDay;
-  }) || [];
+
+  const todaysEvents =
+    events?.filter((event: Event) => {
+      const eventDate = new Date(event.startTime);
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+
+      return eventDate >= startOfDay && eventDate <= endOfDay;
+    }) || [];
 
   const upcomingTasks = todaysEvents
     .filter((event: Event) => {
@@ -62,10 +63,10 @@ const Dashboard = () => {
 
   const activeGoals = user?.goals?.slice(0, 3) || [];
 
-  const completedToday = todaysEvents.filter(t => t.isCompleted).length;
+  const completedToday = todaysEvents.filter((t) => t.isCompleted).length;
   const totalToday = todaysEvents.length;
-  const dayProgress = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
-
+  const dayProgress =
+    totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
 
   return (
     <div>
@@ -79,14 +80,16 @@ const Dashboard = () => {
       </div>
 
       <div className="flex flex-wrap gap-4 mb-8">
-        <button 
+        <button
           onClick={() => navigate("/buy-credits")}
           className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent hover:bg-accent/20 rounded-xl transition-all font-semibold border border-accent/20"
         >
           <Zap className="h-4 w-4 fill-current" />
           Refill AI Energy
           {user?.purchasedAiCredits && user.purchasedAiCredits > 0 ? (
-            <span className="ml-2 px-2 py-0.5 bg-accent text-white rounded-md text-[10px]">+{user.purchasedAiCredits}</span>
+            <span className="ml-2 px-2 py-0.5 bg-accent text-white rounded-md text-[10px]">
+              +{user.purchasedAiCredits}
+            </span>
           ) : null}
         </button>
       </div>
@@ -96,14 +99,14 @@ const Dashboard = () => {
       ) : isError ? (
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
           <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Failed to load dashboard data</h2>
+          <h2 className="text-xl font-semibold mb-2">
+            Failed to load dashboard data
+          </h2>
           <p className="text-foreground/70 mb-4">
-            We couldn't fetch your latest data. Please check your connection and try again.
+            We couldn't fetch your latest data. Please check your connection and
+            try again.
           </p>
-          <button
-            onClick={() => refetch()}
-            className="btn btn-primary"
-          >
+          <button onClick={() => refetch()} className="btn btn-primary">
             Retry
           </button>
         </div>
@@ -120,7 +123,7 @@ const Dashboard = () => {
                 <Calendar className="h-5 w-5 text-accent" />
                 <h2 className="text-lg font-semibold">Today's Schedule</h2>
               </div>
-              <button 
+              <button
                 onClick={() => navigate("/timetable")}
                 className="p-1.5 rounded-full bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
                 title="Add Event"
@@ -133,10 +136,12 @@ const Dashboard = () => {
               <div className="mb-6">
                 <div className="flex justify-between text-xs mb-1 text-foreground/70">
                   <span>Day Progress</span>
-                  <span>{completedToday}/{totalToday} completed</span>
+                  <span>
+                    {completedToday}/{totalToday} completed
+                  </span>
                 </div>
                 <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${dayProgress}%` }}
                     className="h-full bg-success rounded-full"
@@ -178,7 +183,7 @@ const Dashboard = () => {
                         weekday: "short",
                       })}
                     </div>
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/focus/${event.id}`);
@@ -193,7 +198,9 @@ const Dashboard = () => {
               ) : (
                 <div className="p-8 rounded-md bg-secondary/30 border border-dashed border-border flex flex-col items-center text-center">
                   <Calendar className="h-8 w-8 text-muted-foreground mb-2 opacity-20" />
-                  <h3 className="font-medium text-foreground/70">Your day is clear!</h3>
+                  <h3 className="font-medium text-foreground/70">
+                    Your day is clear!
+                  </h3>
                   <p className="text-xs text-muted-foreground mt-1">
                     Enjoy your free time or plan something new.
                   </p>
@@ -232,11 +239,15 @@ const Dashboard = () => {
               {activeGoals.length > 0 ? (
                 activeGoals.slice(0, 4).map((goal) => {
                   const elapsedDays = Math.floor(
-                    (new Date().getTime() - new Date(goal.createdAt).getTime()) /
-                      (1000 * 60 * 60 * 24)
+                    (new Date().getTime() -
+                      new Date(goal.createdAt).getTime()) /
+                      (1000 * 60 * 60 * 24),
                   );
-                  const daysLeft = Math.max(0, (goal.totalDays || 0) - elapsedDays);
-                  
+                  const daysLeft = Math.max(
+                    0,
+                    (goal.totalDays || 0) - elapsedDays,
+                  );
+
                   const roundedPercentage = (goal.percentage * 100).toFixed(1);
 
                   return (
@@ -299,7 +310,8 @@ const Dashboard = () => {
             </div>
 
             <div className="space-y-4">
-              {(suggestions || user?.cachedInsights) && (suggestions || user?.cachedInsights)!.length > 0 ? (
+              {(suggestions || user?.cachedInsights) &&
+              (suggestions || user?.cachedInsights)!.length > 0 ? (
                 (suggestions || user?.cachedInsights)!
                   .slice(0, 4)
                   .map((suggestion: AiSuggestion, index: number) => (
@@ -335,7 +347,9 @@ const Dashboard = () => {
                   (!user?.events || user.events.length === 0) &&
                   (!user?.goals || user.goals.length === 0)
                 ) {
-                  toast.info("Add some events or goals first to generate insights!");
+                  toast.info(
+                    "Add some events or goals first to generate insights!",
+                  );
                   return;
                 }
                 if (insightsError) {

@@ -22,47 +22,47 @@ import { env } from "./config/env";
 import { aiRateLimiter, eventWriteRateLimiter } from "./middleware/rateLimiter";
 
 const app: Express = express();
-app.set('trust proxy', 1); 
+app.set("trust proxy", 1);
 
 startScheduler();
 const CLIENT: string = env.data?.CLIENT_URL || "http://localhost:5173";
-const corsOptions =  {
-    origin(origin, callback) {
-      if (!origin) return callback(null, true);
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);
 
-      const allowedOrigins = [
-        CLIENT,
-        "http://localhost:5173",
-        "https://timeforge-persona.vercel.app",
-      ];
+    const allowedOrigins = [
+      CLIENT,
+      "http://localhost:5173",
+      "https://timeforge-persona.vercel.app",
+    ];
 
-       const isAllowed = allowedOrigins.some((allowedOrigin) =>
-         origin.startsWith(allowedOrigin),
-       );
+    const isAllowed = allowedOrigins.some((allowedOrigin) =>
+      origin.startsWith(allowedOrigin),
+    );
 
-       if (isAllowed) {
-         callback(null, true);
-       } else {
-         callback(new Error(`CORS: ${origin} not allowed`));
-       }
-    },
-    credentials: true,
-  }
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+};
 
 // Security & Performance Middleware
 app.use(helmet());
 app.use(compression());
 
 // Standard Middleware
-app.use(express.json());  
+app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
- 
+
 // ... Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes); 
-app.use("/api/events", authMiddleware, eventWriteRateLimiter, eventRoutes); 
-app.use("/api/goals", authMiddleware, eventWriteRateLimiter, goalRoutes); 
+app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes);
+app.use("/api/events", authMiddleware, eventWriteRateLimiter, eventRoutes);
+app.use("/api/goals", authMiddleware, eventWriteRateLimiter, goalRoutes);
 app.use("/api/ai", authMiddleware, aiRateLimiter, aiRoutes);
 app.use("/api/analytics", authMiddleware, analyticsRoutes);
 app.use("/api/notification", authMiddleware, eventWriteRateLimiter, subRoute);

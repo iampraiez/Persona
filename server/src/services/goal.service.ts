@@ -18,9 +18,9 @@ export class GoalService {
 
   static async createGoal(userId: string, data: any) {
     const { title, description, totalDays, createdAt, steps } = data;
-    const steps_edited = steps.map(({ id, dueDate, ...rest }: any) => ({ 
+    const steps_edited = steps.map(({ id, dueDate, ...rest }: any) => ({
       ...rest,
-      dueDate: toUTCDate(dueDate)
+      dueDate: toUTCDate(dueDate),
     }));
 
     return prisma.goal.create({
@@ -111,9 +111,9 @@ export class GoalService {
         goalId,
         id: stepId,
       },
-      data: { 
+      data: {
         isCompleted: true,
-        completedAt: new Date()
+        completedAt: new Date(),
       },
     });
   }

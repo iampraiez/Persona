@@ -30,21 +30,32 @@ import { Loader2 } from "lucide-react";
 const Timetable = () => {
   const { data: user } = useUser();
   const {
-    selectedDate, setSelectedDate,
+    selectedDate,
+    setSelectedDate,
     weekDays,
     eventsForSelectedDate,
     navigateWeek,
     isLoading,
-    showNewEventModal, setShowNewEventModal,
-    showEventDetailsModal, setShowEventDetailsModal,
-    showAiModal, setShowAiModal,
-    showCopyModal, setShowCopyModal,
-    showClearModal, setShowClearModal,
-    isMenuOpen, setIsMenuOpen,
-    aiRange, setAiRange,
-    copyRange, setCopyRange,
-    clearRange, setClearRange,
-    copyTargetStart, setCopyTargetStart,
+    showNewEventModal,
+    setShowNewEventModal,
+    showEventDetailsModal,
+    setShowEventDetailsModal,
+    showAiModal,
+    setShowAiModal,
+    showCopyModal,
+    setShowCopyModal,
+    showClearModal,
+    setShowClearModal,
+    isMenuOpen,
+    setIsMenuOpen,
+    aiRange,
+    setAiRange,
+    copyRange,
+    setCopyRange,
+    clearRange,
+    setClearRange,
+    copyTargetStart,
+    setCopyTargetStart,
     handleCreateEvent,
     handleUpdateEvent,
     handleSkipEvent,
@@ -99,7 +110,7 @@ const Timetable = () => {
       toast.error("Please fill out all fields");
       return;
     }
-    
+
     await handleCreateEvent({
       ...newEvent,
       startTime: new Date(newEvent.startTime).toISOString(),
@@ -127,7 +138,7 @@ const Timetable = () => {
       skippedIsImportant: important,
       skippedReason: skipps,
     });
-    setShow(false)
+    setShow(false);
     setSkipps("");
     setSelectedEvent(null);
   };
@@ -145,7 +156,10 @@ const Timetable = () => {
     setNewEvent({
       title: `${selectedEvent.title} (Copy)`,
       description: selectedEvent.description || "",
-      startTime: format(new Date(selectedEvent.startTime), "yyyy-MM-dd'T'HH:mm"),
+      startTime: format(
+        new Date(selectedEvent.startTime),
+        "yyyy-MM-dd'T'HH:mm",
+      ),
       endTime: format(new Date(selectedEvent.endTime), "yyyy-MM-dd'T'HH:mm"),
       notifyBefore: selectedEvent.notifyBefore,
     });
@@ -153,7 +167,6 @@ const Timetable = () => {
     setShowNewEventModal(true);
   };
 
-  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -166,12 +179,24 @@ const Timetable = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-           <h1 className="text-2xl font-bold">Weekly Timetable</h1>
-           <div className="flex items-center gap-2 mt-1">
-             <button onClick={() => navigateWeek('prev')} className="p-1 hover:bg-secondary rounded-full"><ChevronLeft className="h-4 w-4" /></button>
-             <p className="text-foreground/70 text-sm">{format(weekDays[0], "MMM d")} - {format(weekDays[6], "yyyy")}</p>
-             <button onClick={() => navigateWeek('next')} className="p-1 hover:bg-secondary rounded-full"><ChevronRight className="h-4 w-4" /></button>
-           </div>
+          <h1 className="text-2xl font-bold">Weekly Timetable</h1>
+          <div className="flex items-center gap-2 mt-1">
+            <button
+              onClick={() => navigateWeek("prev")}
+              className="p-1 hover:bg-secondary rounded-full"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <p className="text-foreground/70 text-sm">
+              {format(weekDays[0], "MMM d")} - {format(weekDays[6], "yyyy")}
+            </p>
+            <button
+              onClick={() => navigateWeek("next")}
+              className="p-1 hover:bg-secondary rounded-full"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <div className="flex gap-2 relative" ref={menuRef}>
           <button
@@ -181,8 +206,8 @@ const Timetable = () => {
             <Plus className="h-5 w-5" />
             <span className="hidden md:inline">New Event</span>
           </button>
-          
-          <button 
+
+          <button
             className="p-2 rounded-full hover:bg-secondary border border-border"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
@@ -222,11 +247,11 @@ const Timetable = () => {
                   <button
                     className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm hover:bg-secondary text-destructive rounded-lg transition-colors"
                     onClick={() => {
-                       setShowClearModal(true);
-                       setIsMenuOpen(false);
+                      setShowClearModal(true);
+                      setIsMenuOpen(false);
                     }}
                   >
-                     <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" />
                     Clear Events
                   </button>
                 </div>
@@ -276,40 +301,48 @@ const Timetable = () => {
         <div className="space-y-1">
           {/* Time slots (24 hours) */}
           {/* Timeline Container */}
-          <div className="relative min-h-[1920px]" style={{ height: '1920px' }}>
-            
+          <div className="relative min-h-[1920px]" style={{ height: "1920px" }}>
             {/* Background Grid & Time Labels */}
             <div className="absolute inset-0 z-0">
-               {[...Array(24)].map((_, hour) => (
-                <div 
-                  key={`grid-${hour}`} 
+              {[...Array(24)].map((_, hour) => (
+                <div
+                  key={`grid-${hour}`}
                   className="group flex h-20 border-b border-border/40 hover:bg-accent/[0.02] transition-colors"
                 >
                   {/* Time Label */}
                   <div className="w-16 text-[10px] md:text-xs text-foreground/40 pt-2 pr-4 text-right font-medium shrink-0 select-none">
-                    {hour === 0 ? "12 AM" : hour < 12 ? `${hour} AM` : hour === 12 ? "12 PM" : `${hour - 12} PM`}
+                    {hour === 0
+                      ? "12 AM"
+                      : hour < 12
+                        ? `${hour} AM`
+                        : hour === 12
+                          ? "12 PM"
+                          : `${hour - 12} PM`}
                   </div>
-                  
+
                   {/* Hour Slot Click Target */}
-                  <div 
+                  <div
                     className="flex-1 relative cursor-pointer border-l border-border/40"
                     onClick={() => {
-                       const date = new Date(selectedDate);
-                       date.setHours(hour, 0, 0, 0);
-                       setNewEvent(prev => ({ 
-                         ...prev, 
-                         startTime: format(date, "yyyy-MM-dd'T'HH:mm"),
-                         endTime: format(new Date(date.getTime() + 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm")
-                       }));
-                       setShowNewEventModal(true);
+                      const date = new Date(selectedDate);
+                      date.setHours(hour, 0, 0, 0);
+                      setNewEvent((prev) => ({
+                        ...prev,
+                        startTime: format(date, "yyyy-MM-dd'T'HH:mm"),
+                        endTime: format(
+                          new Date(date.getTime() + 60 * 60 * 1000),
+                          "yyyy-MM-dd'T'HH:mm",
+                        ),
+                      }));
+                      setShowNewEventModal(true);
                     }}
                   >
-                     <div className="opacity-0 group-hover:opacity-100 absolute left-4 top-1/2 -translate-y-1/2 text-xs text-accent font-medium flex items-center gap-1 transition-opacity">
-                        <Plus className="h-3 w-3" /> Add Event
-                     </div>
+                    <div className="opacity-0 group-hover:opacity-100 absolute left-4 top-1/2 -translate-y-1/2 text-xs text-accent font-medium flex items-center gap-1 transition-opacity">
+                      <Plus className="h-3 w-3" /> Add Event
+                    </div>
                   </div>
                 </div>
-               ))}
+              ))}
             </div>
 
             {/* Events Layer */}
@@ -317,12 +350,15 @@ const Timetable = () => {
               {eventsForSelectedDate?.map((event) => {
                 const startTime = new Date(event.startTime);
                 const endTime = new Date(event.endTime);
-                
+
                 // Calculate position relative to the day (00:00 - 23:59)
                 const startOfDayDate = startOfDay(selectedDate);
-                
+
                 // Get offset in minutes from start of day
-                let startMinutes = differenceInMinutes(startTime, startOfDayDate);
+                let startMinutes = differenceInMinutes(
+                  startTime,
+                  startOfDayDate,
+                );
                 // Handle events starting previous day
                 if (startMinutes < 0) startMinutes = 0;
 
@@ -331,12 +367,12 @@ const Timetable = () => {
                 if (endMinutes > 1440) endMinutes = 1440;
 
                 const durationMinutes = endMinutes - startMinutes;
-                
+
                 // 80px per hour = 1.3333px per minute
                 const PIXELS_PER_MINUTE = 80 / 60;
                 const top = startMinutes * PIXELS_PER_MINUTE;
                 const height = durationMinutes * PIXELS_PER_MINUTE;
-                
+
                 // Skip if duration is invalid or 0
                 if (durationMinutes <= 0) return null;
 
@@ -368,56 +404,63 @@ const Timetable = () => {
                     onClick={() => handleEventClick(event)}
                   >
                     <div className="p-3 flex flex-col h-full justify-between">
-                       {/* Header: Title & Icons */}
-                       <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0 flex-1">
-                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="font-bold text-sm leading-tight truncate">
-                                  {event.title}
-                                </h3>
-                                {isSpecial && !event.isCompleted && (
-                                  <Sparkles className="h-3 w-3 text-accent animate-pulse" />
-                                )}
-                             </div>
-                             {(height > 50) && (
-                               <p className="text-[10px] opacity-70 mt-1 line-clamp-2 leading-relaxed">
-                                  {event.description || "No description"}
-                               </p>
-                             )}
+                      {/* Header: Title & Icons */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-bold text-sm leading-tight truncate">
+                              {event.title}
+                            </h3>
+                            {isSpecial && !event.isCompleted && (
+                              <Sparkles className="h-3 w-3 text-accent animate-pulse" />
+                            )}
                           </div>
-                      
-                          <div className="shrink-0 flex gap-1">
-                             {event.isCompleted && <CheckCircle className="h-4 w-4 text-success" />}
-                             {event.skippedReason && <XCircle className="h-4 w-4 text-warning" />}
-                          </div>
-                       </div>
+                          {height > 50 && (
+                            <p className="text-[10px] opacity-70 mt-1 line-clamp-2 leading-relaxed">
+                              {event.description || "No description"}
+                            </p>
+                          )}
+                        </div>
 
-                       {/* Footer: Time */}
-                       {(height > 30) && (
-                         <div className={`flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium uppercase tracking-wide opacity-80`}>
-                            <Clock className="h-3 w-3" />
-                            {format(startTime, "h:mm a")} - {format(endTime, "h:mm a")}
-                         </div>
-                       )}
+                        <div className="shrink-0 flex gap-1">
+                          {event.isCompleted && (
+                            <CheckCircle className="h-4 w-4 text-success" />
+                          )}
+                          {event.skippedReason && (
+                            <XCircle className="h-4 w-4 text-warning" />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Footer: Time */}
+                      {height > 30 && (
+                        <div
+                          className={`flex items-center gap-1.5 mt-auto pt-2 text-[10px] font-medium uppercase tracking-wide opacity-80`}
+                        >
+                          <Clock className="h-3 w-3" />
+                          {format(startTime, "h:mm a")} -{" "}
+                          {format(endTime, "h:mm a")}
+                        </div>
+                      )}
                     </div>
-                    
+
                     {/* Decorative Gloss Effect */}
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none opacity-50" />
                   </motion.div>
                 );
               })}
-              
-              {(!eventsForSelectedDate || eventsForSelectedDate.length === 0) && (
-                 <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
-                     <div className="text-center opacity-30">
-                        <Calendar className="h-16 w-16 mx-auto mb-2 text-muted-foreground" />
-                        <p className="font-medium text-lg">No events today</p>
-                     </div>
-                 </div>
+
+              {(!eventsForSelectedDate ||
+                eventsForSelectedDate.length === 0) && (
+                <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
+                  <div className="text-center opacity-30">
+                    <Calendar className="h-16 w-16 mx-auto mb-2 text-muted-foreground" />
+                    <p className="font-medium text-lg">No events today</p>
+                  </div>
+                </div>
               )}
             </div>
           </div>
-
         </div>
       </div>
 
@@ -583,11 +626,17 @@ const Timetable = () => {
               <div className="border-t border-border pt-6 space-y-6">
                 {/* Status Indicator for Completed/Skipped */}
                 {(selectedEvent.isCompleted || selectedEvent.skippedReason) && (
-                  <div className={`flex items-center justify-center gap-2 p-3 rounded-xl border ${selectedEvent.isCompleted ? 'bg-success/5 border-success/20 text-success' : 'bg-warning/5 border-warning/20 text-warning'}`}>
-                     {selectedEvent.isCompleted ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                     <span className="text-sm font-bold uppercase tracking-wider">
-                       {selectedEvent.isCompleted ? "Completed" : "Skipped"}
-                     </span>
+                  <div
+                    className={`flex items-center justify-center gap-2 p-3 rounded-xl border ${selectedEvent.isCompleted ? "bg-success/5 border-success/20 text-success" : "bg-warning/5 border-warning/20 text-warning"}`}
+                  >
+                    {selectedEvent.isCompleted ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : (
+                      <XCircle className="h-4 w-4" />
+                    )}
+                    <span className="text-sm font-bold uppercase tracking-wider">
+                      {selectedEvent.isCompleted ? "Completed" : "Skipped"}
+                    </span>
                   </div>
                 )}
 
@@ -598,7 +647,9 @@ const Timetable = () => {
                     className="w-full btn bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 flex items-center justify-center gap-2 py-3 transition-all active:scale-95 group"
                   >
                     <Target className="h-5 w-5" />
-                    <span className="text-sm font-bold uppercase tracking-wider">Start Focus Session</span>
+                    <span className="text-sm font-bold uppercase tracking-wider">
+                      Start Focus Session
+                    </span>
                   </button>
                 )}
 
@@ -606,25 +657,44 @@ const Timetable = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => {
-                      if (selectedEvent.isCompleted || selectedEvent.skippedReason) {
-                        handleUpdateEvent(selectedEvent.id, { isCompleted: false, skippedReason: undefined });
+                      if (
+                        selectedEvent.isCompleted ||
+                        selectedEvent.skippedReason
+                      ) {
+                        handleUpdateEvent(selectedEvent.id, {
+                          isCompleted: false,
+                          skippedReason: undefined,
+                        });
                       } else {
                         onMarkAsCompleted();
                       }
                     }}
                     disabled={isUpdating}
                     className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-95 ${
-                      selectedEvent.isCompleted ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20' : 'bg-success/10 text-success border-success/20 hover:bg-success/20'
+                      selectedEvent.isCompleted
+                        ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20"
+                        : "bg-success/10 text-success border-success/20 hover:bg-success/20"
                     }`}
                   >
-                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : selectedEvent.isCompleted ? <RotateCcw className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                    <span className="font-bold">{selectedEvent.isCompleted ? 'Reset' : 'Complete'}</span>
+                    {isUpdating ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : selectedEvent.isCompleted ? (
+                      <RotateCcw className="h-4 w-4" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
+                    <span className="font-bold">
+                      {selectedEvent.isCompleted ? "Reset" : "Complete"}
+                    </span>
                   </button>
 
                   <button
                     onClick={() => {
                       if (selectedEvent.skippedReason) {
-                        handleUpdateEvent(selectedEvent.id, { isCompleted: false, skippedReason: undefined });
+                        handleUpdateEvent(selectedEvent.id, {
+                          isCompleted: false,
+                          skippedReason: undefined,
+                        });
                       } else {
                         if (show) setImportant(false);
                         setShow(!show);
@@ -632,12 +702,20 @@ const Timetable = () => {
                     }}
                     disabled={isUpdating}
                     className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-95 ${
-                      selectedEvent.skippedReason ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20' : 'bg-warning/10 text-warning border-warning/20 hover:bg-warning/20'
+                      selectedEvent.skippedReason
+                        ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20"
+                        : "bg-warning/10 text-warning border-warning/20 hover:bg-warning/20"
                     }`}
                   >
-                    <RotateCcw className={`h-4 w-4 ${selectedEvent.skippedReason ? '' : 'hidden'}`} />
-                    {!selectedEvent.skippedReason && <Clock className="h-4 w-4" />}
-                    <span className="font-bold">{selectedEvent.skippedReason ? 'Reset' : 'Skip'}</span>
+                    <RotateCcw
+                      className={`h-4 w-4 ${selectedEvent.skippedReason ? "" : "hidden"}`}
+                    />
+                    {!selectedEvent.skippedReason && (
+                      <Clock className="h-4 w-4" />
+                    )}
+                    <span className="font-bold">
+                      {selectedEvent.skippedReason ? "Reset" : "Skip"}
+                    </span>
                   </button>
 
                   <button
@@ -653,7 +731,11 @@ const Timetable = () => {
                     disabled={isDeleting}
                     className="btn bg-destructive/10 text-destructive hover:bg-destructive/20 flex items-center justify-center gap-2 py-3 border border-destructive/20"
                   >
-                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
                     <span className="font-bold">Delete</span>
                   </button>
                 </div>
@@ -667,7 +749,7 @@ const Timetable = () => {
                     value={skipps}
                     onChange={(e) => setSkipps(e.target.value)}
                   ></textarea>
-                   <div className="flex justify-center">
+                  <div className="flex justify-center">
                     <button
                       onClick={() => setImportant(!important)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-md border transition duration-200 
@@ -716,7 +798,6 @@ const Timetable = () => {
                   </div>
                 </div>
               )}
-
             </div>
           </motion.div>
         </div>
@@ -742,22 +823,28 @@ const Timetable = () => {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Date Range</label>
+                <label className="block text-sm font-medium mb-1">
+                  Date Range
+                </label>
                 <div className="grid grid-cols-2 gap-2">
-                  <input 
+                  <input
                     type="date"
                     className="input w-full"
                     value={aiRange.start}
-                    onChange={(e) => setAiRange(prev => ({ ...prev, start: e.target.value }))}
+                    onChange={(e) =>
+                      setAiRange((prev) => ({ ...prev, start: e.target.value }))
+                    }
                   />
-                  <input 
+                  <input
                     type="date"
                     className="input w-full"
                     value={aiRange.end}
-                    onChange={(e) => setAiRange(prev => ({ ...prev, end: e.target.value }))}
+                    onChange={(e) =>
+                      setAiRange((prev) => ({ ...prev, end: e.target.value }))
+                    }
                   />
                 </div>
               </div>
@@ -821,33 +908,46 @@ const Timetable = () => {
             </div>
 
             <div className="space-y-4">
-               <div>
-                <label className="block text-sm font-medium mb-1">Source Range</label>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Source Range
+                </label>
                 <div className="grid grid-cols-2 gap-2">
-                  <input 
+                  <input
                     type="date"
                     className="input w-full"
                     value={copyRange.start}
-                    onChange={(e) => setCopyRange(prev => ({ ...prev, start: e.target.value }))}
+                    onChange={(e) =>
+                      setCopyRange((prev) => ({
+                        ...prev,
+                        start: e.target.value,
+                      }))
+                    }
                   />
-                  <input 
+                  <input
                     type="date"
                     className="input w-full"
                     value={copyRange.end}
-                    onChange={(e) => setCopyRange(prev => ({ ...prev, end: e.target.value }))}
+                    onChange={(e) =>
+                      setCopyRange((prev) => ({ ...prev, end: e.target.value }))
+                    }
                   />
                 </div>
               </div>
 
-               <div>
-                <label className="block text-sm font-medium mb-1">Target Start Date</label>
-                <input 
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Target Start Date
+                </label>
+                <input
                   type="date"
                   className="input w-full"
                   value={copyTargetStart}
                   onChange={(e) => setCopyTargetStart(e.target.value)}
                 />
-                <p className="text-xs text-foreground/60 mt-1">Events will be copied starting from this date.</p>
+                <p className="text-xs text-foreground/60 mt-1">
+                  Events will be copied starting from this date.
+                </p>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
@@ -894,22 +994,35 @@ const Timetable = () => {
 
             <div className="space-y-4">
               <p className="text-sm text-foreground/80">
-                Select the range of events you want to delete. This action cannot be undone.
+                Select the range of events you want to delete. This action
+                cannot be undone.
               </p>
-               <div>
-                <label className="block text-sm font-medium mb-1">Range to Clear</label>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Range to Clear
+                </label>
                 <div className="grid grid-cols-2 gap-2">
-                  <input 
+                  <input
                     type="date"
                     className="input w-full"
                     value={clearRange.start}
-                    onChange={(e) => setClearRange(prev => ({ ...prev, start: e.target.value }))}
+                    onChange={(e) =>
+                      setClearRange((prev) => ({
+                        ...prev,
+                        start: e.target.value,
+                      }))
+                    }
                   />
-                  <input 
+                  <input
                     type="date"
                     className="input w-full"
                     value={clearRange.end}
-                    onChange={(e) => setClearRange(prev => ({ ...prev, end: e.target.value }))}
+                    onChange={(e) =>
+                      setClearRange((prev) => ({
+                        ...prev,
+                        end: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </div>

@@ -1,15 +1,15 @@
 import { useState, useMemo, useCallback } from "react";
-import { 
-  format, 
-  startOfWeek, 
-  addDays, 
-  parseISO, 
+import {
+  format,
+  startOfWeek,
+  addDays,
+  parseISO,
   startOfDay,
   endOfDay,
   isBefore,
   isAfter,
   setHours,
-  areIntervalsOverlapping
+  areIntervalsOverlapping,
 } from "date-fns";
 import { useEvents } from "./useEvents";
 import { Event } from "../types";
@@ -22,16 +22,16 @@ import { useQueryClient } from "@tanstack/react-query";
 export const useTimetable = () => {
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const { 
-    events, 
-    isLoading, 
+  const {
+    events,
+    isLoading,
     createEvent: createEventRaw,
     updateEvent: updateEventRaw,
     deleteEvent: deleteEventRaw,
     skipEvent: skipEventRaw,
     isCreating,
     isUpdating,
-    isDeleting
+    isDeleting,
   } = useEvents();
   const { isDemo } = useAuthStore();
 
@@ -46,15 +46,21 @@ export const useTimetable = () => {
   // Filtering for current view - filter events that OVERLAP with the selected day
   const eventsForSelectedDate = useMemo(() => {
     if (!events) return [];
-    
+
     // Day range
     const dayStart = startOfDay(selectedDate);
     const dayEnd = endOfDay(selectedDate);
 
     return events.filter((event) => {
-      const eventStart = typeof event.startTime === 'string' ? parseISO(event.startTime) : event.startTime;
-      const eventEnd = typeof event.endTime === 'string' ? parseISO(event.endTime) : event.endTime;
-      
+      const eventStart =
+        typeof event.startTime === "string"
+          ? parseISO(event.startTime)
+          : event.startTime;
+      const eventEnd =
+        typeof event.endTime === "string"
+          ? parseISO(event.endTime)
+          : event.endTime;
+
       // Check for overlapping intervals
       // Two intervals overlap if (StartA < EndB) and (EndA > StartB)
       return isBefore(eventStart, dayEnd) && isAfter(eventEnd, dayStart);
@@ -62,27 +68,36 @@ export const useTimetable = () => {
   }, [events, selectedDate]);
 
   // Group events by hour (for the multi-hour view logic)
-  const getEventsForHour = useCallback((hour: number) => {
-     // Create a date object for this specific hour slot
-    const slotStart = setHours(startOfDay(selectedDate), hour);
-    const slotEnd = setHours(startOfDay(selectedDate), hour + 1);
+  const getEventsForHour = useCallback(
+    (hour: number) => {
+      // Create a date object for this specific hour slot
+      const slotStart = setHours(startOfDay(selectedDate), hour);
+      const slotEnd = setHours(startOfDay(selectedDate), hour + 1);
 
-    return eventsForSelectedDate.filter((event) => {
-      const eventStart = typeof event.startTime === 'string' ? parseISO(event.startTime) : event.startTime;
-      const eventEnd = typeof event.endTime === 'string' ? parseISO(event.endTime) : event.endTime;
+      return eventsForSelectedDate.filter((event) => {
+        const eventStart =
+          typeof event.startTime === "string"
+            ? parseISO(event.startTime)
+            : event.startTime;
+        const eventEnd =
+          typeof event.endTime === "string"
+            ? parseISO(event.endTime)
+            : event.endTime;
 
-      // Special handling for events ending exactly on the hour boundary
-      // An event 2-3pm should NOT show up in the 3-4pm slot.
-      // So overlapping check: eventStart < slotEnd && eventEnd > slotStart
-      // AND ensuring we respect the boundary exclusivity for end time
-      
-      return areIntervalsOverlapping(
-        { start: eventStart, end: eventEnd },
-        { start: slotStart, end: slotEnd },
-        { inclusive: false } // Determines if strict inequality is used. Default is false, which is what we generally want for end-exclusion
-      ); 
-    });
-  }, [eventsForSelectedDate, selectedDate]);
+        // Special handling for events ending exactly on the hour boundary
+        // An event 2-3pm should NOT show up in the 3-4pm slot.
+        // So overlapping check: eventStart < slotEnd && eventEnd > slotStart
+        // AND ensuring we respect the boundary exclusivity for end time
+
+        return areIntervalsOverlapping(
+          { start: eventStart, end: eventEnd },
+          { start: slotStart, end: slotEnd },
+          { inclusive: false }, // Determines if strict inequality is used. Default is false, which is what we generally want for end-exclusion
+        );
+      });
+    },
+    [eventsForSelectedDate, selectedDate],
+  );
 
   // Modal & Menu States
   const [showNewEventModal, setShowNewEventModal] = useState(false);
@@ -96,10 +111,21 @@ export const useTimetable = () => {
   const [isClearing, setIsClearing] = useState(false);
 
   // Range States
-  const [aiRange, setAiRange] = useState({ start: format(selectedDate, "yyyy-MM-dd"), end: format(selectedDate, "yyyy-MM-dd") });
-  const [copyRange, setCopyRange] = useState({ start: format(selectedDate, "yyyy-MM-dd"), end: format(selectedDate, "yyyy-MM-dd") });
-  const [clearRange, setClearRange] = useState({ start: format(selectedDate, "yyyy-MM-dd"), end: format(selectedDate, "yyyy-MM-dd") });
-  const [copyTargetStart, setCopyTargetStart] = useState(format(selectedDate, "yyyy-MM-dd"));
+  const [aiRange, setAiRange] = useState({
+    start: format(selectedDate, "yyyy-MM-dd"),
+    end: format(selectedDate, "yyyy-MM-dd"),
+  });
+  const [copyRange, setCopyRange] = useState({
+    start: format(selectedDate, "yyyy-MM-dd"),
+    end: format(selectedDate, "yyyy-MM-dd"),
+  });
+  const [clearRange, setClearRange] = useState({
+    start: format(selectedDate, "yyyy-MM-dd"),
+    end: format(selectedDate, "yyyy-MM-dd"),
+  });
+  const [copyTargetStart, setCopyTargetStart] = useState(
+    format(selectedDate, "yyyy-MM-dd"),
+  );
 
   const handleCreateEvent = async (eventData: Partial<Event>) => {
     return new Promise((resolve, reject) => {
@@ -112,38 +138,47 @@ export const useTimetable = () => {
         onError: (err) => {
           toast.error("Failed to create event");
           reject(err);
-        }
+        },
       });
     });
   };
 
   const handleUpdateEvent = async (id: string, eventData: Partial<Event>) => {
     return new Promise((resolve, reject) => {
-       // Optimistic update logic handled in useEvents, no need for toast here
-      updateEventRaw({ id, event: eventData }, {
-        onSuccess: (data) => {
-          setShowEventDetailsModal(false);
-          resolve(data);
+      // Optimistic update logic handled in useEvents, no need for toast here
+      updateEventRaw(
+        { id, event: eventData },
+        {
+          onSuccess: (data) => {
+            setShowEventDetailsModal(false);
+            resolve(data);
+          },
+          onError: (err) => {
+            reject(err);
+          },
         },
-        onError: (err) => {
-          reject(err);
-        }
-      });
+      );
     });
   };
 
-  const handleSkipEvent = async (id: string, data: { skippedReason: string; skippedIsImportant: boolean }) => {
+  const handleSkipEvent = async (
+    id: string,
+    data: { skippedReason: string; skippedIsImportant: boolean },
+  ) => {
     return new Promise((resolve, reject) => {
-      skipEventRaw({ id, data }, {
-        onSuccess: (responseData: any) => {
-          setShowEventDetailsModal(false);
-          resolve(responseData);
+      skipEventRaw(
+        { id, data },
+        {
+          onSuccess: (responseData: any) => {
+            setShowEventDetailsModal(false);
+            resolve(responseData);
+          },
+          onError: (err: any) => {
+            toast.error("Failed to skip event");
+            reject(err);
+          },
         },
-        onError: (err: any) => {
-          toast.error("Failed to skip event");
-          reject(err);
-        }
-      });
+      );
     });
   };
 
@@ -158,7 +193,7 @@ export const useTimetable = () => {
         onError: (err) => {
           toast.error("Failed to delete event");
           reject(err);
-        }
+        },
       });
     });
   };
@@ -199,7 +234,7 @@ export const useTimetable = () => {
       await getApi().copyEvents(
         sStart.toISOString(),
         sEnd.toISOString(),
-        tStart.toISOString()
+        tStart.toISOString(),
       );
       toast.success("Events copied successfully");
       setShowCopyModal(false);
@@ -245,20 +280,30 @@ export const useTimetable = () => {
     isGenerating,
     isCopying,
     isClearing,
-    
+
     // Modals
-    showNewEventModal, setShowNewEventModal,
-    showEventDetailsModal, setShowEventDetailsModal,
-    showAiModal, setShowAiModal,
-    showCopyModal, setShowCopyModal,
-    showClearModal, setShowClearModal,
-    isMenuOpen, setIsMenuOpen,
+    showNewEventModal,
+    setShowNewEventModal,
+    showEventDetailsModal,
+    setShowEventDetailsModal,
+    showAiModal,
+    setShowAiModal,
+    showCopyModal,
+    setShowCopyModal,
+    showClearModal,
+    setShowClearModal,
+    isMenuOpen,
+    setIsMenuOpen,
 
     // Ranges
-    aiRange, setAiRange,
-    copyRange, setCopyRange,
-    clearRange, setClearRange,
-    copyTargetStart, setCopyTargetStart,
+    aiRange,
+    setAiRange,
+    copyRange,
+    setCopyRange,
+    clearRange,
+    setClearRange,
+    copyTargetStart,
+    setCopyTargetStart,
 
     // Actions
     handleCreateEvent,
@@ -269,8 +314,8 @@ export const useTimetable = () => {
     handleCopyRange,
     handleClearRange,
 
-    navigateWeek: (direction: 'next' | 'prev') => {
-      setSelectedDate(prev => addDays(prev, direction === 'next' ? 7 : -7));
+    navigateWeek: (direction: "next" | "prev") => {
+      setSelectedDate((prev) => addDays(prev, direction === "next" ? 7 : -7));
     },
   };
 };

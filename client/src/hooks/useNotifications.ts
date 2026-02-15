@@ -49,7 +49,9 @@ export const useNotifications = () => {
     mutationFn: () => getApi().markAllNotificationsAsRead(),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["notifications"] });
-      const previousNotifications = queryClient.getQueryData<NotificationType[]>(["notifications"]);
+      const previousNotifications = queryClient.getQueryData<
+        NotificationType[]
+      >(["notifications"]);
 
       queryClient.setQueryData<NotificationType[]>(["notifications"], (old) => {
         if (!old) return [];
@@ -59,7 +61,10 @@ export const useNotifications = () => {
       return { previousNotifications };
     },
     onError: (_err, _variables, context) => {
-      queryClient.setQueryData(["notifications"], context?.previousNotifications);
+      queryClient.setQueryData(
+        ["notifications"],
+        context?.previousNotifications,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });

@@ -46,60 +46,68 @@ import { useGoals } from "../hooks/useGoals";
 
 const COLORS = ["#8B5CF6", "#3B82F6", "#14B8A6", "#F97316"];
 
- const CustomTooltip = ({
-   active,
-   payload,
-   label,
- }: {
-   active: boolean;
-   payload: {
-     name: string;
-     value: number;
-     color: string;
-     length: number;
-     entry: { name: string; value: number; color: string };
-   }[];
-   label: string;
- }) => {
-   if (active && payload && payload.length) {
-     return (
-       <div className="bg-card p-3 border border-border rounded-md shadow-md">
-         <p className="font-medium">{label}</p>
-         {payload.map(
-           (
-             entry: { name: string; value: number; color: string },
-             index: number,
-           ) => (
-             <p key={index} style={{ color: entry.color }}>
-               {entry.name}: {entry.value}
-             </p>
-           ),
-         )}
-       </div>
-     );
-   }
-   return null;
- };
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active: boolean;
+  payload: {
+    name: string;
+    value: number;
+    color: string;
+    length: number;
+    entry: { name: string; value: number; color: string };
+  }[];
+  label: string;
+}) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-card p-3 border border-border rounded-md shadow-md">
+        <p className="font-medium">{label}</p>
+        {payload.map(
+          (
+            entry: { name: string; value: number; color: string },
+            index: number,
+          ) => (
+            <p key={index} style={{ color: entry.color }}>
+              {entry.name}: {entry.value}
+            </p>
+          ),
+        )}
+      </div>
+    );
+  }
+  return null;
+};
 
 const Analytics = () => {
   const [range, setRange] = useState("week");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(range, currentDate);
-  const { suggestions, generateInsights, isGenerating, isError: insightsError } = useInsights();
+  const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(
+    range,
+    currentDate,
+  );
+  const {
+    suggestions,
+    generateInsights,
+    isGenerating,
+    isError: insightsError,
+  } = useInsights();
   const { data: user } = useUser();
   const { goals } = useGoals();
 
-   const {
-     totalEvents = 0,
-     completedEvents = 0,
-     completionRate = 0,
-     focusTime = "0.0",
-     specialEventsCount = 0,
-     specialEventsData = [],
-     activityData = [],
-     goalProgressData = [],
-     averageGoalProgress = 0,
-   } = analyticsData || {};
+  const {
+    totalEvents = 0,
+    completedEvents = 0,
+    completionRate = 0,
+    focusTime = "0.0",
+    specialEventsCount = 0,
+    specialEventsData = [],
+    activityData = [],
+    goalProgressData = [],
+    averageGoalProgress = 0,
+  } = analyticsData || {};
 
   const handlePrev = () => {
     if (range === "day") setCurrentDate(subDays(currentDate, 1));
@@ -118,8 +126,12 @@ const Analytics = () => {
   const getDateLabel = () => {
     if (range === "day") return format(currentDate, "MMMM d, yyyy");
     if (range === "week") {
-      const start = analyticsData?.range?.start ? new Date(analyticsData.range.start) : new Date();
-      const end = analyticsData?.range?.end ? new Date(analyticsData.range.end) : new Date();
+      const start = analyticsData?.range?.start
+        ? new Date(analyticsData.range.start)
+        : new Date();
+      const end = analyticsData?.range?.end
+        ? new Date(analyticsData.range.end)
+        : new Date();
       return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")}`;
     }
     if (range === "month") return format(currentDate, "MMMM yyyy");
@@ -476,48 +488,68 @@ const Analytics = () => {
           ) : goals && goals.length > 0 ? (
             goals.map((goal: any) => {
               const totalSteps = goal.steps.length;
-              const completedSteps = goal.steps.filter((s: any) => s.isCompleted).length;
-              const progress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
-              
+              const completedSteps = goal.steps.filter(
+                (s: any) => s.isCompleted,
+              ).length;
+              const progress =
+                totalSteps > 0
+                  ? Math.round((completedSteps / totalSteps) * 100)
+                  : 0;
+
               const createdAt = new Date(goal.createdAt);
-              const deadline = new Date(createdAt.getTime() + goal.totalDays * 24 * 60 * 60 * 1000);
-              const daysLeft = Math.max(0, Math.ceil((deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
-              
+              const deadline = new Date(
+                createdAt.getTime() + goal.totalDays * 24 * 60 * 60 * 1000,
+              );
+              const daysLeft = Math.max(
+                0,
+                Math.ceil(
+                  (deadline.getTime() - new Date().getTime()) /
+                    (1000 * 60 * 60 * 24),
+                ),
+              );
+
               let status = "On Track";
               let statusColor = "text-success";
-              
-              if (progress < 50 && daysLeft < (goal.totalDays / 2)) {
-                 status = "Behind";
-                 statusColor = "text-warning";
+
+              if (progress < 50 && daysLeft < goal.totalDays / 2) {
+                status = "Behind";
+                statusColor = "text-warning";
               }
               if (daysLeft === 0 && progress < 100) {
-                 status = "Overdue";
-                 statusColor = "text-destructive";
+                status = "Overdue";
+                statusColor = "text-destructive";
               }
               if (progress === 100) {
-                 status = "Completed";
-                 statusColor = "text-success";
+                status = "Completed";
+                statusColor = "text-success";
               }
 
               return (
-                <div key={goal.id} className="p-4 border border-border rounded-lg bg-secondary/10">
+                <div
+                  key={goal.id}
+                  className="p-4 border border-border rounded-lg bg-secondary/10"
+                >
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                        <h4 className="font-semibold text-lg">{goal.title}</h4>
-                        <p className="text-xs text-foreground/60">{completedSteps} of {totalSteps} steps completed</p>
+                      <h4 className="font-semibold text-lg">{goal.title}</h4>
+                      <p className="text-xs text-foreground/60">
+                        {completedSteps} of {totalSteps} steps completed
+                      </p>
                     </div>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium bg-card border border-border ${statusColor}`}>
-                        {status}
+                    <div
+                      className={`px-2 py-1 rounded-full text-xs font-medium bg-card border border-border ${statusColor}`}
+                    >
+                      {status}
                     </div>
                   </div>
-                  
+
                   <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-2">
                     <div
                       className="h-full bg-accent rounded-full transition-all duration-500"
                       style={{ width: `${progress}%` }}
                     ></div>
                   </div>
-                  
+
                   <div className="flex justify-between text-xs text-foreground/70">
                     <span>{daysLeft} days left</span>
                     <span>{progress}%</span>
@@ -527,8 +559,8 @@ const Analytics = () => {
             })
           ) : (
             <div className="text-center py-8 text-muted-foreground bg-secondary/20 rounded-lg">
-                <Target className="h-8 w-8 mx-auto mb-2 opacity-50"/>
-                <p>No goals set yet. Create a goal to see detailed analytics.</p>
+              <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No goals set yet. Create a goal to see detailed analytics.</p>
             </div>
           )}
         </div>
@@ -597,14 +629,16 @@ const Analytics = () => {
               );
               return;
             }
-            
+
             if ((user?.aiCredits || 0) <= 0) {
-               toast.error("You have reached your daily limit of 3 AI credits.");
-               return;
+              toast.error("You have reached your daily limit of 3 AI credits.");
+              return;
             }
 
             if (insightsError) {
-              toast.error("Failed to generate insights. Please try again later.");
+              toast.error(
+                "Failed to generate insights. Please try again later.",
+              );
               return;
             }
 

@@ -32,24 +32,24 @@ const MemeModal: React.FC<MemeModalProps> = ({ isOpen, onClose }) => {
           {/* Modal Content */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 100 }}
-            animate={{ 
-              opacity: 1, 
-              scale: 1, 
+            animate={{
+              opacity: 1,
+              scale: 1,
               y: 0,
               transition: {
                 type: "spring",
                 damping: 25,
                 stiffness: 300,
-                duration: 0.6
-              }
+                duration: 0.6,
+              },
             }}
-            exit={{ 
-              opacity: 0, 
-              scale: 0.8, 
+            exit={{
+              opacity: 0,
+              scale: 0.8,
               y: 100,
               transition: {
-                duration: 0.3
-              }
+                duration: 0.3,
+              },
             }}
             className="relative w-full max-w-md bg-card border border-border/50 rounded-3xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden"
           >
@@ -61,14 +61,14 @@ const MemeModal: React.FC<MemeModalProps> = ({ isOpen, onClose }) => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               <h3 className="text-2xl font-bold text-foreground mb-3 tracking-tight">
                 Wait a minute...
               </h3>
               <p className="text-xl text-foreground/80 font-medium italic leading-relaxed">
                 "nigga thought id drop my twitter link"
               </p>
-              
+
               <div className="mt-8 flex items-center gap-2 text-foreground/40 text-sm font-medium">
                 <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                 Closing automatically...

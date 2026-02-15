@@ -229,15 +229,18 @@ class DemoService {
     throw new Error("Event not found");
   }
 
-  async skipEvent(id: string, data: { skippedReason: string; skippedIsImportant: boolean }): Promise<void> {
+  async skipEvent(
+    id: string,
+    data: { skippedReason: string; skippedIsImportant: boolean },
+  ): Promise<void> {
     const index = this.events.findIndex((e) => e.id === id);
     if (index !== -1) {
-      this.events[index] = { 
-        ...this.events[index], 
-        isCompleted: false, 
-        skippedReason: data.skippedReason, 
+      this.events[index] = {
+        ...this.events[index],
+        isCompleted: false,
+        skippedReason: data.skippedReason,
         skippedIsImportant: data.skippedIsImportant,
-        isSpecial: data.skippedIsImportant 
+        isSpecial: data.skippedIsImportant,
       };
       return;
     }
@@ -302,7 +305,10 @@ class DemoService {
   }
 
   async markAllNotificationsAsRead(): Promise<void> {
-    this.notifications = this.notifications.map((n) => ({ ...n, isRead: true }));
+    this.notifications = this.notifications.map((n) => ({
+      ...n,
+      isRead: true,
+    }));
   }
 
   async getAnalytics(range: string, date: Date): Promise<Analytics | null> {

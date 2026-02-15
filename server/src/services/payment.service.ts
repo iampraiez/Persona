@@ -11,7 +11,11 @@ export const PLANS = [
 ];
 
 export class PaymentService {
-  static async initializePayment(email: string, userId: string, planId: string) {
+  static async initializePayment(
+    email: string,
+    userId: string,
+    planId: string,
+  ) {
     const plan = PLANS.find((p) => p.id === planId);
     if (!plan) throw new Error("Invalid plan selected");
 
@@ -32,7 +36,7 @@ export class PaymentService {
           Authorization: `Bearer ${PAYSTACK_SECRET}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     return paystackResponse.data.data;
@@ -54,7 +58,7 @@ export class PaymentService {
         headers: {
           Authorization: `Bearer ${PAYSTACK_SECRET}`,
         },
-      }
+      },
     );
 
     const data = paystackResponse.data.data;
@@ -69,7 +73,7 @@ export class PaymentService {
 
   static async handleWebhook(event: any) {
     if (event.event === "charge.success") {
-        await this.fulfillOrder(event.data);
+      await this.fulfillOrder(event.data);
     }
   }
 
@@ -102,7 +106,9 @@ export class PaymentService {
         },
       });
 
-      logger.info(`Payment fulfilled: ${purchaseAmount} credits for User ${userId} (Ref: ${reference})`);
+      logger.info(
+        `Payment fulfilled: ${purchaseAmount} credits for User ${userId} (Ref: ${reference})`,
+      );
     });
   }
 }

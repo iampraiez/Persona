@@ -52,7 +52,12 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           console.error("Logout error");
         } finally {
-          set({ user: null, isAuthenticated: false, isDemo: false, isLoggingOut: false });
+          set({
+            user: null,
+            isAuthenticated: false,
+            isDemo: false,
+            isLoggingOut: false,
+          });
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
         }
@@ -60,6 +65,6 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
-    }
-  )
+    },
+  ),
 );

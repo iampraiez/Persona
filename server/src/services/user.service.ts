@@ -53,8 +53,8 @@ export class UserService {
           select: {
             events: true,
             goals: true,
-          }
-        }
+          },
+        },
       },
     });
 

@@ -10,7 +10,6 @@ import { LazyMotion, domAnimation } from "framer-motion";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import "react-toastify/dist/ReactToastify.css";
 
-
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const Timetable = lazy(() => import("./pages/Timetable"));
@@ -34,7 +33,9 @@ function App() {
     <div className={theme}>
       <ErrorBoundary>
         <LazyMotion features={domAnimation}>
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Router
+            future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+          >
             <ErrorBoundary>
               <Routes>
                 <Route

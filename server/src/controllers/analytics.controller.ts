@@ -14,12 +14,17 @@ export class AnalyticsController {
   static async getAnalytics(req: Request, res: Response) {
     try {
       const userId = await AnalyticsController.getUserId(req.user as string);
-      if (!userId) return res.status(404).json({ error: "User not found", data: null });
+      if (!userId)
+        return res.status(404).json({ error: "User not found", data: null });
 
       const { range, date } = req.query;
       const currentDate = date ? new Date(date as string) : new Date();
 
-      const data = await AnalyticsService.getAnalytics(userId, range as string, currentDate);
+      const data = await AnalyticsService.getAnalytics(
+        userId,
+        range as string,
+        currentDate,
+      );
       res.status(200).json({ data, error: null });
     } catch (error: unknown) {
       logger.error(`Get Analytics Error: ${error}`);

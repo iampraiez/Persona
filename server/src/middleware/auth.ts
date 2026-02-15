@@ -1,8 +1,12 @@
-  import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "../utils/jwt.util";
 import { logger } from "../utils/logger.utils";
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
+export function authMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
   try {
     const token = req.cookies?.access_token;
     if (!token) {

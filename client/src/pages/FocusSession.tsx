@@ -1,21 +1,22 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  X, 
-  Volume2, 
-  VolumeX, 
-  CloudRain, 
-  Wind, 
-  Music, 
-  Maximize2, 
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  X,
+  Volume2,
+  VolumeX,
+  CloudRain,
+  Wind,
+  Music,
+  Maximize2,
   Minimize2,
   CheckCircle2,
   Clock,
-Loader2} from "lucide-react";
+  Loader2,
+} from "lucide-react";
 import { useEvents } from "../hooks/useEvents";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
@@ -87,7 +88,7 @@ const FocusSession = () => {
   const event = events?.find((e) => e.id === id);
 
   const [initialDuration, setInitialDuration] = useState(25 * 60);
-  const [timeLeft, setTimeLeft] = useState(25 * 60); 
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isActive, setIsActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedSound, setSelectedSound] = useState(AMBIENT_SOUNDS[0]);
@@ -96,7 +97,9 @@ const FocusSession = () => {
   const [showSoundLibrary, setShowSoundLibrary] = useState(false);
   const [isInterfaceVisible, setIsInterfaceVisible] = useState(true);
 
-  const inactivityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inactivityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -137,7 +140,9 @@ const FocusSession = () => {
     if (audioRef.current) {
       if (selectedSound.url && isActive) {
         audioRef.current.src = selectedSound.url;
-        audioRef.current.play().catch(e => console.error("Audio playback error:", e));
+        audioRef.current
+          .play()
+          .catch((e) => console.error("Audio playback error:", e));
       } else {
         audioRef.current.pause();
       }
@@ -158,7 +163,8 @@ const FocusSession = () => {
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [isActive]);
 
   useEffect(() => {
@@ -280,11 +286,11 @@ const FocusSession = () => {
       <div className="flex-1 flex flex-col items-center justify-center p-4 relative z-10">
         {/* Timer Display */}
         <motion.div
-           animate={{ 
-             opacity: isInterfaceVisible ? 1 : 0,
-             filter: isInterfaceVisible ? "blur(0px)" : "blur(10px)",
-           }}
-           className="relative mb-24 md:mb-12 flex items-center justify-center transition-all duration-700"
+          animate={{
+            opacity: isInterfaceVisible ? 1 : 0,
+            filter: isInterfaceVisible ? "blur(0px)" : "blur(10px)",
+          }}
+          className="relative mb-24 md:mb-12 flex items-center justify-center transition-all duration-700"
         >
           <svg className="w-[280px] h-[280px] md:w-96 md:h-96 transform -rotate-90">
             <circle
@@ -472,9 +478,15 @@ const FocusSession = () => {
         disabled={isUpdating}
         className="absolute bottom-4 right-4 md:bottom-8 md:right-8 flex items-center gap-2 text-foreground/30 hover:text-success transition-all font-medium py-2 px-4 text-sm md:text-base z-20"
       >
-        {isUpdating && <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />}
-        <CheckCircle2 className={`h-4 w-4 md:h-5 md:w-5 ${isUpdating ? "hidden" : ""}`} />
-        <span className="hidden md:inline">{isUpdating ? "Completing..." : "Complete Early"}</span>
+        {isUpdating && (
+          <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
+        )}
+        <CheckCircle2
+          className={`h-4 w-4 md:h-5 md:w-5 ${isUpdating ? "hidden" : ""}`}
+        />
+        <span className="hidden md:inline">
+          {isUpdating ? "Completing..." : "Complete Early"}
+        </span>
       </motion.button>
 
       <audio ref={audioRef} loop />

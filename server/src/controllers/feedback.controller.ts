@@ -4,7 +4,10 @@ import { logger } from "../utils/logger.utils";
 import { z } from "zod";
 
 const feedbackSchema = z.object({
-  message: z.string().min(1, "Message is required").max(2000, "Message is too long"),
+  message: z
+    .string()
+    .min(1, "Message is required")
+    .max(2000, "Message is too long"),
 });
 
 export class FeedbackController {
@@ -17,7 +20,9 @@ export class FeedbackController {
       res.status(200).json({ data: { success: true }, error: null });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ data: null, error: error.issues[0].message });
+        return res
+          .status(400)
+          .json({ data: null, error: error.issues[0].message });
       }
       logger.error(`Feedback Error: ${error}`);
       res.status(500).json({ data: null, error: "Failed to send feedback" });

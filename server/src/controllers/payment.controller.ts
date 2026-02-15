@@ -14,12 +14,18 @@ export class PaymentController {
       const userEmail = req.user;
       const { planId } = req.body;
 
-      const user = await prisma.user.findUnique({ where: { email: userEmail } });
+      const user = await prisma.user.findUnique({
+        where: { email: userEmail },
+      });
       if (!user) {
         return res.status(404).json({ error: "User not found", data: null });
       }
 
-      const data = await PaymentService.initializePayment(user.email, user.id, planId);
+      const data = await PaymentService.initializePayment(
+        user.email,
+        user.id,
+        planId,
+      );
       res.status(200).json({ data, error: null });
     } catch (error: any) {
       logger.error(`Initialize Error: ${error.message}`);
@@ -36,18 +42,22 @@ export class PaymentController {
       const result = await PaymentService.verifyPayment(reference as string);
 
       if (result.status === "success") {
-        const message = result.alreadyProcessed 
-            ? "Credits already added previously" 
-            : "Credits added successfully";
-        return res.status(200).json({ 
-            data: { status: "success", message, reference }, 
-            error: null 
+        const message = result.alreadyProcessed
+          ? "Credits already added previously"
+          : "Credits added successfully";
+        return res.status(200).json({
+          data: { status: "success", message, reference },
+          error: null,
         });
       }
 
-      res.status(200).json({ 
-        data: { status: result.status, message: `Transaction ${result.status}`, reference }, 
-        error: null 
+      res.status(200).json({
+        data: {
+          status: result.status,
+          message: `Transaction ${result.status}`,
+          reference,
+        },
+        error: null,
       });
     } catch (error: any) {
       logger.error(`Verify Error: ${error.message}`);

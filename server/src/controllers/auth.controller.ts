@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { AuthService, COOKIE_OPTIONS, ACCESS_TOKEN_OPTIONS } from "../services/auth.service";
+import {
+  AuthService,
+  COOKIE_OPTIONS,
+  ACCESS_TOKEN_OPTIONS,
+} from "../services/auth.service";
 import { logger } from "../utils/logger.utils";
 import { errorWrapper } from "../utils/error.util";
 import { env } from "../config/env";
@@ -27,7 +31,9 @@ export class AuthController {
 
     if (state) {
       try {
-        const decodedState = JSON.parse(Buffer.from(state as string, "base64").toString());
+        const decodedState = JSON.parse(
+          Buffer.from(state as string, "base64").toString(),
+        );
         if (decodedState.returnTo) {
           returnTo = decodedState.returnTo;
         }
@@ -39,7 +45,8 @@ export class AuthController {
     if (!code) return res.redirect(`${returnTo}/login?error=auth_failed`);
 
     try {
-      const { accessToken, refreshToken } = await AuthService.handleGoogleCallback(code as string);
+      const { accessToken, refreshToken } =
+        await AuthService.handleGoogleCallback(code as string);
 
       res.cookie("access_token", accessToken, ACCESS_TOKEN_OPTIONS);
       res.cookie("refresh_token", refreshToken, COOKIE_OPTIONS);
@@ -60,7 +67,9 @@ export class AuthController {
 
       const newAccessToken = await AuthService.refreshAccessToken(refreshToken);
       if (!newAccessToken) {
-        return res.status(401).json({ data: null, error: "Invalid or expired refresh token" });
+        return res
+          .status(401)
+          .json({ data: null, error: "Invalid or expired refresh token" });
       }
 
       res.cookie("access_token", newAccessToken, ACCESS_TOKEN_OPTIONS);

@@ -55,15 +55,30 @@ export const useEvents = () => {
   });
 
   const skipEventMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { skippedReason: string; skippedIsImportant: boolean } }) =>
-      getApi().skipEvent(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: { skippedReason: string; skippedIsImportant: boolean };
+    }) => getApi().skipEvent(id, data),
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: ["events"] });
       const previousEvents = queryClient.getQueryData<Event[]>(["events"]);
 
       queryClient.setQueryData<Event[]>(["events"], (old) => {
         if (!old) return [];
-        return old.map((e) => (e.id === id ? { ...e, isCompleted: false, skippedReason: data.skippedReason, skippedIsImportant: data.skippedIsImportant, isSpecial: data.skippedIsImportant } : e));
+        return old.map((e) =>
+          e.id === id
+            ? {
+                ...e,
+                isCompleted: false,
+                skippedReason: data.skippedReason,
+                skippedIsImportant: data.skippedIsImportant,
+                isSpecial: data.skippedIsImportant,
+              }
+            : e,
+        );
       });
 
       return { previousEvents };
@@ -88,7 +103,8 @@ export const useEvents = () => {
   });
 
   const createEventsBatchMutation = useMutation({
-    mutationFn: (events: Partial<Event>[]) => getApi().createEventsBatch(events),
+    mutationFn: (events: Partial<Event>[]) =>
+      getApi().createEventsBatch(events),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });

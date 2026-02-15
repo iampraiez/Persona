@@ -153,7 +153,7 @@ const Navbar: React.FC = () => {
                   Benefits
                 </a>
               </div>
-              
+
               <div className="pt-4 border-t border-border/40">
                 {isAuthenticated ? (
                   <button

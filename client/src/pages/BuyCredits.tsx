@@ -7,7 +7,13 @@ import { useAuthStore } from "../store/auth.store";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 
-const IconWrapper = ({ children, className = "h-6 w-6" }: { children: React.ReactNode, className?: string }) => (
+const IconWrapper = ({
+  children,
+  className = "h-6 w-6",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
   <svg viewBox="0 0 256 256" className={className} fill="currentColor">
     {children}
   </svg>
@@ -16,7 +22,6 @@ const IconWrapper = ({ children, className = "h-6 w-6" }: { children: React.Reac
 type UnknownObject = {
   [key: string]: unknown;
 };
-
 
 const Icons = {
   Sparkles: (props: UnknownObject) => (
@@ -61,25 +66,25 @@ const Icons = {
 };
 
 const PLANS = [
-  { 
-    id: "1_credit", 
-    name: "Starter Pack", 
-    credits: 1, 
-    price: 100, 
+  {
+    id: "1_credit",
+    name: "Starter Pack",
+    credits: 1,
+    price: 100,
     description: "Perfect for a quick AI boost",
     icon: Icons.Sparkles,
     color: "from-blue-500/20 to-indigo-500/20",
-    accent: "text-blue-400"
+    accent: "text-blue-400",
   },
-  { 
-    id: "8_credits", 
-    name: "Power User", 
-    credits: 8, 
-    price: 500, 
+  {
+    id: "8_credits",
+    name: "Power User",
+    credits: 8,
+    price: 500,
     description: "Best value for consistent power",
     icon: Icons.Zap,
     color: "from-purple-500/20 to-pink-500/20",
-    accent: "text-purple-400"
+    accent: "text-purple-400",
   },
 ];
 
@@ -110,7 +115,7 @@ const BuyCredits = () => {
   const handleVerify = async (reference: string) => {
     setIsVerifying(true);
     navigate("/buy-credits", { replace: true });
-    
+
     try {
       const response = await api.verifyPayment(reference);
       const { status, message } = response;
@@ -154,7 +159,7 @@ const BuyCredits = () => {
       <div className="absolute bottom-1/4 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[100px] -z-10 -translate-x-1/2" />
 
       <div className="w-full max-w-5xl">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-foreground/40 hover:text-foreground transition-all mb-10 group"
         >
@@ -163,9 +168,12 @@ const BuyCredits = () => {
         </button>
 
         <header className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Expand Your <span className="text-primary italic">Persona</span></h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
+            Expand Your <span className="text-primary italic">Persona</span>
+          </h1>
           <p className="text-lg text-foreground/50 max-w-2xl leading-relaxed">
-            Reserve credits are your fuel for AI features. They only kick in after your daily allowance is exhausted and never expire.
+            Reserve credits are your fuel for AI features. They only kick in
+            after your daily allowance is exhausted and never expire.
           </p>
         </header>
 
@@ -177,8 +185,15 @@ const BuyCredits = () => {
                 <Icons.Sparkles className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs text-foreground/40 font-bold uppercase tracking-wider mb-0.5">Daily Energy</p>
-                <p className="text-xl font-bold">{user?.aiCredits} <span className="text-sm font-normal text-foreground/30">/ 3</span></p>
+                <p className="text-xs text-foreground/40 font-bold uppercase tracking-wider mb-0.5">
+                  Daily Energy
+                </p>
+                <p className="text-xl font-bold">
+                  {user?.aiCredits}{" "}
+                  <span className="text-sm font-normal text-foreground/30">
+                    / 3
+                  </span>
+                </p>
               </div>
             </div>
             <div className="px-3 py-1 bg-primary/5 border border-primary/10 rounded-full text-[10px] font-bold text-primary tracking-widest uppercase">
@@ -192,8 +207,15 @@ const BuyCredits = () => {
                 <Icons.Zap className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs text-foreground/40 font-bold uppercase tracking-wider mb-0.5">Reserve Credits</p>
-                <p className="text-xl font-bold">{user?.purchasedAiCredits || 0} <span className="text-sm font-normal text-foreground/30">Premium</span></p>
+                <p className="text-xs text-foreground/40 font-bold uppercase tracking-wider mb-0.5">
+                  Reserve Credits
+                </p>
+                <p className="text-xl font-bold">
+                  {user?.purchasedAiCredits || 0}{" "}
+                  <span className="text-sm font-normal text-foreground/30">
+                    Premium
+                  </span>
+                </p>
               </div>
             </div>
             <div className="px-3 py-1 bg-accent/5 border border-accent/10 rounded-full text-[10px] font-bold text-accent tracking-widest uppercase">
@@ -206,15 +228,19 @@ const BuyCredits = () => {
         <div className="grid md:grid-cols-2 gap-8 relative">
           <AnimatePresence>
             {isVerifying && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 bg-background/60 backdrop-blur-xl z-20 flex flex-col items-center justify-center rounded-3xl border border-border/50"
               >
                 <Icons.Spinner className="h-10 w-10 text-primary mb-4" />
-                <h3 className="text-xl font-bold mb-1">Verifying Secure Payment</h3>
-                <p className="text-foreground/50 text-sm">Processing your transaction with Paystack...</p>
+                <h3 className="text-xl font-bold mb-1">
+                  Verifying Secure Payment
+                </h3>
+                <p className="text-foreground/50 text-sm">
+                  Processing your transaction with Paystack...
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -222,7 +248,7 @@ const BuyCredits = () => {
           {PLANS.map((plan) => {
             const PlanIcon = plan.icon;
             const isLoading = loadingPlanId === plan.id;
-            
+
             return (
               <motion.div
                 key={plan.id}
@@ -230,14 +256,22 @@ const BuyCredits = () => {
                 className="group relative bg-card/40 backdrop-blur-sm border border-border/60 hover:border-primary/30 transition-all rounded-3xl p-8 flex flex-col shadow-sm"
               >
                 <div className="flex justify-between items-start mb-8">
-                  <div className={`p-4 rounded-2xl bg-gradient-to-br ${plan.color} ${plan.accent}`}>
+                  <div
+                    className={`p-4 rounded-2xl bg-gradient-to-br ${plan.color} ${plan.accent}`}
+                  >
                     <PlanIcon className="h-8 w-8" />
                   </div>
                   <div className="text-right">
                     <p className="text-3xl font-bold">
-                      {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(plan.price)}
+                      {new Intl.NumberFormat("en-NG", {
+                        style: "currency",
+                        currency: "NGN",
+                        maximumFractionDigits: 0,
+                      }).format(plan.price)}
                     </p>
-                    <p className="text-xs text-foreground/30 font-bold uppercase tracking-widest">One-time payment</p>
+                    <p className="text-xs text-foreground/30 font-bold uppercase tracking-widest">
+                      One-time payment
+                    </p>
                   </div>
                 </div>
 
@@ -248,7 +282,9 @@ const BuyCredits = () => {
                       {plan.credits} Credits
                     </span>
                   </h3>
-                  <p className="text-foreground/50 text-sm">{plan.description}</p>
+                  <p className="text-foreground/50 text-sm">
+                    {plan.description}
+                  </p>
                 </div>
 
                 <div className="space-y-4 mb-10">
@@ -256,13 +292,17 @@ const BuyCredits = () => {
                     <div className="bg-success/10 p-1 rounded-full text-success">
                       <Icons.Check className="h-3 w-3" />
                     </div>
-                    <span className="text-sm font-medium text-foreground/80">Premium AI functionality</span>
+                    <span className="text-sm font-medium text-foreground/80">
+                      Premium AI functionality
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="bg-success/10 p-1 rounded-full text-success">
                       <Icons.Check className="h-3 w-3" />
                     </div>
-                    <span className="text-sm font-medium text-foreground/80">Credits never expire</span>
+                    <span className="text-sm font-medium text-foreground/80">
+                      Credits never expire
+                    </span>
                   </div>
                 </div>
 
@@ -270,9 +310,9 @@ const BuyCredits = () => {
                   onClick={() => handleBuy(plan.id)}
                   disabled={!!loadingPlanId || isVerifying}
                   className={`mt-auto w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 active:scale-[0.98] ${
-                    plan.id === '8_credits' 
-                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/10' 
-                    : 'bg-secondary text-foreground hover:bg-secondary/80'
+                    plan.id === "8_credits"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/10"
+                      : "bg-secondary text-foreground hover:bg-secondary/80"
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isLoading ? (
@@ -293,8 +333,12 @@ const BuyCredits = () => {
         <div className="mt-12 p-6 bg-card/20 backdrop-blur-sm rounded-2xl border border-border/40 flex items-start gap-4">
           <Icons.Info className="h-5 w-5 text-foreground/30 shrink-0" />
           <div className="text-xs text-foreground/40 leading-relaxed">
-            <span className="font-bold text-foreground/60 mr-1 italic">Security Note:</span>
-            Your transaction is secured by Paystack. We do not store or process your card information on our servers. Credits are typically fulfilled within seconds of a successful charge.
+            <span className="font-bold text-foreground/60 mr-1 italic">
+              Security Note:
+            </span>
+            Your transaction is secured by Paystack. We do not store or process
+            your card information on our servers. Credits are typically
+            fulfilled within seconds of a successful charge.
           </div>
         </div>
       </div>

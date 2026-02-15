@@ -8,10 +8,15 @@ const CLIENT_SECRET = env.data?.GOOGLE_CLIENT_SECRET;
 const URL = env.data?.BACKEND_URL || "http://localhost:3000";
 const REDIRECT_URI = `${URL}/api/auth/google/callback`;
 
-export const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+export const oAuth2Client = new OAuth2Client(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI,
+);
 
-
-const isProduction = env.data?.NODE_ENV === "production" && env.data?.CLIENT_URL?.startsWith("https");
+const isProduction =
+  env.data?.NODE_ENV === "production" &&
+  env.data?.CLIENT_URL?.startsWith("https");
 
 export const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -32,7 +37,9 @@ export class AuthService {
       scope: ["profile", "email"],
       access_type: "offline",
       prompt: "consent",
-      state: returnTo ? Buffer.from(JSON.stringify({ returnTo })).toString("base64") : undefined,
+      state: returnTo
+        ? Buffer.from(JSON.stringify({ returnTo })).toString("base64")
+        : undefined,
     });
   }
 
@@ -46,7 +53,9 @@ export class AuthService {
     const { email, name, picture }: any = userInfoResponse.data;
 
     const refreshToken = generateRandomToken();
-    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const refreshTokenExpiresAt = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000,
+    );
 
     const user = await prisma.user.upsert({
       where: { email: email! },
@@ -79,7 +88,11 @@ export class AuthService {
       where: { refreshToken },
     });
 
-    if (!user || !user.refreshTokenExpiresAt || user.refreshTokenExpiresAt < new Date()) {
+    if (
+      !user ||
+      !user.refreshTokenExpiresAt ||
+      user.refreshTokenExpiresAt < new Date()
+    ) {
       return null;
     }
 

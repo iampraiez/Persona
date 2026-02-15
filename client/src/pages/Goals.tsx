@@ -83,7 +83,7 @@ const Goals: React.FC = () => {
         onError: () => {
           toast.error("Failed to reset goal");
         },
-      }
+      },
     );
   };
 
@@ -114,7 +114,7 @@ const Goals: React.FC = () => {
 
   const completeStep = async (stepId: string) => {
     const goal = goals?.find((g: Goal) =>
-      (g.steps || []).some((s: Step) => s.id === stepId)
+      (g.steps || []).some((s: Step) => s.id === stepId),
     );
     if (!goal) return;
 
@@ -127,7 +127,7 @@ const Goals: React.FC = () => {
         onError: () => {
           toast.error("Failed to mark step as complete");
         },
-      }
+      },
     );
   };
 
@@ -157,10 +157,10 @@ const Goals: React.FC = () => {
   const updateStep = <K extends keyof Step>(
     index: number,
     field: K,
-    value: Step[K]
+    value: Step[K],
   ) => {
     setNewGoal((prev) => {
-      const updatedSteps = [...prev.steps]; 
+      const updatedSteps = [...prev.steps];
       let finalValue = value;
       if (field === "dueDate" && typeof value === "string") {
         finalValue = new Date(value).toISOString() as Step[K];
@@ -269,7 +269,7 @@ const Goals: React.FC = () => {
         onError: () => {
           toast.error("Failed to update goal");
         },
-      }
+      },
     );
   };
 
@@ -304,7 +304,7 @@ const Goals: React.FC = () => {
   const generateSteps = async (
     goal: string,
     days: number,
-    stepCount: number
+    stepCount: number,
   ) => {
     if (!goal.trim() || days <= 0 || stepCount <= 0) {
       toast.error("Please provide a goal, valid time frame, and step count");
@@ -313,7 +313,7 @@ const Goals: React.FC = () => {
     try {
       setGeneratingSteps(true);
       const getApi = () => (useAuthStore.getState().isDemo ? demoApi : api);
-      
+
       const currentSteps = newGoal.steps.map(({ title, description }) => ({
         title,
         description,
@@ -323,7 +323,7 @@ const Goals: React.FC = () => {
         { title: goal, description: newGoal.description },
         days,
         stepCount,
-        currentSteps
+        currentSteps,
       );
 
       const editedSteps = data.steps.map(({ dueDate, ...rest }) => ({
@@ -335,7 +335,7 @@ const Goals: React.FC = () => {
         steps: editedSteps.map((step) => ({
           ...step,
           dueDate: new Date(step.dueDate).toISOString(),
-          id: `${prev.steps.length + 1}`, 
+          id: `${prev.steps.length + 1}`,
           isCompleted: false,
         })),
       }));
@@ -874,7 +874,9 @@ const Goals: React.FC = () => {
                     {isCreating || isUpdating ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>{isCreating ? "Creating..." : "Updating..."}</span>
+                        <span>
+                          {isCreating ? "Creating..." : "Updating..."}
+                        </span>
                       </>
                     ) : newGoal.id ? (
                       "Update Goal"

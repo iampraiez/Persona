@@ -71,7 +71,10 @@ export class EventService {
         description,
         startTime: toUTCDate(startTime) as Date,
         endTime: toUTCDate(endTime) as Date,
-        notifyBefore: notifyBefore !== undefined ? parseInt(notifyBefore) : user.defaultNotifyBefore,
+        notifyBefore:
+          notifyBefore !== undefined
+            ? parseInt(notifyBefore)
+            : user.defaultNotifyBefore,
         userId: user.id,
       },
     });
@@ -105,7 +108,8 @@ export class EventService {
         isCompleted,
         skippedIsImportant,
         skippedReason,
-        focusDuration: focusDuration !== undefined ? parseInt(focusDuration) : undefined,
+        focusDuration:
+          focusDuration !== undefined ? parseInt(focusDuration) : undefined,
       },
     });
   }
@@ -160,7 +164,7 @@ export class EventService {
     const sStart = new Date(sourceStart);
     const sEnd = new Date(sourceEnd);
     const tStart = new Date(targetStart);
-    
+
     const timeDiff = tStart.getTime() - sStart.getTime();
 
     const events = await prisma.event.findMany({
@@ -186,8 +190,8 @@ export class EventService {
             notifyBefore: event.notifyBefore,
             userId,
           },
-        })
-      )
+        }),
+      ),
     );
 
     return newEvents;

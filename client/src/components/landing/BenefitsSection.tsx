@@ -75,10 +75,14 @@ const BenefitsSection: React.FC = () => {
           >
             <div className="relative">
               <div className="bg-gradient-to-br from-violet-500/10 to-indigo-500/10 dark:from-violet-500/5 dark:to-indigo-500/5 rounded-2xl p-8 shadow-xl">
-                <motion.div 
+                <motion.div
                   className="bg-card rounded-xl shadow-lg p-6"
                   animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                 >
                   <h3 className="font-semibold text-lg mb-6">
                     Goal Progress: Learn Spanish
@@ -127,10 +131,14 @@ const BenefitsSection: React.FC = () => {
                 </motion.div>
 
                 {/* Stats cards */}
-                <motion.div 
+                <motion.div
                   className="absolute -top-6 -right-6 bg-card rounded-lg px-4 py-2 shadow-lg text-sm"
                   animate={{ y: [0, 5, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                 >
                   <div className="font-semibold text-accent">
                     7 days ahead of schedule

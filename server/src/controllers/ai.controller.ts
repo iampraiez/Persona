@@ -14,7 +14,8 @@ export class AiController {
   static async getSuggestions(req: Request, res: Response) {
     try {
       const userId = await AiController.getUserId(req.user as string);
-      if (!userId) return res.status(404).json({ error: "User not found", data: null });
+      if (!userId)
+        return res.status(404).json({ error: "User not found", data: null });
 
       const suggestions = await AiService.getSuggestions(userId);
       res.status(200).json({ data: suggestions, error: null });
@@ -22,7 +23,10 @@ export class AiController {
       logger.error(`AI Suggestions Error: ${error.message}`);
       res.status(error.message.includes("Limit") ? 403 : 500).json({
         data: null,
-        error: errorWrapper(error, error.message || "Failed to generate AI suggestions")
+        error: errorWrapper(
+          error,
+          error.message || "Failed to generate AI suggestions",
+        ),
       });
     }
   }
@@ -30,7 +34,8 @@ export class AiController {
   static async generateGoalSteps(req: Request, res: Response) {
     try {
       const userId = await AiController.getUserId(req.user as string);
-      if (!userId) return res.status(404).json({ error: "User not found", data: null });
+      if (!userId)
+        return res.status(404).json({ error: "User not found", data: null });
 
       const steps = await AiService.generateGoalSteps(userId, req.body);
       res.status(200).json({ data: { steps }, error: null });
@@ -38,7 +43,7 @@ export class AiController {
       logger.error(`Step Generation Error: ${error.message}`);
       res.status(error.message.includes("Limit") ? 403 : 500).json({
         data: null,
-        error: errorWrapper(error, error.message || "Failed to generate steps")
+        error: errorWrapper(error, error.message || "Failed to generate steps"),
       });
     }
   }
@@ -46,7 +51,8 @@ export class AiController {
   static async generateTimetable(req: Request, res: Response) {
     try {
       const userId = await AiController.getUserId(req.user as string);
-      if (!userId) return res.status(404).json({ error: "User not found", data: null });
+      if (!userId)
+        return res.status(404).json({ error: "User not found", data: null });
 
       const createdEvents = await AiService.generateTimetable(userId, req.body);
       res.status(200).json({ data: createdEvents, error: null });
@@ -54,7 +60,10 @@ export class AiController {
       logger.error(`Timetable Generation Error: ${error.message}`);
       res.status(error.message.includes("Limit") ? 403 : 500).json({
         data: null,
-        error: errorWrapper(error, error.message || "Failed to generate timetable")
+        error: errorWrapper(
+          error,
+          error.message || "Failed to generate timetable",
+        ),
       });
     }
   }

@@ -45,7 +45,10 @@ export class UserController {
       logger.error(`Error requesting account deletion: ${error}`);
       res.status(500).json({
         data: null,
-        error: errorWrapper(error, error.message || "Failed to request account deletion"),
+        error: errorWrapper(
+          error,
+          error.message || "Failed to request account deletion",
+        ),
       });
     }
   }
@@ -54,11 +57,16 @@ export class UserController {
     try {
       const { code } = req.body;
       if (!code) {
-        return res.status(400).json({ data: null, error: "Verification code required" });
+        return res
+          .status(400)
+          .json({ data: null, error: "Verification code required" });
       }
 
       await UserService.deleteAccount(req.user as string, code);
-      res.status(200).json({ data: { message: "Account deleted successfully" }, error: null });
+      res.status(200).json({
+        data: { message: "Account deleted successfully" },
+        error: null,
+      });
     } catch (error: any) {
       logger.error(`Error deleting account: ${error}`);
       res.status(500).json({

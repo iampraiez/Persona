@@ -31,7 +31,9 @@ export async function subscribeUser() {
         return;
       } catch (err) {
         // If saving fails (maybe VAPID mismatch), unsubscribe and re-subscribe
-        console.warn("Existing subscription invalid or mismatch, re-subscribing...");
+        console.warn(
+          "Existing subscription invalid or mismatch, re-subscribing...",
+        );
         await existingSubscription.unsubscribe();
       }
     }

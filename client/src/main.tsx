@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { ReactQueryProvider } from "./provider/react-query.provider.tsx";
 import App from "./App.tsx";
 import "./index.css";
-  
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ReactQueryProvider>
@@ -11,4 +11,3 @@ createRoot(document.getElementById("root")!).render(
     </ReactQueryProvider>
   </StrictMode>,
 );
-  

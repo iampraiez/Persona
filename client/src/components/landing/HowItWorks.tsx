@@ -6,17 +6,20 @@ const steps = [
   {
     icon: <Search className="w-8 h-8 text-accent" />,
     title: "Plan Your Week",
-    description: "Use our intuitive 24/7 timetable to map out your ideal schedule. Drag and drop events with ease.",
+    description:
+      "Use our intuitive 24/7 timetable to map out your ideal schedule. Drag and drop events with ease.",
   },
   {
     icon: <Edit3 className="w-8 h-8 text-accent" />,
     title: "Track Your Goals",
-    description: "Break down your long-term ambitions into 10 actionable steps. Monitor your progress in real-time.",
+    description:
+      "Break down your long-term ambitions into 10 actionable steps. Monitor your progress in real-time.",
   },
   {
     icon: <CheckCircle2 className="w-8 h-8 text-accent" />,
     title: "Achieve Results",
-    description: "Get AI-powered insights and smart notifications to stay on track and reach your full potential.",
+    description:
+      "Get AI-powered insights and smart notifications to stay on track and reach your full potential.",
   },
 ];
 

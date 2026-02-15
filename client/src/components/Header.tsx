@@ -39,8 +39,11 @@ const Header = ({ openSidebar }: HeaderProps) => {
   const [imgError, setImgError] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-  const { notifications, clearAllNotifications, markAllAsRead } = useNotifications();
-  const unreadCount = notifications.filter((n: NotificationType) => !n.isRead).length;
+  const { notifications, clearAllNotifications, markAllAsRead } =
+    useNotifications();
+  const unreadCount = notifications.filter(
+    (n: NotificationType) => !n.isRead,
+  ).length;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,8 +67,6 @@ const Header = ({ openSidebar }: HeaderProps) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -181,17 +182,22 @@ const Header = ({ openSidebar }: HeaderProps) => {
                     }
                     if ("Notification" in window) {
                       if (Notification.permission === "default") {
-                        const permission = await Notification.requestPermission();
+                        const permission =
+                          await Notification.requestPermission();
                         if (permission === "granted") {
                           subscribeUser();
                           toast.success("Notifications enabled!");
                         } else if (permission === "denied") {
-                          toast.warning("Notification permission denied. Please reset it in your browser settings to enable alerts.");
+                          toast.warning(
+                            "Notification permission denied. Please reset it in your browser settings to enable alerts.",
+                          );
                         }
                       } else if (Notification.permission === "granted") {
                         subscribeUser();
                       } else if (Notification.permission === "denied") {
-                        toast.warning("Notification permission denied. Please reset it in your browser settings to enable alerts.");
+                        toast.warning(
+                          "Notification permission denied. Please reset it in your browser settings to enable alerts.",
+                        );
                       }
                     }
                   }
@@ -248,7 +254,10 @@ const Header = ({ openSidebar }: HeaderProps) => {
                                     {noti.body}
                                   </p>
                                   <p className="text-[10px] text-foreground/50 mt-1">
-                                    {formatDistanceToNow(new Date(noti.timestamp), { addSuffix: true })}
+                                    {formatDistanceToNow(
+                                      new Date(noti.timestamp),
+                                      { addSuffix: true },
+                                    )}
                                   </p>
                                 </div>
                                 {!noti.isRead && (

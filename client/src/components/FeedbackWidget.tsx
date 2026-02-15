@@ -15,15 +15,15 @@ const FeedbackWidget = () => {
 
     setIsSending(true);
     try {
-        await api.sendFeedback(message);
-        toast.success("Thanks for your feedback! We'll look into it.");
-        setIsOpen(false);
-        setMessage("");
+      await api.sendFeedback(message);
+      toast.success("Thanks for your feedback! We'll look into it.");
+      setIsOpen(false);
+      setMessage("");
     } catch (error) {
-        toast.error("Failed to send feedback. Please try again.");
-        console.error(error);
+      toast.error("Failed to send feedback. Please try again.");
+      console.error(error);
     } finally {
-        setIsSending(false);
+      setIsSending(false);
     }
   };
 
@@ -61,10 +61,10 @@ const FeedbackWidget = () => {
             >
               <div className="p-4 bg-primary/5 border-b border-border flex justify-between items-center">
                 <h3 className="font-semibold flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-primary" />
-                    Send Feedback
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                  Send Feedback
                 </h3>
-                <button 
+                <button
                   onClick={() => setIsOpen(false)}
                   className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
                 >
@@ -74,31 +74,31 @@ const FeedbackWidget = () => {
 
               <form onSubmit={handleSubmit} className="p-4 space-y-4">
                 <div>
-                    <label className="text-xs font-semibold text-foreground/50 uppercase tracking-wider mb-1.5 block">
-                        Your Thoughts
-                    </label>
-                    <textarea 
-                        className="w-full min-h-[120px] bg-secondary/30 border border-border rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                        placeholder="Found a bug? Have a feature request? Let us know!"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        required
-                    />
+                  <label className="text-xs font-semibold text-foreground/50 uppercase tracking-wider mb-1.5 block">
+                    Your Thoughts
+                  </label>
+                  <textarea
+                    className="w-full min-h-[120px] bg-secondary/30 border border-border rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                    placeholder="Found a bug? Have a feature request? Let us know!"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
+                  />
                 </div>
-                
+
                 <button
-                    type="submit"
-                    disabled={isSending || !message.trim()}
-                    className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="submit"
+                  disabled={isSending || !message.trim()}
+                  className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isSending ? (
-                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                        <>
-                            <Send className="h-4 w-4" />
-                            Send Message
-                        </>
-                    )}
+                  {isSending ? (
+                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      Send Message
+                    </>
+                  )}
                 </button>
               </form>
             </motion.div>

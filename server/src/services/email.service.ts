@@ -5,7 +5,9 @@ const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 const SENDER_EMAIL = process.env.SENDER_EMAIL;
 
 if (!SENDGRID_API_KEY || !SENDER_EMAIL) {
-  logger.error("SendGrid API key or sender email not found in environment variables");
+  logger.error(
+    "SendGrid API key or sender email not found in environment variables",
+  );
 }
 
 if (SENDGRID_API_KEY) {
@@ -31,8 +33,8 @@ export class EmailService {
       await sgMail.send({
         to: data.to,
         from: {
-            email: SENDER_EMAIL,
-            name: data.fromName || "Persona"
+          email: SENDER_EMAIL,
+          name: data.fromName || "Persona",
         },
         subject: data.subject,
         text: data.text,
@@ -45,10 +47,13 @@ export class EmailService {
     }
   }
 
-  static async sendDeleteAccountCode(email: string, code: string): Promise<void> {
+  static async sendDeleteAccountCode(
+    email: string,
+    code: string,
+  ): Promise<void> {
     const subject = "Verify your account deletion";
     const text = `Your verification code to delete your Persona account is: ${code}\n\nThis code will expire in 5 minutes.\n\nIf you did not request this, please ignore this email.`;
-    
+
     // Improved HTML Template
     const html = `
       <!DOCTYPE html>
@@ -80,20 +85,23 @@ export class EmailService {
       </html>
     `;
 
-    await this.sendMail({ 
-        to: email, 
-        subject, 
-        text, 
-        html,
-        fromName: "Persona Security" 
+    await this.sendMail({
+      to: email,
+      subject,
+      text,
+      html,
+      fromName: "Persona Security",
     });
   }
 
-  static async sendFeedbackEmail(userEmail: string, message: string): Promise<void> {
+  static async sendFeedbackEmail(
+    userEmail: string,
+    message: string,
+  ): Promise<void> {
     const ADMIN_EMAIL = "himpraise571@gmail.com";
     const subject = `[Persona Feedback] New User Feedback`;
     const text = `User Feedback Received\n\nFrom: ${userEmail}\nMessage: ${message}`;
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -107,12 +115,12 @@ export class EmailService {
       </html>
     `;
 
-    await this.sendMail({ 
-        to: ADMIN_EMAIL, 
-        subject, 
-        text, 
-        html,
-        fromName: "Persona Feedback Bot"
+    await this.sendMail({
+      to: ADMIN_EMAIL,
+      subject,
+      text,
+      html,
+      fromName: "Persona Feedback Bot",
     });
   }
 }

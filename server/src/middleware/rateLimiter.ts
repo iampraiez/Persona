@@ -1,10 +1,9 @@
-
 import rateLimit from "express-rate-limit";
 import { logger } from "../utils/logger.utils";
 
 export const aiRateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, 
-  max: 10, 
+  windowMs: 60 * 60 * 1000,
+  max: 10,
   message: {
     error: "Too many AI requests from this IP, please try again after an hour",
     data: null,
@@ -18,8 +17,8 @@ export const aiRateLimiter = rateLimit({
 });
 
 export const eventWriteRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 1000, 
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
   message: {
     error: "Too many event operations, please slow down",
     data: null,

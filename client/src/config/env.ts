@@ -5,7 +5,7 @@ const envValidator = z.object({
   VITE_PUBLIC_VAPID_KEY: z.string(),
 });
 
-const parsedEnv = envValidator.safeParse(import.meta.env) 
+const parsedEnv = envValidator.safeParse(import.meta.env);
 
 export const env = parsedEnv.success
   ? parsedEnv

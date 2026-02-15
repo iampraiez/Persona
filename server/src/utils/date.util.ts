@@ -1,11 +1,13 @@
 /**
  * Utility to ensure all incoming dates are treated as UTC and normalized to JS Date objects.
  */
-export const toUTCDate = (dateString: string | Date | undefined): Date | undefined => {
+export const toUTCDate = (
+  dateString: string | Date | undefined,
+): Date | undefined => {
   if (!dateString) return undefined;
-  
+
   const date = new Date(dateString);
-  
+
   // If we receive a "datetime-local" string from the client like "2023-10-27T10:00"
   // and it doesn't have an offset, JavaScript might treat it as local.
   // However, our implementation plan aims to send ISO strings ending with 'Z'.
@@ -13,7 +15,7 @@ export const toUTCDate = (dateString: string | Date | undefined): Date | undefin
   if (isNaN(date.getTime())) {
     throw new Error(`Invalid date string: ${dateString}`);
   }
-  
+
   return date;
 };
 

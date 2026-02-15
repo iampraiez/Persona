@@ -67,7 +67,7 @@ const CopyEventsModal: React.FC<CopyEventsModalProps> = ({
       await createEventsBatch(newEvents);
       setIsDone(true);
       toast.success(
-        `Successfully copied ${newEvents.length} events to this week!`
+        `Successfully copied ${newEvents.length} events to this week!`,
       );
       setTimeout(() => {
         onClose();

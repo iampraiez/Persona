@@ -10,7 +10,7 @@ if (publicVapidKey && privateVapidKey) {
   webpush.setVapidDetails(
     "mailto:timeforge@persona.app",
     publicVapidKey,
-    privateVapidKey
+    privateVapidKey,
   );
 } else {
   logger.warn("VAPID keys are missing. Push notifications will not work.");
@@ -38,7 +38,7 @@ export class NotificationService {
 
         await webpush.sendNotification(
           subscription,
-          JSON.stringify({ title, body, id: notification.id })
+          JSON.stringify({ title, body, id: notification.id }),
         );
         logger.info(`Notification sent to user ${userId}`);
       }
@@ -46,18 +46,22 @@ export class NotificationService {
       return notification;
     } catch (error: any) {
       if (error.statusCode === 410 || error.statusCode === 404) {
-        logger.warn(`Subscription expired or not found for user ${userId}. removing subscription.`);
+        logger.warn(
+          `Subscription expired or not found for user ${userId}. removing subscription.`,
+        );
         const subscriptionRecord = await prisma.pushSubscription.findFirst({
           where: { userId },
         });
 
         if (subscriptionRecord) {
-             await prisma.pushSubscription.deleteMany({
-                where: { endpoint: subscriptionRecord.endpoint } 
-             });
+          await prisma.pushSubscription.deleteMany({
+            where: { endpoint: subscriptionRecord.endpoint },
+          });
         }
       }
-      logger.error(`Error sending notification to user ${userId}: ${error.message}`);
+      logger.error(
+        `Error sending notification to user ${userId}: ${error.message}`,
+      );
       return null;
     }
   }
@@ -71,10 +75,10 @@ export class NotificationService {
 
   static async deleteNotification(userId: string, id: string) {
     const notification = await prisma.notification.findFirst({
-        where: { id, userId }
+      where: { id, userId },
     });
     if (!notification) throw new Error("Notification not found");
-    
+
     return prisma.notification.delete({ where: { id } });
   }
 
@@ -83,7 +87,10 @@ export class NotificationService {
   }
 
   static async saveSubscription(userId: string, subscription: any) {
-    const sub = typeof subscription === 'string' ? JSON.parse(subscription) : subscription;
+    const sub =
+      typeof subscription === "string"
+        ? JSON.parse(subscription)
+        : subscription;
     return prisma.pushSubscription.upsert({
       where: { endpoint: sub.endpoint },
       update: {
