@@ -64,13 +64,19 @@ export class AuthController {
         const decodedState = JSON.parse(
           Buffer.from(state as string, "base64").toString(),
         );
+        // Explicitly sanitize returnTo from state
         returnTo = validateReturnTo(decodedState.returnTo);
       } catch {
         logger.error("Failed to parse OAuth state parameter");
+        returnTo = FRONTEND_URL;
       }
     }
 
-    if (!code) return res.redirect(`${returnTo}/login?error=auth_failed`);
+    // Defensive construction of error redirect
+    if (!code) {
+      const errorBase = validateReturnTo(returnTo);
+      return res.redirect(`${errorBase}/login?error=auth_failed`);
+    }
 
     try {
       const { accessToken, refreshToken } =
@@ -79,12 +85,13 @@ export class AuthController {
       res.cookie("access_token", accessToken, ACCESS_TOKEN_OPTIONS);
       res.cookie("refresh_token", refreshToken, COOKIE_OPTIONS);
 
-      const target = validateReturnTo(returnTo);
-      return res.redirect(String(target + "/login?success=true"));
+      // Definitively sanitize the target one last time before redirecting
+      const finalTarget = validateReturnTo(returnTo);
+      return res.redirect(`${finalTarget}/login?success=true`);
     } catch (error: unknown) {
       logger.error({ err: error }, "Google Auth: callback processing failed");
-      const target = validateReturnTo(FRONTEND_URL);
-      return res.redirect(String(target + "/login?error=auth_failed"));
+      // Use hardcoded FRONTEND_URL for error redirect to be absolutely safe
+      return res.redirect(`${FRONTEND_URL}/login?error=auth_failed`);
     }
   }
 
