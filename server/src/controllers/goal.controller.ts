@@ -59,7 +59,8 @@ export class GoalController {
       );
       res.status(200).json({ data: updatedGoal, error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Update Goal Error: ${error instanceof Error ? error.message : String(error)}`));
+      const { id } = req.params;
+      logger.error({ err: error, goalId: id }, "Update Goal Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to update goal"),
@@ -77,7 +78,8 @@ export class GoalController {
       await GoalService.deleteGoal(userId, id as string);
       res.status(200).json({ data: "Goal deleted successfully", error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Delete Goal Error: ${error instanceof Error ? error.message : String(error)}`));
+      const { id } = req.params;
+      logger.error({ err: error, goalId: id }, "Delete Goal Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to delete goal"),
@@ -94,7 +96,8 @@ export class GoalController {
       );
       res.status(200).json({ data: updatedStep, error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Complete Step Error: ${error instanceof Error ? error.message : String(error)}`));
+      const { stepid } = req.params;
+      logger.error({ err: error, stepId: stepid }, "Complete Step Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to update step"),

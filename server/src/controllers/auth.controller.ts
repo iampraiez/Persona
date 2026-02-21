@@ -17,20 +17,21 @@ const FRONTEND_URL = env.data?.CLIENT_URL || "http://localhost:5173";
 function validateReturnTo(returnTo: string | undefined): string {
   if (!returnTo) return FRONTEND_URL;
 
-  // Allow only relative paths starting with /
+  // Allow relative paths (e.g., /dashboard)
+  // Ensure it starts with / but not // (which is a protocol-relative URL)
   if (returnTo.startsWith("/") && !returnTo.startsWith("//")) {
     return returnTo;
   }
 
+  // If it's an absolute URL, verify it matches our frontend origin exactly
   try {
-    const dest = new URL(returnTo);
+    const url = new URL(returnTo);
     const allowed = new URL(FRONTEND_URL);
-    // Strict origin check
-    if (dest.origin === allowed.origin) {
+    if (url.origin === allowed.origin) {
       return returnTo;
     }
   } catch {
-    // malformed URL
+    // Malformed URL
   }
 
   return FRONTEND_URL;
@@ -43,7 +44,7 @@ export class AuthController {
       const authUrl = await AuthService.getGoogleAuthUrl(returnTo);
       res.json({ data: authUrl, error: null });
     } catch (error: unknown) {
-      logger.error("Google Auth: failed to get auth url");
+      logger.error({ err: error }, "Google Auth: failed to get auth url");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to get auth url"),
@@ -76,8 +77,8 @@ export class AuthController {
       res.cookie("refresh_token", refreshToken, COOKIE_OPTIONS);
 
       return res.redirect(`${returnTo}/login?success=true`);
-    } catch {
-      logger.error("Google Auth: callback processing failed");
+    } catch (error: unknown) {
+      logger.error({ err: error }, "Google Auth: callback processing failed");
       return res.redirect(`${returnTo}/login?error=auth_failed`);
     }
   }
@@ -99,7 +100,7 @@ export class AuthController {
       res.cookie("access_token", newAccessToken, ACCESS_TOKEN_OPTIONS);
       res.status(200).json({ data: true, error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Refresh Error: ${error}`));
+      logger.error({ err: error }, "Refresh Error");
       res.status(500).json({ data: null, error: "Failed to refresh token" });
     }
   }
@@ -110,7 +111,7 @@ export class AuthController {
       res.clearCookie("refresh_token", COOKIE_OPTIONS);
       res.status(200).json({ data: true, error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Logout Error: ${error}`));
+      logger.error({ err: error }, "Logout Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to logout"),

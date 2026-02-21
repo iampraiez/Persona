@@ -7,27 +7,29 @@ export function authMiddleware(
   res: Response,
   next: NextFunction,
 ): void {
-  // Ensure we start with no user to prevent potential bypasses
+  // 1. Explicitly clear user to prevent potential bypasses or leaks from previous middleware
   req.user = undefined;
 
   try {
-    if (!req.cookies || !req.cookies.access_token) {
-      res.status(401).json({ error: "Unauthorized", data: null });
+    const token = req.cookies?.access_token;
+
+    if (!token) {
+      res.status(401).json({ error: "Unauthorized: Missing token", data: null });
       return;
     }
 
-    const token = req.cookies.access_token;
     const payload = verifyAccessToken(token);
 
-    if (!payload || !payload.email) {
-      res.status(401).json({ error: "Token expired or invalid", data: null });
+    if (!payload || typeof payload !== "object" || !payload.email) {
+      res.status(401).json({ error: "Unauthorized: Invalid or expired token", data: null });
       return;
     }
 
+    // 2. Verified payload - set user and proceed
     req.user = payload.email;
     next();
   } catch (error: unknown) {
-    logger.error(sanitizeLog(`Auth Error: ${error instanceof Error ? error.message : String(error)}`));
+    logger.error({ err: error }, "Auth Middleware Error");
     res.status(401).json({ error: "Unauthorized", data: null });
   }
 }

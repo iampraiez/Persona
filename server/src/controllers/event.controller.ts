@@ -100,7 +100,8 @@ export class EventController {
       );
       res.status(200).json({ data: updatedEvent, error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Update Event Error: ${error instanceof Error ? error.message : "Unknown error"}`));
+      const { id } = req.params;
+      logger.error({ err: error, eventId: id }, "Update Event Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to update event"),
@@ -122,7 +123,8 @@ export class EventController {
       );
       res.status(200).json({ data: updatedEvent, error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Skip Event Error: ${error instanceof Error ? error.message : "Unknown error"}`));
+      const { id } = req.params;
+      logger.error({ err: error, eventId: id }, "Skip Event Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to skip event"),
@@ -140,7 +142,8 @@ export class EventController {
       await EventService.deleteEvent(userId, id as string);
       res.status(200).json({ data: "Event deleted successfully", error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Delete Event Error: ${error instanceof Error ? error.message : "Unknown error"}`));
+      const { id } = req.params;
+      logger.error({ err: error, eventId: id }, "Delete Event Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to delete event"),
@@ -169,7 +172,7 @@ export class EventController {
         .status(200)
         .json({ data: "Events deleted successfully", error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Delete Events Range Error: ${error instanceof Error ? error.message : "Unknown error"}`));
+      logger.error({ err: error }, "Delete Events Range Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to delete events"),
@@ -186,7 +189,7 @@ export class EventController {
       const newEvents = await EventService.copyEvents(userId, req.body);
       res.status(201).json({ data: newEvents, error: null });
     } catch (error: unknown) {
-      logger.error(sanitizeLog(`Copy Events Error: ${error instanceof Error ? error.message : "Unknown error"}`));
+      logger.error({ err: error }, "Copy Events Error");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to copy events"),

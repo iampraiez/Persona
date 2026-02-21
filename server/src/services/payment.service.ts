@@ -112,7 +112,8 @@ export class PaymentService {
       });
 
       logger.info(
-        sanitizeLog(`Payment fulfilled: ${purchaseAmount} credits for user (Ref: ${reference})`),
+        { purchaseAmount, reference },
+        "Payment fulfilled",
       );
     });
   }
