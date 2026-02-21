@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { GoalService } from "../services/goal.service";
 import { prisma } from "../lib/prisma";
-import { logger } from "../utils/logger.utils";
+import { logger, sanitizeLog } from "../utils/logger.utils";
 import { errorWrapper } from "../utils/error.util";
 
 export class GoalController {
@@ -59,7 +59,7 @@ export class GoalController {
       );
       res.status(200).json({ data: updatedGoal, error: null });
     } catch (error: unknown) {
-      logger.error(`Update Goal Error: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(sanitizeLog(`Update Goal Error: ${error instanceof Error ? error.message : String(error)}`));
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to update goal"),
@@ -77,7 +77,7 @@ export class GoalController {
       await GoalService.deleteGoal(userId, id as string);
       res.status(200).json({ data: "Goal deleted successfully", error: null });
     } catch (error: unknown) {
-      logger.error(`Delete Goal Error: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(sanitizeLog(`Delete Goal Error: ${error instanceof Error ? error.message : String(error)}`));
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to delete goal"),
@@ -94,7 +94,7 @@ export class GoalController {
       );
       res.status(200).json({ data: updatedStep, error: null });
     } catch (error: unknown) {
-      logger.error(`Complete Step Error: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(sanitizeLog(`Complete Step Error: ${error instanceof Error ? error.message : String(error)}`));
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to update step"),

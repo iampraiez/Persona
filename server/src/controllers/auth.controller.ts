@@ -4,7 +4,7 @@ import {
   COOKIE_OPTIONS,
   ACCESS_TOKEN_OPTIONS,
 } from "../services/auth.service";
-import { logger } from "../utils/logger.utils";
+import { logger, sanitizeLog } from "../utils/logger.utils";
 import { errorWrapper } from "../utils/error.util";
 import { env } from "../config/env";
 
@@ -16,13 +16,23 @@ const FRONTEND_URL = env.data?.CLIENT_URL || "http://localhost:5173";
  */
 function validateReturnTo(returnTo: string | undefined): string {
   if (!returnTo) return FRONTEND_URL;
+
+  // Allow only relative paths starting with /
+  if (returnTo.startsWith("/") && !returnTo.startsWith("//")) {
+    return returnTo;
+  }
+
   try {
     const dest = new URL(returnTo);
     const allowed = new URL(FRONTEND_URL);
-    if (dest.origin === allowed.origin) return returnTo;
+    // Strict origin check
+    if (dest.origin === allowed.origin) {
+      return returnTo;
+    }
   } catch {
     // malformed URL
   }
+
   return FRONTEND_URL;
 }
 
@@ -89,7 +99,7 @@ export class AuthController {
       res.cookie("access_token", newAccessToken, ACCESS_TOKEN_OPTIONS);
       res.status(200).json({ data: true, error: null });
     } catch (error: unknown) {
-      logger.error(`Refresh Error: ${error}`);
+      logger.error(sanitizeLog(`Refresh Error: ${error}`));
       res.status(500).json({ data: null, error: "Failed to refresh token" });
     }
   }
@@ -100,7 +110,7 @@ export class AuthController {
       res.clearCookie("refresh_token", COOKIE_OPTIONS);
       res.status(200).json({ data: true, error: null });
     } catch (error: unknown) {
-      logger.error(`Logout Error: ${error}`);
+      logger.error(sanitizeLog(`Logout Error: ${error}`));
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to logout"),
