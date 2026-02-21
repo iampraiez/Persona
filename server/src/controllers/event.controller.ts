@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { EventService } from "../services/event.service";
 import { prisma } from "../lib/prisma";
-import { logger, sanitizeLog } from "../utils/logger.utils";
+import { logger } from "../utils/logger.utils";
 import { errorWrapper } from "../utils/error.util";
 
 export class EventController {

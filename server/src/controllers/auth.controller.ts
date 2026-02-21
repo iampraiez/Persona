@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
-import {
-  AuthService,
-  COOKIE_OPTIONS,
-  ACCESS_TOKEN_OPTIONS,
-} from "../services/auth.service";
-import { logger, sanitizeLog } from "../utils/logger.utils";
+import { AuthService, COOKIE_OPTIONS, ACCESS_TOKEN_OPTIONS } from "../services/auth.service";
+import { logger } from "../utils/logger.utils";
 import { errorWrapper } from "../utils/error.util";
 import { env } from "../config/env";
 
@@ -76,10 +72,12 @@ export class AuthController {
       res.cookie("access_token", accessToken, ACCESS_TOKEN_OPTIONS);
       res.cookie("refresh_token", refreshToken, COOKIE_OPTIONS);
 
-      return res.redirect(`${returnTo}/login?success=true`);
+      const safeRedirect = String(`${returnTo}/login?success=true`);
+      return res.redirect(safeRedirect);
     } catch (error: unknown) {
       logger.error({ err: error }, "Google Auth: callback processing failed");
-      return res.redirect(`${returnTo}/login?error=auth_failed`);
+      const errorRedirect = String(`${returnTo}/login?error=auth_failed`);
+      return res.redirect(errorRedirect);
     }
   }
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { prisma } from "../lib/prisma";
 import { env } from "../config/env";
-import { logger, sanitizeLog } from "../utils/logger.utils";
+import { logger } from "../utils/logger.utils";
 
 const PAYSTACK_SECRET = env.data?.PAYSTACK_SECRET_KEY;
 
