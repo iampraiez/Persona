@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+.pnpm-debug.log
+
+# Build outputs
+dist
+build
+.vercel
+.output
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db

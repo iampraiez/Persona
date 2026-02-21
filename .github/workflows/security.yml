@@ -97,6 +97,4 @@ jobs:
         if: always()
         with:
           sarif_file: '.'
-          # Alternatively, upload specific files if supported by the action version
-          # sarif_file: 'trivy-client.sarif'
-          # This action often expects a single file or a directory containing .sarif files.
+          category: trivy
