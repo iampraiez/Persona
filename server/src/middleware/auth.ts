@@ -8,7 +8,7 @@ export function authMiddleware(
   next: NextFunction,
 ): void {
   // Ensure we start with no user to prevent potential bypasses
-  (req as any).user = undefined;
+  req.user = undefined;
 
   try {
     if (!req.cookies || !req.cookies.access_token) {
