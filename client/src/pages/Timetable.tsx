@@ -389,7 +389,7 @@ const Timetable = () => {
                       flex flex-col overflow-hidden hover:shadow-md hover:scale-[1.01] transition-all z-20 group
                       ${
                         event.isCompleted
-                          ? "bg-success/20 border-success shadow-[0_0_15px_rgba(34,197,94,0.15)] ring-1 ring-success/20"
+                          ? "bg-success/20 border-success text-success shadow-[0_0_15px_rgba(34,197,94,0.15)] ring-1 ring-success/20"
                           : event.skippedReason
                             ? "bg-warning/15 border-warning opacity-90"
                             : isSpecial
@@ -644,17 +644,17 @@ const Timetable = () => {
                 {!selectedEvent.isCompleted && !selectedEvent.skippedReason && (
                   <button
                     onClick={() => navigate(`/focus/${selectedEvent.id}`)}
-                    className="w-full btn bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 flex items-center justify-center gap-2 py-3 transition-all active:scale-95 group"
+                    className="w-full btn btn-accent flex items-center justify-center gap-2 py-4 shadow-lg shadow-accent/20 transition-all active:scale-[0.98] group"
                   >
-                    <Target className="h-5 w-5" />
-                    <span className="text-sm font-bold uppercase tracking-wider">
+                    <Target className="h-5 w-5 animate-pulse" />
+                    <span className="text-base font-bold uppercase tracking-widest">
                       Start Focus Session
                     </span>
                   </button>
                 )}
 
                 {/* Secondary Action Grid */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 mt-4">
                   <button
                     onClick={() => {
                       if (
@@ -670,10 +670,10 @@ const Timetable = () => {
                       }
                     }}
                     disabled={isUpdating}
-                    className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-95 ${
+                    className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-[0.97] ${
                       selectedEvent.isCompleted
-                        ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20"
-                        : "bg-success/10 text-success border-success/20 hover:bg-success/20"
+                        ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/15"
+                        : "bg-success/10 text-success border-success/20 hover:bg-success/15"
                     }`}
                   >
                     {isUpdating ? (
@@ -683,7 +683,7 @@ const Timetable = () => {
                     ) : (
                       <Check className="h-4 w-4" />
                     )}
-                    <span className="font-bold">
+                    <span className="text-sm font-bold">
                       {selectedEvent.isCompleted ? "Reset" : "Complete"}
                     </span>
                   </button>
@@ -701,10 +701,10 @@ const Timetable = () => {
                       }
                     }}
                     disabled={isUpdating}
-                    className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-95 ${
+                    className={`btn flex items-center justify-center gap-2 py-3 border transition-all active:scale-[0.97] ${
                       selectedEvent.skippedReason
-                        ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20"
-                        : "bg-warning/10 text-warning border-warning/20 hover:bg-warning/20"
+                        ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/15"
+                        : "bg-warning/10 text-warning border-warning/20 hover:bg-warning/15"
                     }`}
                   >
                     <RotateCcw
@@ -713,30 +713,30 @@ const Timetable = () => {
                     {!selectedEvent.skippedReason && (
                       <Clock className="h-4 w-4" />
                     )}
-                    <span className="font-bold">
+                    <span className="text-sm font-bold">
                       {selectedEvent.skippedReason ? "Reset" : "Skip"}
                     </span>
                   </button>
 
                   <button
                     onClick={handleDuplicateEvent}
-                    className="btn bg-secondary text-secondary-foreground hover:bg-secondary/80 flex items-center justify-center gap-2 py-3 border border-border/50"
+                    className="btn bg-secondary text-secondary-foreground hover:bg-secondary/80 flex items-center justify-center gap-2 py-3 border border-border/50 transition-all active:scale-[0.97]"
                   >
                     <Copy className="h-4 w-4" />
-                    <span className="font-bold">Duplicate</span>
+                    <span className="text-sm font-bold">Duplicate</span>
                   </button>
 
                   <button
                     onClick={onDeleteClick}
                     disabled={isDeleting}
-                    className="btn bg-destructive/10 text-destructive hover:bg-destructive/20 flex items-center justify-center gap-2 py-3 border border-destructive/20"
+                    className="btn bg-destructive/10 text-destructive hover:bg-destructive/15 flex items-center justify-center gap-2 py-3 border border-destructive/20 transition-all active:scale-[0.97]"
                   >
                     {isDeleting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Trash2 className="h-4 w-4" />
                     )}
-                    <span className="font-bold">Delete</span>
+                    <span className="text-sm font-bold">Delete</span>
                   </button>
                 </div>
               </div>

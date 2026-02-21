@@ -5,7 +5,7 @@ import { env } from "../config/env";
 const isDevelopment = env.data?.NODE_ENV === "development";
 
 export function errorHandler(app: Express) {
-  app.use((err: Error, req: Request, res: Response, next: any) => {
+  app.use((err: Error, req: Request, res: Response, _next) => {
     logger.error(`Error: ${err.message}`);
     const message = isDevelopment
       ? err.message

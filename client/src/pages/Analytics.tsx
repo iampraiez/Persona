@@ -105,7 +105,6 @@ const Analytics = () => {
     specialEventsCount = 0,
     specialEventsData = [],
     activityData = [],
-    goalProgressData = [],
     averageGoalProgress = 0,
   } = analyticsData || {};
 
@@ -486,10 +485,10 @@ const Analytics = () => {
               ))}
             </div>
           ) : goals && goals.length > 0 ? (
-            goals.map((goal: any) => {
+            goals.map((goal) => {
               const totalSteps = goal.steps.length;
               const completedSteps = goal.steps.filter(
-                (s: any) => s.isCompleted,
+                (s) => s.isCompleted,
               ).length;
               const progress =
                 totalSteps > 0

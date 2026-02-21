@@ -169,11 +169,11 @@ export const useTimetable = () => {
       skipEventRaw(
         { id, data },
         {
-          onSuccess: (responseData: any) => {
+          onSuccess: (responseData: unknown) => {
             setShowEventDetailsModal(false);
             resolve(responseData);
           },
-          onError: (err: any) => {
+          onError: (err: unknown) => {
             toast.error("Failed to skip event");
             reject(err);
           },

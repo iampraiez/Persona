@@ -16,9 +16,9 @@ export class GoalService {
     });
   }
 
-  static async createGoal(userId: string, data: any) {
+  static async createGoal(userId: string, data: { title: string; description?: string; totalDays: number; createdAt: string; steps: { title: string; description?: string; dueDate: string }[] }) {
     const { title, description, totalDays, createdAt, steps } = data;
-    const steps_edited = steps.map(({ id, dueDate, ...rest }: any) => ({
+    const steps_edited = steps.map(({ dueDate, ...rest }: { title: string; description?: string; dueDate: string }) => ({
       ...rest,
       dueDate: toUTCDate(dueDate),
     }));
@@ -44,7 +44,7 @@ export class GoalService {
     });
   }
 
-  static async updateGoal(userId: string, goalId: string, data: any) {
+  static async updateGoal(userId: string, goalId: string, data: { title?: string; description?: string; totalDays?: number; steps?: { title: string; description?: string; dueDate: string; isCompleted?: boolean }[] }) {
     const goal = await prisma.goal.findFirst({
       where: { id: goalId, userId },
     });
@@ -52,7 +52,12 @@ export class GoalService {
     if (!goal) throw new Error("Goal not found");
 
     const { title, description, totalDays, steps } = data;
-    const updateData: any = {};
+    const updateData: {
+      title?: string;
+      description?: string;
+      totalDays?: number;
+      steps?: { create: { title: string; description?: string; dueDate: Date; isCompleted: boolean }[] };
+    } = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (totalDays !== undefined) updateData.totalDays = totalDays;
@@ -63,7 +68,7 @@ export class GoalService {
       });
 
       const stepsToCreate = steps.map(
-        ({ title, description, dueDate, isCompleted }: any) => ({
+        ({ title, description, dueDate, isCompleted }: { title: string; description?: string; dueDate: string; isCompleted?: boolean }) => ({
           title,
           description,
           dueDate: toUTCDate(dueDate),

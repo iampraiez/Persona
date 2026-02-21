@@ -177,26 +177,27 @@ const Header = ({ openSidebar }: HeaderProps) => {
                   setNotificationsOpen(becomingOpen);
 
                   if (becomingOpen) {
-                    if (unreadCount > 0) {
-                      markAllAsRead();
-                    }
+                    if (unreadCount > 0) markAllAsRead();
+
                     if ("Notification" in window) {
-                      if (Notification.permission === "default") {
-                        const permission =
+                      const permission = Notification.permission;
+
+                      if (permission === "default") {
+                        const newPermission =
                           await Notification.requestPermission();
-                        if (permission === "granted") {
+                        if (newPermission === "granted") {
                           subscribeUser();
                           toast.success("Notifications enabled!");
-                        } else if (permission === "denied") {
+                        } else if (newPermission === "denied") {
                           toast.warning(
-                            "Notification permission denied. Please reset it in your browser settings to enable alerts.",
+                            "Notification permission denied. Enable in browser settings for alerts.",
                           );
                         }
-                      } else if (Notification.permission === "granted") {
+                      } else if (permission === "granted") {
                         subscribeUser();
-                      } else if (Notification.permission === "denied") {
+                      } else if (permission === "denied") {
                         toast.warning(
-                          "Notification permission denied. Please reset it in your browser settings to enable alerts.",
+                          "Notifications are blocked. Please enable in browser settings for alerts.",
                         );
                       }
                     }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -115,6 +115,96 @@ const FocusSession = () => {
     }
   }, [event]);
 
+  // Fullscreen Handler
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((e) => {
+        toast.error(`Error attempting to enable full-screen mode: ${e.message}`);
+      });
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  // Inactivity Logic
+  const resetInactivityTimeout = useCallback(() => {
+    setIsInterfaceVisible(true);
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
+    if (isActive) {
+      inactivityTimeoutRef.current = setTimeout(() => {
+        setIsInterfaceVisible(false);
+      }, 3000);
+    }
+  }, [isActive]);
+
+  useEffect(() => {
+    const handleMouseMove = () => resetInactivityTimeout();
+    const handleTouchStart = () => resetInactivityTimeout();
+
+    if (isActive) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("touchstart", handleTouchStart);
+      resetInactivityTimeout();
+    } else {
+      setIsInterfaceVisible(true);
+      if (inactivityTimeoutRef.current) clearTimeout(inactivityTimeoutRef.current);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchstart", handleTouchStart);
+      if (inactivityTimeoutRef.current) clearTimeout(inactivityTimeoutRef.current);
+    };
+  }, [isActive, resetInactivityTimeout]);
+
+  // Audio Logic
+  useEffect(() => {
+    if (audioRef.current) {
+      if (selectedSound.id !== "none" && isActive) {
+        audioRef.current.src = selectedSound.url;
+        audioRef.current.volume = volume;
+        audioRef.current.play().catch((err) => {
+          console.error("Audio play error:", err);
+          toast.info("Select another sound or check browser permissions");
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [selectedSound, isActive, volume]);
+
+  const handleComplete = useCallback(async () => {
+    if (!event) return;
+    try {
+      await updateEvent({
+        id: event.id,
+        event: {
+          isCompleted: true,
+          focusDuration: (event.focusDuration || 0) + totalFocusTime,
+        },
+      });
+      toast.success("Focus session completed!");
+      navigate("/dashboard");
+    } catch {
+      toast.error("Failed to update progress");
+    }
+  }, [event, totalFocusTime, updateEvent, navigate]);
+
   useEffect(() => {
     if (isActive) {
       timerRef.current = setInterval(() => {
@@ -134,102 +224,7 @@ const FocusSession = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isActive]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      if (selectedSound.url && isActive) {
-        audioRef.current.src = selectedSound.url;
-        audioRef.current
-          .play()
-          .catch((e) => console.error("Audio playback error:", e));
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [selectedSound, isActive]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden && isActive) {
-        setIsActive(false);
-        toast.info("Session paused because you left the focus tab.");
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isActive]);
-
-  useEffect(() => {
-    const resetInactivityTimeout = () => {
-      setIsInterfaceVisible(true);
-      if (inactivityTimeoutRef.current)
-        clearTimeout(inactivityTimeoutRef.current);
-
-      if (isActive && !showSoundLibrary) {
-        inactivityTimeoutRef.current = setTimeout(() => {
-          setIsInterfaceVisible(false);
-        }, 3500);
-      }
-    };
-
-    if (!isActive) {
-      setIsInterfaceVisible(true);
-      if (inactivityTimeoutRef.current)
-        clearTimeout(inactivityTimeoutRef.current);
-    } else {
-      resetInactivityTimeout();
-    }
-
-    const activityEvents = ["mousemove", "mousedown", "touchstart", "keydown"];
-    activityEvents.forEach((e) =>
-      window.addEventListener(e, resetInactivityTimeout),
-    );
-
-    return () => {
-      activityEvents.forEach((e) =>
-        window.removeEventListener(e, resetInactivityTimeout),
-      );
-      if (inactivityTimeoutRef.current)
-        clearTimeout(inactivityTimeoutRef.current);
-    };
-  }, [isActive, showSoundLibrary]);
-
-  const handleToggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-        setIsFullscreen(false);
-      }
-    }
-  };
-
-  const handleComplete = async () => {
-    if (!event) return;
-    try {
-      await updateEvent({
-        id: event.id,
-        event: {
-          isCompleted: true,
-          focusDuration: (event.focusDuration || 0) + totalFocusTime,
-        },
-      });
-      toast.success("Focus session completed!");
-      navigate("/dashboard");
-    } catch {
-      toast.error("Failed to update progress");
-    }
-  };
+  }, [isActive, handleComplete]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

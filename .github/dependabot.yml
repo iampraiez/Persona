@@ -1,35 +1,52 @@
 version: 2
 updates:
-  # Maintain dependencies for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  # Client dependencies
+  - package-ecosystem: npm
+    directory: /client
     schedule:
-      interval: "weekly"
-    groups:
-      actions:
-        patterns:
-          - "*"
-
-  # Maintain dependencies for the client project
-  - package-ecosystem: "npm"
-    directory: "/client"
-    schedule:
-      interval: "weekly"
+      interval: weekly
+      day: monday
+      time: "08:00"
     open-pull-requests-limit: 10
-    versioning-strategy: increase
     groups:
-      dependencies:
+      react-ecosystem:
         patterns:
-          - "*"
+          - "react*"
+          - "@types/react*"
+      vite-build:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+    ignore:
+      # Only update majors manually
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
-  # Maintain dependencies for the server project
-  - package-ecosystem: "npm"
-    directory: "/server"
+  # Server dependencies
+  - package-ecosystem: npm
+    directory: /server
     schedule:
-      interval: "weekly"
+      interval: weekly
+      day: monday
+      time: "08:00"
     open-pull-requests-limit: 10
-    versioning-strategy: increase
     groups:
-      dependencies:
+      prisma:
         patterns:
-          - "*"
+          - "prisma"
+          - "@prisma/*"
+      types:
+        patterns:
+          - "@types/*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions themselves
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

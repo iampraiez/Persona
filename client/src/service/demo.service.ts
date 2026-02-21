@@ -343,17 +343,19 @@ class DemoService {
 
     const numReasons = randomBetween(2, Math.min(4, specialEventsCount));
 
-    const specialEventsData = Array.from({ length: numReasons }, (_, i) => ({
-      date: `Event ${i + 1}`,
-      completed: randomBetween(
+    const specialEventsData = Array.from({ length: numReasons }, (_, i) => {
+      const completedCount = randomBetween(
         1,
         Math.max(1, Math.floor(specialEventsCount / numReasons)),
-      ),
-      skipped: randomBetween(0, 2),
-      total: (() => {
-        return this.completed + this.skipped;
-      })(),
-    }));
+      );
+      const skippedCount = randomBetween(0, 2);
+      return {
+        date: `Event ${i + 1}`,
+        completed: completedCount,
+        skipped: skippedCount,
+        total: completedCount + skippedCount,
+      };
+    });
 
     let activityData: Analytics["activityData"] = [];
     if (range === "day") {

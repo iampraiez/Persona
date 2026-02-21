@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { Event as PrismaEvent, Goal as PrismaGoal, Step as PrismaStep } from "@prisma/client";
 import {
   startOfDay,
   endOfDay,
@@ -116,7 +117,7 @@ export class AnalyticsService {
 
   private static prepareActivityData(
     range: string,
-    events: any[],
+    events: PrismaEvent[],
     currentDate: Date,
   ) {
     if (range === "day") {
@@ -209,12 +210,12 @@ export class AnalyticsService {
   }
 
   private static prepareGoalProgressData(
-    goals: any[],
+    goals: (PrismaGoal & { steps: PrismaStep[] })[],
     startDate: Date,
     endDate: Date,
   ) {
     return goals.map((goal) => {
-      const completedStepsInRange = goal.steps.filter((s: any) => {
+      const completedStepsInRange = goal.steps.filter((s: PrismaStep) => {
         if (!s.isCompleted || !s.completedAt) return false;
         const completedAt = new Date(s.completedAt);
         return completedAt >= startDate && completedAt <= endDate;

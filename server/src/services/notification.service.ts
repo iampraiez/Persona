@@ -44,23 +44,26 @@ export class NotificationService {
       }
 
       return notification;
-    } catch (error: any) {
-      if (error.statusCode === 410 || error.statusCode === 404) {
-        logger.warn(
-          `Subscription expired or not found for user ${userId}. removing subscription.`,
-        );
-        const subscriptionRecord = await prisma.pushSubscription.findFirst({
-          where: { userId },
-        });
-
-        if (subscriptionRecord) {
-          await prisma.pushSubscription.deleteMany({
-            where: { endpoint: subscriptionRecord.endpoint },
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "statusCode" in error) {
+        const err = error as { statusCode: number };
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          logger.warn(
+            `Subscription expired or not found for user ${userId}. removing subscription.`,
+          );
+          const subscriptionRecord = await prisma.pushSubscription.findFirst({
+            where: { userId },
           });
+
+          if (subscriptionRecord) {
+            await prisma.pushSubscription.deleteMany({
+              where: { endpoint: subscriptionRecord.endpoint },
+            });
+          }
         }
       }
       logger.error(
-        `Error sending notification to user ${userId}: ${error.message}`,
+        `Error sending notification to user ${userId}: ${error instanceof Error ? error.message : String(error)}`,
       );
       return null;
     }
@@ -86,7 +89,7 @@ export class NotificationService {
     return prisma.notification.deleteMany({ where: { userId } });
   }
 
-  static async saveSubscription(userId: string, subscription: any) {
+  static async saveSubscription(userId: string, subscription: webpush.PushSubscription | string) {
     const sub =
       typeof subscription === "string"
         ? JSON.parse(subscription)

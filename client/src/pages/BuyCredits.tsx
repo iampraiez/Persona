@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../service/api.service";
@@ -100,6 +100,34 @@ const BuyCredits = () => {
     queryFn: () => (isDemo ? demoApi : api).getUser(),
   });
 
+  const handleVerify = useCallback(
+    async (reference: string) => {
+      setIsVerifying(true);
+      navigate("/buy-credits", { replace: true });
+
+      try {
+        const response = await api.verifyPayment(reference);
+        const { status, message } = response;
+
+        console.log("Payment verification response:", response);
+        if (status === "success") {
+          toast.success(message || "Credits added successfully!");
+          refetchUser();
+        } else if (status === "abandoned") {
+          toast.info(message || "Payment was cancelled.");
+        } else {
+          toast.error(message || "Payment failed.");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to verify payment status.");
+      } finally {
+        setIsVerifying(false);
+      }
+    },
+    [navigate, refetchUser],
+  );
+
   useEffect(() => {
     setLoadingPlanId(null);
     setIsVerifying(false);
@@ -110,32 +138,7 @@ const BuyCredits = () => {
     if (reference && !isDemo) {
       handleVerify(reference);
     }
-  }, [searchParams, isDemo]);
-
-  const handleVerify = async (reference: string) => {
-    setIsVerifying(true);
-    navigate("/buy-credits", { replace: true });
-
-    try {
-      const response = await api.verifyPayment(reference);
-      const { status, message } = response;
-
-      console.log("Payment verification response:", response);
-      if (status === "success") {
-        toast.success(message || "Credits added successfully!");
-        refetchUser();
-      } else if (status === "abandoned") {
-        toast.info(message || "Payment was cancelled.");
-      } else {
-        toast.error(message || "Payment failed.");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to verify payment status.");
-    } finally {
-      setIsVerifying(false);
-    }
-  };
+  }, [searchParams, isDemo, handleVerify]);
 
   const handleBuy = async (planId: string) => {
     if (isDemo) {

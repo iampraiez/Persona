@@ -8,11 +8,12 @@ export function authMiddleware(
   next: NextFunction,
 ): void {
   try {
-    const token = req.cookies?.access_token;
-    if (!token) {
+    if (!req.cookies || !req.cookies.access_token) {
       res.status(401).json({ error: "Unauthorized", data: null });
       return;
     }
+
+    const token = req.cookies.access_token;
 
     const payload = verifyAccessToken(token);
     if (!payload) {
@@ -22,8 +23,8 @@ export function authMiddleware(
 
     req.user = payload.email;
     next();
-  } catch (error: any) {
-    logger.error(`Auth Error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Auth Error: ${error instanceof Error ? error.message : String(error)}`);
     res.status(401).json({ error: "Unauthorized", data: null });
   }
 }

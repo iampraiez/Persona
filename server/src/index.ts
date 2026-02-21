@@ -82,7 +82,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 errorHandler(app);
 shutdown();
 
-const port: Number = Number(env.data?.PORT) || 3000;
+const port: number = Number(env.data?.PORT) || 3000;
 app.listen(port, (err?: Error | null) => {
   if (err) {
     logger.error(`Error starting server: ${err}`);

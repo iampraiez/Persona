@@ -100,7 +100,8 @@ export class UserService {
         (step: { isCompleted: boolean }) => step.isCompleted,
       ).length;
       const percentage = totalSteps > 0 ? completedSteps / totalSteps : 0;
-      const { steps, ...goalWithoutSteps } = goal;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { steps: _steps, ...goalWithoutSteps } = goal;
       return {
         ...goalWithoutSteps,
         percentage,
@@ -135,7 +136,8 @@ export class UserService {
       aggregateGoalProgress,
     };
 
-    const { deleteAccountCode, deleteAccountCodeExpiry, ...safeUser } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { deleteAccountCode: _code, deleteAccountCodeExpiry: _expiry, ...safeUser } = user;
 
     return {
       ...safeUser,
@@ -149,14 +151,14 @@ export class UserService {
     };
   }
 
-  static async updateProfile(email: string, data: any) {
+  static async updateProfile(email: string, data: { name?: string; image?: string; notificationsEnabled?: boolean; defaultNotifyBefore?: string | number }) {
     const { name, image, notificationsEnabled, defaultNotifyBefore } = data;
     const dataToUpdate = {
       ...(name !== undefined && { name }),
       ...(image !== undefined && { image }),
       ...(notificationsEnabled !== undefined && { notificationsEnabled }),
       ...(defaultNotifyBefore !== undefined && {
-        defaultNotifyBefore: parseInt(defaultNotifyBefore),
+        defaultNotifyBefore: typeof defaultNotifyBefore === "string" ? parseInt(defaultNotifyBefore) : defaultNotifyBefore,
       }),
     };
     return prisma.user.update({

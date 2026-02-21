@@ -29,7 +29,7 @@ export async function subscribeUser() {
         // Try to save existing one first
         await api.saveSubscription(existingSubscription);
         return;
-      } catch (err) {
+      } catch {
         // If saving fails (maybe VAPID mismatch), unsubscribe and re-subscribe
         console.warn(
           "Existing subscription invalid or mismatch, re-subscribing...",

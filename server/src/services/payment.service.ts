@@ -43,6 +43,11 @@ export class PaymentService {
   }
 
   static async verifyPayment(reference: string) {
+    // Sanitize: only allow alphanumeric, hyphens, and underscores to prevent SSRF
+    if (!/^[a-zA-Z0-9_-]+$/.test(reference)) {
+      throw new Error("Invalid payment reference format");
+    }
+
     // 1. Idempotency Check
     const existingTransaction = await prisma.transaction.findUnique({
       where: { reference },
@@ -71,17 +76,17 @@ export class PaymentService {
     return { status: data.status, alreadyProcessed: false };
   }
 
-  static async handleWebhook(event: any) {
+  static async handleWebhook(event: { event: string; data: unknown }) {
     if (event.event === "charge.success") {
       await this.fulfillOrder(event.data);
     }
   }
 
-  private static async fulfillOrder(data: any) {
-    const { userId, credits } = data.metadata;
-    const reference = data.reference;
-    const amount = data.amount / 100;
-    const purchaseAmount = parseInt(credits);
+  private static async fulfillOrder(data: unknown) {
+    const { userId, credits } = (data as { metadata: { userId: string; credits: string | number } }).metadata;
+    const reference = (data as { reference: string }).reference;
+    const amount = (data as { amount: number }).amount / 100;
+    const purchaseAmount = typeof credits === "string" ? parseInt(credits) : credits;
 
     await prisma.$transaction(async (tx) => {
       const existing = await tx.transaction.findUnique({
@@ -107,7 +112,7 @@ export class PaymentService {
       });
 
       logger.info(
-        `Payment fulfilled: ${purchaseAmount} credits for User ${userId} (Ref: ${reference})`,
+        `Payment fulfilled: ${purchaseAmount} credits for user (Ref: ${reference})`,
       );
     });
   }

@@ -41,13 +41,13 @@ export class UserController {
         },
         error: null,
       });
-    } catch (error: any) {
-      logger.error(`Error requesting account deletion: ${error}`);
+    } catch (error: unknown) {
+      logger.error(`Error requesting account deletion: ${error instanceof Error ? error.message : String(error)}`);
       res.status(500).json({
         data: null,
         error: errorWrapper(
           error,
-          error.message || "Failed to request account deletion",
+          error instanceof Error ? error.message : "Failed to request account deletion",
         ),
       });
     }
@@ -67,11 +67,11 @@ export class UserController {
         data: { message: "Account deleted successfully" },
         error: null,
       });
-    } catch (error: any) {
-      logger.error(`Error deleting account: ${error}`);
+    } catch (error: unknown) {
+      logger.error(`Error deleting account: ${error instanceof Error ? error.message : String(error)}`);
       res.status(500).json({
         data: null,
-        error: errorWrapper(error, error.message || "Failed to delete account"),
+        error: errorWrapper(error, error instanceof Error ? error.message : "Failed to delete account"),
       });
     }
   }

@@ -18,7 +18,7 @@ export class FeedbackController {
 
       await FeedbackService.sendFeedback(userEmail as string, message);
       res.status(200).json({ data: { success: true }, error: null });
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res
           .status(400)

@@ -40,8 +40,8 @@ export class NotificationController {
       res
         .status(200)
         .json({ data: "Notification deleted successfully", error: null });
-    } catch (error: any) {
-      logger.error(`Delete Notification Error: ${error.message}`);
+    } catch (error: unknown) {
+      logger.error(`Delete Notification Error: ${error instanceof Error ? error.message : String(error)}`);
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to delete notification"),

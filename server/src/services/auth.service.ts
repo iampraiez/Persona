@@ -50,7 +50,8 @@ export class AuthService {
     const userInfoResponse = await oAuth2Client.request({
       url: "https://www.googleapis.com/oauth2/v3/userinfo",
     });
-    const { email, name, picture }: any = userInfoResponse.data;
+    //@ts-expect-error - google-auth-library types are incomplete for userinfo payload
+    const { email, name, picture } = userInfoResponse.data;
 
     const refreshToken = generateRandomToken();
     const refreshTokenExpiresAt = new Date(

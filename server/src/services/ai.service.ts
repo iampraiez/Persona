@@ -1,6 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
-import { Event, Goal, Step } from "@prisma/client";
-import { logger } from "../utils/logger.utils";
+import {
+  Event as PrismaEvent,
+  Goal as PrismaGoal,
+  Step as PrismaStep,
+} from "@prisma/client";
+
 import { env } from "../config/env";
 import { prisma } from "../lib/prisma";
 import { toUTCDate } from "../utils/date.util";
@@ -85,7 +89,7 @@ export class AiService {
     await prisma.user.update({
       where: { id: userId },
       data: {
-        cachedInsights: suggestions as any,
+        cachedInsights: suggestions as PrismaGoal[], // or a proper Insight type if defined
         lastInsightsDate: now,
       },
     });
@@ -93,7 +97,7 @@ export class AiService {
     return suggestions;
   }
 
-  static async generateGoalSteps(userId: string, data: any) {
+  static async generateGoalSteps(userId: string, data: { goal: PrismaGoal; totalDays: number; stepCount?: number; currentSteps?: PrismaStep[] }) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("User not found");
 
@@ -114,7 +118,7 @@ export class AiService {
     return steps;
   }
 
-  static async generateTimetable(userId: string, data: any) {
+  static async generateTimetable(userId: string, data: { description: string; range: { start: string; end: string } }) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("User not found");
 
@@ -130,7 +134,7 @@ export class AiService {
     }
 
     const createdEvents = await Promise.all(
-      generatedEvents.map((event: any) =>
+      generatedEvents.map((event: { title: string; description?: string; startTime: string; endTime: string; notifyBefore?: number }) =>
         prisma.event.create({
           data: {
             title: event.title,
@@ -164,7 +168,7 @@ export class AiService {
     });
   }
 
-  private static async generateEventSuggestions(events: Event[]) {
+  private static async generateEventSuggestions(events: PrismaEvent[]) {
     if (!GEMINI_API_KEY || events.length === 0) return null;
     const eventsText = events
       .map(
@@ -178,10 +182,10 @@ export class AiService {
   }
 
   private static async _generateGoalStepsAI(
-    goal: any,
+    goal: PrismaGoal,
     totalDays: number,
     stepCount?: number,
-    currentSteps?: any[],
+    currentSteps?: PrismaStep[],
   ) {
     if (!GEMINI_API_KEY) return null;
     const stepsToGenerate = stepCount || totalDays;
@@ -194,7 +198,7 @@ export class AiService {
     return cleanJSON(response);
   }
 
-  private static async generateGoalSuggestions(goals: any[]) {
+  private static async generateGoalSuggestions(goals: (PrismaGoal & { steps: PrismaStep[] })[]) {
     if (!GEMINI_API_KEY || goals.length === 0) return null;
     const goalsText = goals
       .map(
@@ -207,14 +211,17 @@ export class AiService {
     return cleanJSON(response);
   }
 
-  private static async generateDailyFocus(events: Event[], goals: any[]) {
+  private static async generateDailyFocus(
+    events: PrismaEvent[],
+    goals: PrismaGoal[],
+  ) {
     if (!GEMINI_API_KEY) return null;
     const prompt = `Suggest 3-5 focus areas for today based on schedule (${events.length} events) and goals (${goals.length} goals). Return JSON array: [{"message": "text", "type": "focus"}]`;
     const response = await generateContent(prompt);
     return cleanJSON(response);
   }
 
-  private static async _generateTimetableAI(description: string, range: any) {
+  private static async _generateTimetableAI(description: string, range: { start: string; end: string }) {
     if (!GEMINI_API_KEY) return null;
     const prompt = `Create schedule: "${description}". Range: ${range.start} to ${range.end}. Return JSON array of event objects: [{"title": "brief title", "description": "optional", "startTime": "ISO", "endTime": "ISO", "notifyBefore": number}]`;
     const response = await generateContent(prompt);

@@ -10,6 +10,22 @@ import { env } from "../config/env";
 
 const FRONTEND_URL = env.data?.CLIENT_URL || "http://localhost:5173";
 
+/**
+ * Validates returnTo against the allowed frontend origin.
+ * Returns FRONTEND_URL if returnTo is unsafe or malformed.
+ */
+function validateReturnTo(returnTo: string | undefined): string {
+  if (!returnTo) return FRONTEND_URL;
+  try {
+    const dest = new URL(returnTo);
+    const allowed = new URL(FRONTEND_URL);
+    if (dest.origin === allowed.origin) return returnTo;
+  } catch {
+    // malformed URL
+  }
+  return FRONTEND_URL;
+}
+
 export class AuthController {
   static async googleAuth(req: Request, res: Response) {
     try {
@@ -17,7 +33,7 @@ export class AuthController {
       const authUrl = await AuthService.getGoogleAuthUrl(returnTo);
       res.json({ data: authUrl, error: null });
     } catch (error: unknown) {
-      logger.error(`Google Auth Error: ${error}`);
+      logger.error("Google Auth: failed to get auth url");
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to get auth url"),
@@ -34,11 +50,9 @@ export class AuthController {
         const decodedState = JSON.parse(
           Buffer.from(state as string, "base64").toString(),
         );
-        if (decodedState.returnTo) {
-          returnTo = decodedState.returnTo;
-        }
-      } catch (e) {
-        logger.error(`Failed to parse state: ${e}`);
+        returnTo = validateReturnTo(decodedState.returnTo);
+      } catch {
+        logger.error("Failed to parse OAuth state parameter");
       }
     }
 
@@ -52,8 +66,8 @@ export class AuthController {
       res.cookie("refresh_token", refreshToken, COOKIE_OPTIONS);
 
       return res.redirect(`${returnTo}/login?success=true`);
-    } catch (error: unknown) {
-      logger.error(`Google Auth Error: ${error}`);
+    } catch {
+      logger.error("Google Auth: callback processing failed");
       return res.redirect(`${returnTo}/login?error=auth_failed`);
     }
   }

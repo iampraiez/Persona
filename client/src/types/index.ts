@@ -26,7 +26,7 @@ export interface Goal {
   id: string;
   title: string;
   description?: string | undefined;
-  totalDays: number | undefined;
+  totalDays: number;
   createdAt: Date | string;
   userId: string;
   steps: Step[];

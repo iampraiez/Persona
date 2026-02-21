@@ -19,7 +19,7 @@ export class AiController {
 
       const suggestions = await AiService.getSuggestions(userId);
       res.status(200).json({ data: suggestions, error: null });
-    } catch (error: any) {
+    } catch (error) {
       logger.error(`AI Suggestions Error: ${error.message}`);
       res.status(error.message.includes("Limit") ? 403 : 500).json({
         data: null,
@@ -39,7 +39,7 @@ export class AiController {
 
       const steps = await AiService.generateGoalSteps(userId, req.body);
       res.status(200).json({ data: { steps }, error: null });
-    } catch (error: any) {
+    } catch (error) {
       logger.error(`Step Generation Error: ${error.message}`);
       res.status(error.message.includes("Limit") ? 403 : 500).json({
         data: null,
@@ -56,7 +56,7 @@ export class AiController {
 
       const createdEvents = await AiService.generateTimetable(userId, req.body);
       res.status(200).json({ data: createdEvents, error: null });
-    } catch (error: any) {
+    } catch (error) {
       logger.error(`Timetable Generation Error: ${error.message}`);
       res.status(error.message.includes("Limit") ? 403 : 500).json({
         data: null,
