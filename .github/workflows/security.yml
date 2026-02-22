@@ -46,8 +46,7 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -92,9 +91,16 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: true
 
-      - name: Upload Trivy reports to GitHub Security tab
+      - name: Upload Trivy client reports to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
-          sarif_file: '.'
-          category: trivy
+          sarif_file: 'trivy-client.sarif'
+          category: trivy-client
+
+      - name: Upload Trivy server reports to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: 'trivy-server.sarif'
+          category: trivy-server

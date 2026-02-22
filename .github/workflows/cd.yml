@@ -34,8 +34,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -74,8 +72,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -92,7 +88,7 @@ jobs:
         run: pnpm run build
         working-directory: server
 
-      # Uncomment the section for your hosting provider:
+      # Uncomment the section for my hosting provider:
 
       # ─── Render ─────────────────────────────────────────────────────────────
       # - name: Trigger Render deploy hook
