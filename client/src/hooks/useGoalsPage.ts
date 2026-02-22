@@ -35,124 +35,98 @@ export const useGoalsPage = () => {
     steps: [],
   });
 
-  const handleReset = useCallback(async (id: string) => {
-    const goal = goals?.find((g: Goal) => g.id === id);
-    if (!goal) return;
+  const handleReset = useCallback(
+    async (id: string) => {
+      const goal = goals?.find((g: Goal) => g.id === id);
+      if (!goal) return;
 
-    const updatedSteps = (goal.steps || []).map((step: Step) => ({
-      ...step,
-      isCompleted: false,
-      skippedIsImportant: false,
-      skippedReason: null,
-    }));
+      const updatedSteps = (goal.steps || []).map((step: Step) => ({
+        ...step,
+        isCompleted: false,
+        skippedIsImportant: false,
+        skippedReason: null,
+      }));
 
-    updateGoal(
-      { id, goal: { steps: updatedSteps } },
-      {
+      updateGoal(
+        { id, goal: { steps: updatedSteps } },
+        {
+          onSuccess: () => {
+            setExpandedGoal(null);
+            setOptionsModalOpen(null);
+            toast.success("Goal reset successfully");
+          },
+          onError: () => {
+            toast.error("Failed to reset goal");
+          },
+        },
+      );
+    },
+    [goals, updateGoal],
+  );
+
+  const handleEdit = useCallback(
+    (id: string) => {
+      const goal = goals?.find((g: Goal) => g.id === id);
+      if (goal) {
+        setNewGoal(goal);
+        setShowNewGoalModal(true);
+        setExpandedGoal(null);
+        setOptionsModalOpen(null);
+      } else {
+        toast.error("Goal not found");
+      }
+    },
+    [goals],
+  );
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (!window.confirm("Are you sure you want to delete this goal?")) return;
+      deleteGoal(id, {
         onSuccess: () => {
           setExpandedGoal(null);
           setOptionsModalOpen(null);
-          toast.success("Goal reset successfully");
+          toast.success("Goal deleted successfully");
         },
         onError: () => {
-          toast.error("Failed to reset goal");
+          toast.error("Failed to delete goal");
         },
-      },
-    );
-  }, [goals, updateGoal]);
+      });
+    },
+    [deleteGoal],
+  );
 
-  const handleEdit = useCallback((id: string) => {
-    const goal = goals?.find((g: Goal) => g.id === id);
-    if (goal) {
-      setNewGoal(goal);
-      setShowNewGoalModal(true);
-      setExpandedGoal(null);
-      setOptionsModalOpen(null);
-    } else {
-      toast.error("Goal not found");
-    }
-  }, [goals]);
+  const completeStep = useCallback(
+    async (stepId: string) => {
+      const goal = goals?.find((g: Goal) =>
+        (g.steps || []).some((s: Step) => s.id === stepId),
+      );
+      if (!goal) return;
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this goal?")) return;
-    deleteGoal(id, {
-      onSuccess: () => {
-        setExpandedGoal(null);
-        setOptionsModalOpen(null);
-        toast.success("Goal deleted successfully");
-      },
-      onError: () => {
-        toast.error("Failed to delete goal");
-      },
-    });
-  }, [deleteGoal]);
-
-  const completeStep = useCallback(async (stepId: string) => {
-    const goal = goals?.find((g: Goal) =>
-      (g.steps || []).some((s: Step) => s.id === stepId),
-    );
-    if (!goal) return;
-
-    updateStepStatus(
-      { goalId: goal.id, stepId },
-      {
-        onSuccess: () => {
-          toast.success("Step marked as complete");
+      updateStepStatus(
+        { goalId: goal.id, stepId },
+        {
+          onSuccess: () => {
+            toast.success("Step marked as complete");
+          },
+          onError: () => {
+            toast.error("Failed to mark step as complete");
+          },
         },
-        onError: () => {
-          toast.error("Failed to mark step as complete");
-        },
-      },
-    );
-  }, [goals, updateStepStatus]);
+      );
+    },
+    [goals, updateStepStatus],
+  );
 
-  const handleCreateGoal = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newGoal.title || !newGoal.totalDays) {
-      toast.error("Please fill out goal title and valid time frame");
-      return;
-    }
+  const handleCreateGoal = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newGoal.title || !newGoal.totalDays) {
+        toast.error("Please fill out goal title and valid time frame");
+        return;
+      }
 
-    createGoal(newGoal, {
-      onSuccess: () => {
-        setShowNewGoalModal(false);
-        setNewGoal({
-          id: "",
-          title: "",
-          description: "",
-          totalDays: 0,
-          createdAt: new Date().toISOString(),
-          userId: "",
-          steps: [],
-        });
-        toast.success("Goal created successfully");
-      },
-      onError: () => {
-        toast.error("Failed to create goal");
-      },
-    });
-  }, [newGoal, createGoal]);
-
-  const handleUpdateGoal = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newGoal.id || !newGoal.title || (newGoal.totalDays || 0) <= 0) {
-      toast.error("Please fill out goal title and valid time frame");
-      return;
-    }
-
-    const updateData: Partial<Goal> = {
-      title: newGoal.title,
-      description: newGoal.description,
-      totalDays: newGoal.totalDays,
-      steps: newGoal.steps.map((s) => ({
-        ...s,
-        dueDate: new Date(s.dueDate).toISOString(),
-      })),
-    };
-
-    updateGoal(
-      { id: newGoal.id.toString(), goal: updateData },
-      {
+      createGoal(newGoal, {
         onSuccess: () => {
           setShowNewGoalModal(false);
           setNewGoal({
@@ -164,14 +138,58 @@ export const useGoalsPage = () => {
             userId: "",
             steps: [],
           });
-          toast.success("Goal updated successfully");
+          toast.success("Goal created successfully");
         },
         onError: () => {
-          toast.error("Failed to update goal");
+          toast.error("Failed to create goal");
         },
-      },
-    );
-  }, [newGoal, updateGoal]);
+      });
+    },
+    [newGoal, createGoal],
+  );
+
+  const handleUpdateGoal = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newGoal.id || !newGoal.title || (newGoal.totalDays || 0) <= 0) {
+        toast.error("Please fill out goal title and valid time frame");
+        return;
+      }
+
+      const updateData: Partial<Goal> = {
+        title: newGoal.title,
+        description: newGoal.description,
+        totalDays: newGoal.totalDays,
+        steps: newGoal.steps.map((s) => ({
+          ...s,
+          dueDate: new Date(s.dueDate).toISOString(),
+        })),
+      };
+
+      updateGoal(
+        { id: newGoal.id.toString(), goal: updateData },
+        {
+          onSuccess: () => {
+            setShowNewGoalModal(false);
+            setNewGoal({
+              id: "",
+              title: "",
+              description: "",
+              totalDays: 0,
+              createdAt: new Date().toISOString(),
+              userId: "",
+              steps: [],
+            });
+            toast.success("Goal updated successfully");
+          },
+          onError: () => {
+            toast.error("Failed to update goal");
+          },
+        },
+      );
+    },
+    [newGoal, updateGoal],
+  );
 
   const handleStepCountChange = useCallback((count: number) => {
     setStepCount(count);
@@ -195,53 +213,54 @@ export const useGoalsPage = () => {
     });
   }, []);
 
-  const generateSteps = useCallback(async (
-    goalTitle: string,
-    days: number,
-    count: number,
-  ) => {
-    if (!goalTitle.trim() || days <= 0 || count <= 0) {
-      toast.error("Please provide a goal, valid time frame, and step count");
-      return;
-    }
-    try {
-      setGeneratingSteps(true);
-      const getApi = () => (useAuthStore.getState().isDemo ? demoApi : api);
+  const generateSteps = useCallback(
+    async (goalTitle: string, days: number, count: number) => {
+      if (!goalTitle.trim() || days <= 0 || count <= 0) {
+        toast.error("Please provide a goal, valid time frame, and step count");
+        return;
+      }
+      try {
+        setGeneratingSteps(true);
+        const getApi = () => (useAuthStore.getState().isDemo ? demoApi : api);
 
-      const currentStepsParams = newGoal.steps.map(({ title, description }) => ({
-        title,
-        description,
-      }));
+        const currentStepsParams = newGoal.steps.map(
+          ({ title, description }) => ({
+            title,
+            description,
+          }),
+        );
 
-      const data = await getApi().generateSteps(
-        { title: goalTitle, description: newGoal.description },
-        days,
-        count,
-        currentStepsParams,
-      );
+        const data = await getApi().generateSteps(
+          { title: goalTitle, description: newGoal.description },
+          days,
+          count,
+          currentStepsParams,
+        );
 
-      const editedSteps = data.steps.map(({ dueDate, ...rest }) => ({
-        ...rest,
-        dueDate: new Date(dueDate as string).toISOString(),
-      }));
+        const editedSteps = data.steps.map(({ dueDate, ...rest }) => ({
+          ...rest,
+          dueDate: new Date(dueDate as string).toISOString(),
+        }));
 
-      setNewGoal((prev) => ({
-        ...prev,
-        steps: editedSteps.map((step, index) => ({
-          ...step,
-          dueDate: new Date(step.dueDate).toISOString(),
-          id: `${prev.steps.length + 1 + index}`,
-          isCompleted: false,
-        })),
-      }));
+        setNewGoal((prev) => ({
+          ...prev,
+          steps: editedSteps.map((step, index) => ({
+            ...step,
+            dueDate: new Date(step.dueDate).toISOString(),
+            id: `${prev.steps.length + 1 + index}`,
+            isCompleted: false,
+          })),
+        }));
 
-      toast.success("Steps generated successfully");
-    } catch {
-      toast.error("Error generating steps");
-    } finally {
-      setGeneratingSteps(false);
-    }
-  }, [newGoal, newGoal.description, newGoal.steps.length]);
+        toast.success("Steps generated successfully");
+      } catch {
+        toast.error("Error generating steps");
+      } finally {
+        setGeneratingSteps(false);
+      }
+    },
+    [newGoal, newGoal.description, newGoal.steps.length],
+  );
 
   const toggleExpandGoal = useCallback((goalId: string | null) => {
     setExpandedGoal((prev) => (prev === goalId ? null : goalId));
@@ -259,7 +278,7 @@ export const useGoalsPage = () => {
     isUpdating,
     isDeleting,
     isUpdatingStep,
-    
+
     showNewGoalModal,
     setShowNewGoalModal,
     expandedGoal,
@@ -271,7 +290,7 @@ export const useGoalsPage = () => {
     setStepCount,
     newGoal,
     setNewGoal,
-    
+
     handleReset,
     handleEdit,
     handleDelete,

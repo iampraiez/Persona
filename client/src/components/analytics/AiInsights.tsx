@@ -1,5 +1,12 @@
 import React from "react";
-import { Target, TrendingUp, Calendar, Activity, InfoIcon, Loader2 } from "lucide-react";
+import {
+  Target,
+  TrendingUp,
+  Calendar,
+  Activity,
+  InfoIcon,
+  Loader2,
+} from "lucide-react";
 import Card, { CardHeader, CardTitle, CardContent } from "../ui/Card";
 import { AiSuggestion } from "../../types";
 
@@ -20,10 +27,14 @@ const AiInsights: React.FC<AiInsightsProps> = ({
 }) => {
   const getIcon = (type: string) => {
     switch (type) {
-      case "schedule": return <Calendar className="h-5 w-5 text-accent shrink-0" />;
-      case "goal": return <Target className="h-5 w-5 text-accent shrink-0" />;
-      case "focus": return <Activity className="h-5 w-5 text-accent shrink-0" />;
-      default: return <InfoIcon className="h-5 w-5 text-accent shrink-0" />;
+      case "schedule":
+        return <Calendar className="h-5 w-5 text-accent shrink-0" />;
+      case "goal":
+        return <Target className="h-5 w-5 text-accent shrink-0" />;
+      case "focus":
+        return <Activity className="h-5 w-5 text-accent shrink-0" />;
+      default:
+        return <InfoIcon className="h-5 w-5 text-accent shrink-0" />;
     }
   };
 

@@ -47,7 +47,10 @@ const GoalOptionsMenu: React.FC<GoalOptionsMenuProps> = ({
           >
             <div className="p-1">
               <button
-                onClick={(e) => { e.stopPropagation(); onReset(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReset();
+                }}
                 disabled={isUpdating}
                 className="w-full text-left flex items-center px-3 py-2 text-sm hover:bg-secondary rounded-lg transition-colors disabled:opacity-50"
               >
@@ -59,7 +62,10 @@ const GoalOptionsMenu: React.FC<GoalOptionsMenuProps> = ({
                 Reset Goal
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
                 className="w-full text-left flex items-center px-3 py-2 text-sm hover:bg-secondary rounded-lg transition-colors"
               >
                 <Pencil className="h-4 w-4 mr-2" />
@@ -67,7 +73,10 @@ const GoalOptionsMenu: React.FC<GoalOptionsMenuProps> = ({
               </button>
               <div className="h-px bg-border my-1" />
               <button
-                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
                 disabled={isDeleting}
                 className="w-full text-left flex items-center px-3 py-2 text-sm text-destructive hover:bg-secondary rounded-lg transition-colors disabled:opacity-50"
               >

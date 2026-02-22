@@ -32,7 +32,7 @@ const Timetable = () => {
     eventsForSelectedDate,
     navigateWeek,
     isLoading,
-    
+
     // Modal Visibility
     showNewEventModal,
     setShowNewEventModal,
@@ -44,11 +44,11 @@ const Timetable = () => {
     setShowCopyModal,
     showClearModal,
     setShowClearModal,
-    
+
     // UI State
     isMenuOpen,
     setIsMenuOpen,
-    
+
     // Data State
     newEvent,
     setNewEvent,
@@ -61,7 +61,7 @@ const Timetable = () => {
     setClearRange,
     copyTargetStart,
     setCopyTargetStart,
-    
+
     // Handlers
     onNewEventSubmit,
     handleEventClick,
@@ -73,7 +73,7 @@ const Timetable = () => {
     handleCopyRange,
     handleClearRange,
     handleUpdateEvent,
-    
+
     // Loading States
     isCreating,
     isUpdating,
@@ -108,7 +108,7 @@ const Timetable = () => {
     <div className="pb-20">
       <div className="flex items-center justify-between mb-6">
         <div className="flex-1">
-          <WeekSelector 
+          <WeekSelector
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
             weekDays={weekDays}
@@ -116,7 +116,7 @@ const Timetable = () => {
             events={events || undefined}
           />
         </div>
-        
+
         <div className="flex gap-2 relative h-fit mt-12" ref={menuRef}>
           <button
             className="btn btn-accent flex items-center gap-2 shadow-lg shadow-accent/20"
@@ -192,7 +192,7 @@ const Timetable = () => {
         </div>
 
         <div className="relative min-h-[1920px] ml-2">
-          <TimelineGrid 
+          <TimelineGrid
             onSlotClick={(hour) => {
               const date = new Date(selectedDate);
               date.setHours(hour, 0, 0, 0);
@@ -200,16 +200,19 @@ const Timetable = () => {
                 title: "",
                 description: "",
                 startTime: format(date, "yyyy-MM-dd'T'HH:mm"),
-                endTime: format(new Date(date.getTime() + 3600000), "yyyy-MM-dd'T'HH:mm"),
+                endTime: format(
+                  new Date(date.getTime() + 3600000),
+                  "yyyy-MM-dd'T'HH:mm",
+                ),
                 notifyBefore: user?.defaultNotifyBefore || 15,
               });
               setShowNewEventModal(true);
-            }} 
+            }}
           />
 
           <div className="absolute top-0 left-16 right-0 bottom-0 z-10 pointer-events-none">
             {eventsForSelectedDate?.map((event) => (
-              <EventOverlayCard 
+              <EventOverlayCard
                 key={event.id}
                 event={event}
                 selectedDate={selectedDate}
@@ -230,7 +233,7 @@ const Timetable = () => {
       </div>
 
       {/* Modals */}
-      <NewEventModal 
+      <NewEventModal
         isOpen={showNewEventModal}
         onClose={() => setShowNewEventModal(false)}
         onSubmit={onNewEventSubmit}
@@ -239,7 +242,7 @@ const Timetable = () => {
         isCreating={isCreating}
       />
 
-      <EventDetailsModal 
+      <EventDetailsModal
         isOpen={showEventDetailsModal}
         onClose={() => setShowEventDetailsModal(false)}
         event={selectedEvent}
@@ -252,7 +255,7 @@ const Timetable = () => {
         isDeleting={isDeleting}
       />
 
-      <AiGenerateModal 
+      <AiGenerateModal
         isOpen={showAiModal}
         onClose={() => setShowAiModal(false)}
         onGenerate={handleAiGenerate}
@@ -262,7 +265,7 @@ const Timetable = () => {
         aiCredits={user?.aiCredits ?? 0}
       />
 
-      <CopyModal 
+      <CopyModal
         isOpen={showCopyModal}
         onClose={() => setShowCopyModal(false)}
         onCopy={handleCopyRange}
@@ -273,7 +276,7 @@ const Timetable = () => {
         isCopying={isCopying}
       />
 
-      <ClearModal 
+      <ClearModal
         isOpen={showClearModal}
         onClose={() => setShowClearModal(false)}
         onClear={handleClearRange}

@@ -4,7 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MoreHorizontal, ChevronRight, Target } from "lucide-react";
 import GoalStepItem from "./GoalStepItem";
 import GoalOptionsMenu from "./GoalOptionsMenu";
-import { calculateGoalProgress, calculateGoalTimeMetrics, sortStepsByTitleNumber } from "../../utils/goal.utils";
+import {
+  calculateGoalProgress,
+  calculateGoalTimeMetrics,
+  sortStepsByTitleNumber,
+} from "../../utils/goal.utils";
 
 interface GoalCardProps {
   goal: Goal;
@@ -62,19 +66,22 @@ const GoalCard: React.FC<GoalCardProps> = ({
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <div className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-bold">
               {progressPercentage}%
             </div>
             <div className="relative">
-              <button 
-                onClick={(e) => { e.stopPropagation(); onToggleOptions(); }}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleOptions();
+                }}
                 className="p-2 rounded-lg hover:bg-secondary transition-colors"
               >
                 <MoreHorizontal className="h-5 w-5 text-foreground/40" />
               </button>
-              <GoalOptionsMenu 
+              <GoalOptionsMenu
                 isOpen={isOptionsOpen}
                 onClose={onToggleOptions}
                 onReset={onReset}
@@ -91,7 +98,9 @@ const GoalCard: React.FC<GoalCardProps> = ({
           <div>
             <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-2 text-foreground/40">
               <span>Goal Progress</span>
-              <span>{completedSteps}/{steps.length} Steps</span>
+              <span>
+                {completedSteps}/{steps.length} Steps
+              </span>
             </div>
             <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden">
               <motion.div
@@ -107,7 +116,9 @@ const GoalCard: React.FC<GoalCardProps> = ({
             <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-2 text-foreground/40">
               <span>Timeline</span>
               <span>
-                {remainingDays > 0 ? `${remainingDays}d left` : "Deadline passed"}
+                {remainingDays > 0
+                  ? `${remainingDays}d left`
+                  : "Deadline passed"}
               </span>
             </div>
             <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden">
@@ -116,8 +127,11 @@ const GoalCard: React.FC<GoalCardProps> = ({
                 animate={{ width: `${timePercentage}%` }}
                 transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
                 className={`h-full ${
-                  timePercentage > 85 ? "bg-destructive" : 
-                  timePercentage > 60 ? "bg-warning" : "bg-success"
+                  timePercentage > 85
+                    ? "bg-destructive"
+                    : timePercentage > 60
+                      ? "bg-warning"
+                      : "bg-success"
                 }`}
               />
             </div>
@@ -148,7 +162,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
             <div className="p-6 space-y-3">
               {steps.length > 0 ? (
                 sortStepsByTitleNumber(steps).map((step, idx) => (
-                  <GoalStepItem 
+                  <GoalStepItem
                     key={step.id}
                     step={step}
                     index={idx}
@@ -158,7 +172,9 @@ const GoalCard: React.FC<GoalCardProps> = ({
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-sm text-foreground/40">No steps defined for this goal.</p>
+                  <p className="text-sm text-foreground/40">
+                    No steps defined for this goal.
+                  </p>
                 </div>
               )}
             </div>

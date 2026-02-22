@@ -6,7 +6,11 @@ interface BadgeProps {
   className?: string;
 }
 
-const Badge: React.FC<BadgeProps> = ({ children, variant = "default", className = "" }) => {
+const Badge: React.FC<BadgeProps> = ({
+  children,
+  variant = "default",
+  className = "",
+}) => {
   const variants = {
     default: "bg-secondary text-secondary-foreground border-border",
     success: "bg-success/10 text-success border-success/20",

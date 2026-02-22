@@ -31,7 +31,8 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
               <ChevronLeft className="h-4 w-4" />
             </button>
             <p className="text-foreground/70 text-sm font-medium">
-              {format(weekDays[0], "MMM d")} - {format(weekDays[6], "MMM d, yyyy")}
+              {format(weekDays[0], "MMM d")} -{" "}
+              {format(weekDays[6], "MMM d, yyyy")}
             </p>
             <button
               onClick={() => navigateWeek("next")}

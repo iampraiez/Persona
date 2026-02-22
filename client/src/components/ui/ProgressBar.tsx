@@ -36,7 +36,9 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           className={`h-full rounded-full ${barClassName}`}
         />
       </div>
-      {subLabel && <p className="text-[10px] text-foreground/50 mt-1">{subLabel}</p>}
+      {subLabel && (
+        <p className="text-[10px] text-foreground/50 mt-1">{subLabel}</p>
+      )}
     </div>
   );
 };

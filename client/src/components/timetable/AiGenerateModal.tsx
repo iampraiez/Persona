@@ -36,12 +36,15 @@ const AiGenerateModal: React.FC<AiGenerateModalProps> = ({
         <div className="p-4 bg-accent/5 rounded-lg border border-accent/10 flex items-center gap-3 mb-2">
           <Sparkles className="h-5 w-5 text-accent" />
           <p className="text-xs text-foreground/80 leading-relaxed">
-            Tell AI about your daily routine, work hours, or specific tasks, and it will generate an optimized schedule for you.
+            Tell AI about your daily routine, work hours, or specific tasks, and
+            it will generate an optimized schedule for you.
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">What's your plan?</label>
+          <label className="block text-sm font-medium mb-1">
+            What's your plan?
+          </label>
           <textarea
             className="input w-full h-32"
             placeholder="e.g., I work from 9 to 5, want to hit the gym at 6, and need 2 hours for deep work in the morning."
@@ -58,7 +61,9 @@ const AiGenerateModal: React.FC<AiGenerateModalProps> = ({
               type="date"
               className="input w-full"
               value={aiRange.start}
-              onChange={(e) => setAiRange({ ...aiRange, start: e.target.value })}
+              onChange={(e) =>
+                setAiRange({ ...aiRange, start: e.target.value })
+              }
             />
           </div>
           <div>

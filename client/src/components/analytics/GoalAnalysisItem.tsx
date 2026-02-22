@@ -2,7 +2,11 @@ import React from "react";
 import Badge from "../ui/Badge";
 import ProgressBar from "../ui/ProgressBar";
 import { Goal } from "../../types";
-import { calculateGoalProgress, calculateGoalTimeMetrics, calculateGoalStatus } from "../../utils/goal.utils";
+import {
+  calculateGoalProgress,
+  calculateGoalTimeMetrics,
+  calculateGoalStatus,
+} from "../../utils/goal.utils";
 
 interface GoalAnalysisItemProps {
   goal: Goal;
@@ -27,15 +31,17 @@ const GoalAnalysisItem: React.FC<GoalAnalysisItemProps> = ({ goal }) => {
         <Badge variant={variant}>{status}</Badge>
       </div>
 
-      <ProgressBar 
-        progress={progress} 
+      <ProgressBar
+        progress={progress}
         showPercent={false}
         className="mb-2"
         barClassName="bg-accent"
       />
 
       <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-foreground/40">
-        <span>{remainingDays > 0 ? `${remainingDays} days left` : "Deadline passed"}</span>
+        <span>
+          {remainingDays > 0 ? `${remainingDays} days left` : "Deadline passed"}
+        </span>
         <span>{progress}%</span>
       </div>
     </div>

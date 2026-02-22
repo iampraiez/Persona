@@ -41,18 +41,24 @@ const NewEventModal: React.FC<NewEventModalProps> = ({
             className="input w-full"
             placeholder="Event title"
             value={newEvent.title}
-            onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+            onChange={(e) =>
+              setNewEvent({ ...newEvent, title: e.target.value })
+            }
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Description (optional)</label>
+          <label className="block text-sm font-medium mb-1">
+            Description (optional)
+          </label>
           <textarea
             className="input w-full h-24"
             placeholder="Event description"
             value={newEvent.description}
-            onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+            onChange={(e) =>
+              setNewEvent({ ...newEvent, description: e.target.value })
+            }
           />
         </div>
 
@@ -63,7 +69,9 @@ const NewEventModal: React.FC<NewEventModalProps> = ({
               type="datetime-local"
               className="input w-full"
               value={newEvent.startTime}
-              onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
+              onChange={(e) =>
+                setNewEvent({ ...newEvent, startTime: e.target.value })
+              }
               required
             />
           </div>
@@ -74,14 +82,18 @@ const NewEventModal: React.FC<NewEventModalProps> = ({
               type="datetime-local"
               className="input w-full"
               value={newEvent.endTime}
-              onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
+              onChange={(e) =>
+                setNewEvent({ ...newEvent, endTime: e.target.value })
+              }
               required
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Notify Before (minutes)</label>
+          <label className="block text-sm font-medium mb-1">
+            Notify Before (minutes)
+          </label>
           <input
             type="number"
             className="input w-full"

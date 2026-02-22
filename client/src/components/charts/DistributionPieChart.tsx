@@ -1,5 +1,12 @@
 import React from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
 import { LucideIcon } from "lucide-react";
 import Card, { CardHeader, CardTitle, CardContent } from "../ui/Card";
 
@@ -63,10 +70,15 @@ const DistributionPieChart: React.FC<DistributionPieChartProps> = ({
                 paddingAngle={5}
                 dataKey={dataKey}
                 nameKey={nameKey}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) =>
+                  `${name} ${(percent * 100).toFixed(0)}%`
+                }
               >
                 {data.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={colors[index % colors.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />

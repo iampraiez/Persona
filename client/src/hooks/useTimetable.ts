@@ -310,7 +310,10 @@ export const useTimetable = () => {
     setSelectedEvent(null);
   };
 
-  const onSkipEvent = (data: { skippedReason: string; skippedIsImportant: boolean }) => {
+  const onSkipEvent = (data: {
+    skippedReason: string;
+    skippedIsImportant: boolean;
+  }) => {
     if (!selectedEvent) return;
     handleSkipEvent(selectedEvent.id, data);
     setSelectedEvent(null);
@@ -329,7 +332,10 @@ export const useTimetable = () => {
     setNewEvent({
       title: `${selectedEvent.title} (Copy)`,
       description: selectedEvent.description || "",
-      startTime: format(new Date(selectedEvent.startTime), "yyyy-MM-dd'T'HH:mm"),
+      startTime: format(
+        new Date(selectedEvent.startTime),
+        "yyyy-MM-dd'T'HH:mm",
+      ),
       endTime: format(new Date(selectedEvent.endTime), "yyyy-MM-dd'T'HH:mm"),
       notifyBefore: selectedEvent.notifyBefore,
     });
@@ -383,7 +389,7 @@ export const useTimetable = () => {
     handleAiGenerate,
     handleCopyRange,
     handleClearRange,
-    
+
     // UI Orchestration
     newEvent,
     setNewEvent,
@@ -401,4 +407,3 @@ export const useTimetable = () => {
     },
   };
 };
-

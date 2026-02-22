@@ -1,6 +1,24 @@
 import { useState } from "react";
-import { format, addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
-import { ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Target, Clock, TrendingUp } from "lucide-react";
+import {
+  format,
+  addDays,
+  subDays,
+  addWeeks,
+  subWeeks,
+  addMonths,
+  subMonths,
+  addYears,
+  subYears,
+} from "date-fns";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
+  AlertCircle,
+  Target,
+  Clock,
+  TrendingUp,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import { useAnalytics } from "../hooks/useAnalytics";
 import { useInsights } from "../hooks/useInsights";
@@ -8,17 +26,29 @@ import { useUser } from "../hooks/useUser";
 import { useGoals } from "../hooks/useGoals";
 
 import StatCard from "../components/analytics/StatCard";
-import ActivityChart from "../components/analytics/ActivityChart";
-import DistributionPieChart from "../components/analytics/DistributionPieChart";
+import ActivityChart from "../components/charts/ActivityChart";
+import DistributionPieChart from "../components/charts/DistributionPieChart";
 import GoalAnalysisItem from "../components/analytics/GoalAnalysisItem";
 import AiInsights from "../components/analytics/AiInsights";
-import Card, { CardHeader, CardTitle, CardContent } from "../components/ui/Card";
+import Card, {
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../components/ui/Card";
 
 const Analytics = () => {
   const [range, setRange] = useState("week");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(range, currentDate);
-  const { suggestions, generateInsights, isGenerating, isError: insightsError } = useInsights();
+  const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(
+    range,
+    currentDate,
+  );
+  const {
+    suggestions,
+    generateInsights,
+    isGenerating,
+    isError: insightsError,
+  } = useInsights();
   const { data: user } = useUser();
   const { goals } = useGoals();
 
@@ -50,8 +80,12 @@ const Analytics = () => {
   const getDateLabel = () => {
     if (range === "day") return format(currentDate, "MMMM d, yyyy");
     if (range === "week") {
-      const start = analyticsData?.range?.start ? new Date(analyticsData.range.start) : new Date();
-      const end = analyticsData?.range?.end ? new Date(analyticsData.range.end) : new Date();
+      const start = analyticsData?.range?.start
+        ? new Date(analyticsData.range.start)
+        : new Date();
+      const end = analyticsData?.range?.end
+        ? new Date(analyticsData.range.end)
+        : new Date();
       return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")}`;
     }
     if (range === "month") return format(currentDate, "MMMM yyyy");
@@ -60,8 +94,11 @@ const Analytics = () => {
   };
 
   const handleGenerateInsights = () => {
-    if ((!analyticsData?.totalEvents || analyticsData.totalEvents === 0) &&
-        (!analyticsData?.goalProgressData || analyticsData.goalProgressData.length === 0)) {
+    if (
+      (!analyticsData?.totalEvents || analyticsData.totalEvents === 0) &&
+      (!analyticsData?.goalProgressData ||
+        analyticsData.goalProgressData.length === 0)
+    ) {
       toast.info("Add some events or goals first to generate insights!");
       return;
     }
@@ -89,7 +126,9 @@ const Analytics = () => {
               key={r}
               onClick={() => setRange(r)}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                range === r ? "bg-card text-accent shadow-sm" : "text-muted-foreground hover:text-foreground"
+                range === r
+                  ? "bg-card text-accent shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {r.charAt(0).toUpperCase() + r.slice(1)}
@@ -106,7 +145,9 @@ const Analytics = () => {
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <h2 className="text-lg font-medium">{range === "all" ? "All Time Overview" : getDateLabel()}</h2>
+        <h2 className="text-lg font-medium">
+          {range === "all" ? "All Time Overview" : getDateLabel()}
+        </h2>
         <button
           className="p-2 rounded-md hover:bg-secondary disabled:opacity-50"
           onClick={handleNext}
@@ -154,15 +195,17 @@ const Analytics = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ActivityChart 
-          data={activityData.map((d: { date: string; completed: number; skipped: number }) => ({
-            name: d.date,
-            completed: d.completed,
-            skipped: d.skipped,
-          }))} 
-          isLoading={isAnalyticsLoading} 
+        <ActivityChart
+          data={activityData.map(
+            (d: { date: string; completed: number; skipped: number }) => ({
+              name: d.date,
+              completed: d.completed,
+              skipped: d.skipped,
+            }),
+          )}
+          isLoading={isAnalyticsLoading}
         />
-        
+
         <DistributionPieChart
           title="Reasons for skipping"
           icon={AlertCircle}
@@ -177,10 +220,17 @@ const Analytics = () => {
         <DistributionPieChart
           title="Focus Distribution"
           icon={TrendingUp}
-          data={totalEvents > 0 ? [
-            { name: "Scheduled", value: totalEvents - specialEventsCount },
-            { name: "Special", value: specialEventsCount },
-          ] : []}
+          data={
+            totalEvents > 0
+              ? [
+                  {
+                    name: "Scheduled",
+                    value: totalEvents - specialEventsCount,
+                  },
+                  { name: "Special", value: specialEventsCount },
+                ]
+              : []
+          }
           dataKey="value"
           nameKey="name"
           isLoading={isAnalyticsLoading}
@@ -207,11 +257,15 @@ const Analytics = () => {
                 ))}
               </div>
             ) : goals && goals.length > 0 ? (
-              goals.map((goal) => <GoalAnalysisItem key={goal.id} goal={goal} />)
+              goals.map((goal) => (
+                <GoalAnalysisItem key={goal.id} goal={goal} />
+              ))
             ) : (
               <div className="text-center py-8 text-muted-foreground bg-secondary/10 rounded-lg">
                 <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No goals set yet. Create a goal to see detailed analytics.</p>
+                <p>
+                  No goals set yet. Create a goal to see detailed analytics.
+                </p>
               </div>
             )}
           </div>

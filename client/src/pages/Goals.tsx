@@ -12,7 +12,7 @@ const Goals: React.FC = () => {
     isUpdating,
     isDeleting,
     isUpdatingStep,
-    
+
     showNewGoalModal,
     setShowNewGoalModal,
     expandedGoal,
@@ -21,7 +21,7 @@ const Goals: React.FC = () => {
     stepCount,
     newGoal,
     setNewGoal,
-    
+
     handleReset,
     handleEdit,
     handleDelete,
@@ -49,7 +49,9 @@ const Goals: React.FC = () => {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
             Your Goals
           </h1>
-          <p className="text-foreground/40 mt-1 text-sm">Transform your ambitions into structured roadmaps.</p>
+          <p className="text-foreground/40 mt-1 text-sm">
+            Transform your ambitions into structured roadmaps.
+          </p>
         </div>
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -65,7 +67,7 @@ const Goals: React.FC = () => {
       <div className="grid gap-6 grid-cols-1">
         {goals && goals.length > 0 ? (
           goals.map((goal) => (
-            <GoalCard 
+            <GoalCard
               key={goal.id}
               goal={goal}
               isExpanded={expandedGoal === goal.id}
@@ -92,7 +94,8 @@ const Goals: React.FC = () => {
             </div>
             <h3 className="text-2xl font-bold mb-3">No goals active</h3>
             <p className="text-foreground/40 mb-8 max-w-sm mx-auto leading-relaxed">
-              Start your journey today. Create a goal and let our AI help you break it down into manageable steps.
+              Start your journey today. Create a goal and let our AI help you
+              break it down into manageable steps.
             </p>
             <button
               className="btn btn-accent px-8"
@@ -104,7 +107,7 @@ const Goals: React.FC = () => {
         )}
       </div>
 
-      <NewGoalModal 
+      <NewGoalModal
         isOpen={showNewGoalModal}
         onClose={() => setShowNewGoalModal(false)}
         newGoal={newGoal}

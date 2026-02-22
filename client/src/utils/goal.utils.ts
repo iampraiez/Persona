@@ -7,7 +7,7 @@ import { Goal, Step } from "../types";
 export const calculateGoalProgress = (goal: Goal): number => {
   const steps = goal.steps || [];
   if (steps.length === 0) return 0;
-  
+
   const completedSteps = steps.filter((step) => step.isCompleted).length;
   return Math.round((completedSteps / steps.length) * 100);
 };
@@ -19,13 +19,16 @@ export const calculateGoalTimeMetrics = (goal: Goal) => {
   const elapsedDays = differenceInDays(new Date(), new Date(goal.createdAt));
   const totalDays = goal.totalDays || 1;
   const remainingDays = totalDays - elapsedDays;
-  const timePercentage = Math.min(100, Math.round((elapsedDays / totalDays) * 100));
+  const timePercentage = Math.min(
+    100,
+    Math.round((elapsedDays / totalDays) * 100),
+  );
 
   return {
     elapsedDays,
     remainingDays,
     timePercentage,
-    isOverdue: remainingDays < 0
+    isOverdue: remainingDays < 0,
   };
 };
 
@@ -48,13 +51,15 @@ export const sortStepsByTitleNumber = (steps: Step[]): Step[] => {
 export const calculateGoalStatus = (goal: Goal) => {
   const progress = calculateGoalProgress(goal);
   const { remainingDays } = calculateGoalTimeMetrics(goal);
-  
-  if (progress === 100) return { status: "Completed", variant: "success" as const };
-  if (remainingDays <= 0) return { status: "Overdue", variant: "destructive" as const };
-  
+
+  if (progress === 100)
+    return { status: "Completed", variant: "success" as const };
+  if (remainingDays <= 0)
+    return { status: "Overdue", variant: "destructive" as const };
+
   if (progress < 50 && remainingDays < (goal.totalDays || 1) / 2) {
     return { status: "Behind", variant: "warning" as const };
   }
-  
+
   return { status: "On Track", variant: "success" as const };
 };

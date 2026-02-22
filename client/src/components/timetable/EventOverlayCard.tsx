@@ -12,7 +12,11 @@ interface EventOverlayCardProps {
 
 const PIXELS_PER_MINUTE = 80 / 60;
 
-const EventOverlayCard: React.FC<EventOverlayCardProps> = ({ event, selectedDate, onClick }) => {
+const EventOverlayCard: React.FC<EventOverlayCardProps> = ({
+  event,
+  selectedDate,
+  onClick,
+}) => {
   const startTime = new Date(event.startTime);
   const endTime = new Date(event.endTime);
   const startOfDayDate = startOfDay(selectedDate);

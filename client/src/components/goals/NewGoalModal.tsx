@@ -115,7 +115,9 @@ const NewGoalModal: React.FC<NewGoalModalProps> = ({
                       min="1"
                       max="30"
                       value={stepCount}
-                      onChange={(e) => onStepCountChange(Number(e.target.value))}
+                      onChange={(e) =>
+                        onStepCountChange(Number(e.target.value))
+                      }
                     />
                   </div>
                 </div>
@@ -124,8 +126,12 @@ const NewGoalModal: React.FC<NewGoalModalProps> = ({
               <div className="bg-accent/5 rounded-2xl p-6 border border-accent/20">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-sm font-bold text-accent mb-1">AI Assistant</h3>
-                    <p className="text-xs text-foreground/60">Generate a structured roadmap automatically.</p>
+                    <h3 className="text-sm font-bold text-accent mb-1">
+                      AI Assistant
+                    </h3>
+                    <p className="text-xs text-foreground/60">
+                      Generate a structured roadmap automatically.
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -162,7 +168,9 @@ const NewGoalModal: React.FC<NewGoalModalProps> = ({
                   className="btn btn-accent px-10 shadow-lg shadow-accent/25"
                   disabled={isCreating || isUpdating}
                 >
-                  {(isCreating || isUpdating) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  {(isCreating || isUpdating) && (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  )}
                   {newGoal.id ? "Save Changes" : "Create Goal"}
                 </button>
               </div>

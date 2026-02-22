@@ -27,7 +27,9 @@ export const CopyModal: React.FC<CopyModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} title="Copy Events">
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1 text-foreground/70">Source Range</label>
+          <label className="block text-sm font-medium mb-1 text-foreground/70">
+            Source Range
+          </label>
           <div className="grid grid-cols-2 gap-2">
             <input
               type="date"
@@ -45,7 +47,9 @@ export const CopyModal: React.FC<CopyModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1 text-foreground/70">Target Start Date</label>
+          <label className="block text-sm font-medium mb-1 text-foreground/70">
+            Target Start Date
+          </label>
           <input
             type="date"
             className="input w-full"
@@ -58,13 +62,19 @@ export const CopyModal: React.FC<CopyModalProps> = ({
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
-          <button className="btn bg-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn bg-secondary" onClick={onClose}>
+            Cancel
+          </button>
           <button
             className="btn btn-accent flex items-center gap-2"
             onClick={onCopy}
             disabled={isCopying}
           >
-            {isCopying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+            {isCopying ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
             {isCopying ? "Copying..." : "Copy Events"}
           </button>
         </div>
@@ -96,12 +106,15 @@ export const ClearModal: React.FC<ClearModalProps> = ({
         <div className="flex items-start gap-3 p-3 bg-destructive/5 rounded-lg border border-destructive/10">
           <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
           <p className="text-xs text-foreground/80">
-            This action will permanently delete all events in the selected range. This cannot be undone.
+            This action will permanently delete all events in the selected
+            range. This cannot be undone.
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1 text-foreground/70">Range to Clear</label>
+          <label className="block text-sm font-medium mb-1 text-foreground/70">
+            Range to Clear
+          </label>
           <div className="grid grid-cols-2 gap-2">
             <input
               type="date"
@@ -119,13 +132,19 @@ export const ClearModal: React.FC<ClearModalProps> = ({
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
-          <button className="btn bg-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn bg-secondary" onClick={onClose}>
+            Cancel
+          </button>
           <button
             className="btn bg-destructive text-white flex items-center gap-2"
             onClick={onClear}
             disabled={isClearing}
           >
-            {isClearing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            {isClearing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
             {isClearing ? "Clearing..." : "Clear All"}
           </button>
         </div>

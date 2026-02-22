@@ -23,7 +23,15 @@ interface ActivityChartProps {
   isLoading?: boolean;
 }
 
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; color: string }[]; label?: string }) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: { value: number; name: string; color: string }[];
+  label?: string;
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-card p-3 border border-border rounded-md shadow-md">
@@ -65,7 +73,10 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ data, isLoading }) => {
               data={data}
               margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="hsl(var(--border))"
+              />
               <XAxis dataKey="name" stroke="currentColor" />
               <YAxis stroke="currentColor" />
               <Tooltip content={<CustomTooltip />} />

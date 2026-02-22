@@ -17,19 +17,29 @@ const Card: React.FC<CardProps> = ({ children, className = "", ...props }) => {
   );
 };
 
-export const CardHeader: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className = "",
-}) => <div className={`flex items-center justify-between mb-4 ${className}`}>{children}</div>;
+export const CardHeader: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = "" }) => (
+  <div className={`flex items-center justify-between mb-4 ${className}`}>
+    {children}
+  </div>
+);
 
-export const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className = "",
-}) => <h3 className={`text-lg font-medium flex items-center gap-2 ${className}`}>{children}</h3>;
+export const CardTitle: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = "" }) => (
+  <h3 className={`text-lg font-medium flex items-center gap-2 ${className}`}>
+    {children}
+  </h3>
+);
 
-export const CardContent: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className = "",
-}) => <div className={className}>{children}</div>;
+export const CardContent: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = "" }) => (
+  <div className={className}>{children}</div>
+);
 
 export default Card;
