@@ -267,6 +267,76 @@ export const useTimetable = () => {
     }
   };
 
+  // Internal UI states moved from Timetable.tsx
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    description: "",
+    startTime: "",
+    endTime: "",
+    notifyBefore: 15, // Default, will be updated by useEffect if needed
+  });
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setShowEventDetailsModal(true);
+  };
+
+  const onNewEventSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEvent.title || !newEvent.startTime || !newEvent.endTime) {
+      toast.error("Please fill out all fields");
+      return;
+    }
+
+    await handleCreateEvent({
+      ...newEvent,
+      startTime: new Date(newEvent.startTime).toISOString(),
+      endTime: new Date(newEvent.endTime).toISOString(),
+    });
+
+    setNewEvent({
+      title: "",
+      description: "",
+      startTime: "",
+      endTime: "",
+      notifyBefore: 15,
+    });
+  };
+
+  const onMarkAsCompleted = () => {
+    if (!selectedEvent) return;
+    handleUpdateEvent(selectedEvent.id, { isCompleted: true });
+    setSelectedEvent(null);
+  };
+
+  const onSkipEvent = (data: { skippedReason: string; skippedIsImportant: boolean }) => {
+    if (!selectedEvent) return;
+    handleSkipEvent(selectedEvent.id, data);
+    setSelectedEvent(null);
+  };
+
+  const onDeleteClick = () => {
+    if (!selectedEvent) return;
+    if (confirm("Delete this event?")) {
+      handleDeleteEvent(selectedEvent.id);
+      setSelectedEvent(null);
+    }
+  };
+
+  const handleDuplicateEvent = () => {
+    if (!selectedEvent) return;
+    setNewEvent({
+      title: `${selectedEvent.title} (Copy)`,
+      description: selectedEvent.description || "",
+      startTime: format(new Date(selectedEvent.startTime), "yyyy-MM-dd'T'HH:mm"),
+      endTime: format(new Date(selectedEvent.endTime), "yyyy-MM-dd'T'HH:mm"),
+      notifyBefore: selectedEvent.notifyBefore,
+    });
+    setShowEventDetailsModal(false);
+    setShowNewEventModal(true);
+  };
+
   return {
     selectedDate,
     setSelectedDate,
@@ -313,9 +383,22 @@ export const useTimetable = () => {
     handleAiGenerate,
     handleCopyRange,
     handleClearRange,
+    
+    // UI Orchestration
+    newEvent,
+    setNewEvent,
+    selectedEvent,
+    setSelectedEvent,
+    handleEventClick,
+    onNewEventSubmit,
+    onMarkAsCompleted,
+    onSkipEvent,
+    onDeleteClick,
+    handleDuplicateEvent,
 
     navigateWeek: (direction: "next" | "prev") => {
       setSelectedDate((prev) => addDays(prev, direction === "next" ? 7 : -7));
     },
   };
 };
+

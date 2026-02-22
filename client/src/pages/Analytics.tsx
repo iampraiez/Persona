@@ -1,99 +1,24 @@
 import { useState } from "react";
-import {
-  format,
-  addDays,
-  subDays,
-  addWeeks,
-  subWeeks,
-  addMonths,
-  subMonths,
-  addYears,
-  subYears,
-} from "date-fns";
-import {
-  BarChart as BarChartIcon,
-  CheckCircle,
-  Target,
-  ChevronLeft,
-  ChevronRight,
-  AlertCircle,
-  Clock,
-  TrendingUp,
-  Activity,
-  Calendar,
-  Loader2,
-  InfoIcon,
-} from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-} from "recharts";
-import { motion } from "framer-motion";
+import { format, addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
+import { ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Target, Clock, TrendingUp } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAnalytics } from "../hooks/useAnalytics";
 import { useInsights } from "../hooks/useInsights";
 import { useUser } from "../hooks/useUser";
 import { useGoals } from "../hooks/useGoals";
 
-const COLORS = ["#8B5CF6", "#3B82F6", "#14B8A6", "#F97316"];
-
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: {
-  active: boolean;
-  payload: {
-    name: string;
-    value: number;
-    color: string;
-    length: number;
-    entry: { name: string; value: number; color: string };
-  }[];
-  label: string;
-}) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-card p-3 border border-border rounded-md shadow-md">
-        <p className="font-medium">{label}</p>
-        {payload.map(
-          (
-            entry: { name: string; value: number; color: string },
-            index: number,
-          ) => (
-            <p key={index} style={{ color: entry.color }}>
-              {entry.name}: {entry.value}
-            </p>
-          ),
-        )}
-      </div>
-    );
-  }
-  return null;
-};
+import StatCard from "../components/analytics/StatCard";
+import ActivityChart from "../components/analytics/ActivityChart";
+import DistributionPieChart from "../components/analytics/DistributionPieChart";
+import GoalAnalysisItem from "../components/analytics/GoalAnalysisItem";
+import AiInsights from "../components/analytics/AiInsights";
+import Card, { CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 
 const Analytics = () => {
   const [range, setRange] = useState("week");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(
-    range,
-    currentDate,
-  );
-  const {
-    suggestions,
-    generateInsights,
-    isGenerating,
-    isError: insightsError,
-  } = useInsights();
+  const { data: analyticsData, isLoading: isAnalyticsLoading } = useAnalytics(range, currentDate);
+  const { suggestions, generateInsights, isGenerating, isError: insightsError } = useInsights();
   const { data: user } = useUser();
   const { goals } = useGoals();
 
@@ -125,12 +50,8 @@ const Analytics = () => {
   const getDateLabel = () => {
     if (range === "day") return format(currentDate, "MMMM d, yyyy");
     if (range === "week") {
-      const start = analyticsData?.range?.start
-        ? new Date(analyticsData.range.start)
-        : new Date();
-      const end = analyticsData?.range?.end
-        ? new Date(analyticsData.range.end)
-        : new Date();
+      const start = analyticsData?.range?.start ? new Date(analyticsData.range.start) : new Date();
+      const end = analyticsData?.range?.end ? new Date(analyticsData.range.end) : new Date();
       return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")}`;
     }
     if (range === "month") return format(currentDate, "MMMM yyyy");
@@ -138,20 +59,37 @@ const Analytics = () => {
     return "All Time";
   };
 
-  return (
-    <div>
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold">Analytics</h1>
+  const handleGenerateInsights = () => {
+    if ((!analyticsData?.totalEvents || analyticsData.totalEvents === 0) &&
+        (!analyticsData?.goalProgressData || analyticsData.goalProgressData.length === 0)) {
+      toast.info("Add some events or goals first to generate insights!");
+      return;
+    }
 
+    if ((user?.aiCredits || 0) <= 0) {
+      toast.error("You have reached your daily limit of 3 AI credits.");
+      return;
+    }
+
+    if (insightsError) {
+      toast.error("Failed to generate insights. Please try again later.");
+      return;
+    }
+
+    generateInsights();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold">Analytics</h1>
         <div className="flex bg-secondary rounded-lg p-1">
           {["day", "week", "month", "year", "all"].map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                range === r
-                  ? "bg-card text-accent shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                range === r ? "bg-card text-accent shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {r.charAt(0).toUpperCase() + r.slice(1)}
@@ -160,7 +98,7 @@ const Analytics = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-6 bg-card p-4 rounded-lg">
+      <div className="flex items-center justify-between bg-card p-4 rounded-lg border border-border/50">
         <button
           className="p-2 rounded-md hover:bg-secondary disabled:opacity-50"
           onClick={handlePrev}
@@ -168,13 +106,7 @@ const Analytics = () => {
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
-
-        <div className="text-center">
-          <h2 className="text-lg font-medium">
-            {range === "all" ? "All Time Overview" : getDateLabel()}
-          </h2>
-        </div>
-
+        <h2 className="text-lg font-medium">{range === "all" ? "All Time Overview" : getDateLabel()}</h2>
         <button
           className="p-2 rounded-md hover:bg-secondary disabled:opacity-50"
           onClick={handleNext}
@@ -184,477 +116,115 @@ const Analytics = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="bg-card p-4 rounded-lg"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">Completion Rate</h3>
-            <CheckCircle className="h-5 w-5 text-success" />
-          </div>
-          {isAnalyticsLoading ? (
-            <div className="animate-pulse">
-              <div className="h-8 w-24 bg-secondary rounded mb-2"></div>
-              <div className="h-4 w-32 bg-secondary rounded"></div>
-            </div>
-          ) : (
-            <>
-              <p className="text-2xl font-bold">{completionRate}%</p>
-              <p className="text-xs text-foreground/70">
-                {completedEvents} completed, {specialEventsCount} skipped
-              </p>
-            </>
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="bg-card p-4 rounded-lg"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">Special Events</h3>
-            <AlertCircle className="h-5 w-5 text-warning" />
-          </div>
-          {isAnalyticsLoading ? (
-            <div className="animate-pulse">
-              <div className="h-8 w-16 bg-secondary rounded mb-2"></div>
-              <div className="h-4 w-40 bg-secondary rounded"></div>
-            </div>
-          ) : (
-            <>
-              <p className="text-2xl font-bold">{specialEventsCount}</p>
-              <p className="text-xs text-foreground/70">
-                Activities outside your schedule
-              </p>
-            </>
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="bg-card p-4 rounded-lg"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">Goal Progress</h3>
-            <Target className="h-5 w-5 text-accent" />
-          </div>
-          {isAnalyticsLoading ? (
-            <div className="animate-pulse">
-              <div className="h-8 w-24 bg-secondary rounded mb-2"></div>
-              <div className="h-4 w-36 bg-secondary rounded"></div>
-            </div>
-          ) : (
-            <>
-              <p className="text-2xl font-bold">{averageGoalProgress}%</p>
-              <p className="text-xs text-foreground/70">
-                Average across all goals
-              </p>
-            </>
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-          className="bg-card p-4 rounded-lg"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">Focus Time</h3>
-            <Clock className="h-5 w-5 text-accent" />
-          </div>
-          {isAnalyticsLoading ? (
-            <div className="animate-pulse">
-              <div className="h-8 w-20 bg-secondary rounded mb-2"></div>
-              <div className="h-4 w-32 bg-secondary rounded"></div>
-            </div>
-          ) : (
-            <>
-              <p className="text-2xl font-bold">{focusTime}h</p>
-              <p className="text-xs text-foreground/70">
-                Total productive hours
-              </p>
-            </>
-          )}
-        </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Completion Rate"
+          icon={CheckCircle}
+          value={`${completionRate}%`}
+          description={`${completedEvents} completed, ${specialEventsCount} skipped`}
+          isLoading={isAnalyticsLoading}
+          iconColor="text-success"
+          delay={0}
+        />
+        <StatCard
+          title="Special Events"
+          icon={AlertCircle}
+          value={specialEventsCount}
+          description="Activities outside your schedule"
+          isLoading={isAnalyticsLoading}
+          iconColor="text-warning"
+          delay={0.1}
+        />
+        <StatCard
+          title="Goal Progress"
+          icon={Target}
+          value={`${averageGoalProgress}%`}
+          description="Average across all goals"
+          isLoading={isAnalyticsLoading}
+          delay={0.2}
+        />
+        <StatCard
+          title="Focus Time"
+          icon={Clock}
+          value={`${focusTime}h`}
+          description="Total productive hours"
+          isLoading={isAnalyticsLoading}
+          delay={0.3}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.4 }}
-          className="bg-card p-6 rounded-lg"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium flex items-center gap-2">
-              <BarChartIcon className="h-5 w-5 text-accent" />
-              Activity Overview
-            </h3>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ActivityChart 
+          data={activityData.map((d: { date: string; completed: number; skipped: number }) => ({
+            name: d.date,
+            completed: d.completed,
+            skipped: d.skipped,
+          }))} 
+          isLoading={isAnalyticsLoading} 
+        />
+        
+        <DistributionPieChart
+          title="Reasons for skipping"
+          icon={AlertCircle}
+          data={specialEventsData}
+          dataKey="value"
+          nameKey="name"
+          isLoading={isAnalyticsLoading}
+          iconColor="text-warning"
+          emptyMessage="No events skipped this period"
+        />
 
-          <div className="h-64">
-            {isAnalyticsLoading ? (
-              <div className="h-full w-full animate-pulse bg-secondary/30 rounded flex items-end justify-between px-4 pb-4 gap-2">
-                {[...Array(7)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-full bg-secondary rounded-t"
-                    style={{ height: `${Math.random() * 60 + 20}%` }}
-                  ></div>
-                ))}
-              </div>
-            ) : activityData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={activityData}
-                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                  />
-                  <XAxis dataKey="name" stroke="currentColor" />
-                  <YAxis stroke="currentColor" />
-                  <Tooltip
-                    content={
-                      <CustomTooltip active={false} payload={[]} label="" />
-                    }
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="completed"
-                    name="Completed"
-                    fill="#8B5CF6"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="skipped"
-                    name="Skipped"
-                    fill="#F97316"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">
-                <p>No activity data for this period</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.5 }}
-          className="bg-card p-6 rounded-lg"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-warning" />
-              Reasons for skipping
-            </h3>
-          </div>
-
-          <div className="h-64">
-            {isAnalyticsLoading ? (
-              <div className="h-full w-full flex items-center justify-center">
-                <div className="h-48 w-48 rounded-full border-8 border-secondary animate-pulse"></div>
-              </div>
-            ) : specialEventsData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={specialEventsData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
-                    }
-                  >
-                    {specialEventsData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${entry}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">
-                <p>No events skipped this period</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.55 }}
-          className="bg-card p-6 rounded-lg"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-accent" />
-              Focus Distribution
-            </h3>
-          </div>
-
-          <div className="h-64">
-            {isAnalyticsLoading ? (
-              <div className="h-full w-full flex items-center justify-center">
-                <div className="h-48 w-48 rounded-full border-8 border-secondary animate-pulse"></div>
-              </div>
-            ) : totalEvents > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      {
-                        name: "Scheduled",
-                        value: totalEvents - specialEventsCount,
-                      },
-                      { name: "Special", value: specialEventsCount },
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
-                    }
-                  >
-                    <Cell fill="#8B5CF6" />
-                    <Cell fill="#F97316" />
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">
-                <p>No data for this period</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
+        <DistributionPieChart
+          title="Focus Distribution"
+          icon={TrendingUp}
+          data={totalEvents > 0 ? [
+            { name: "Scheduled", value: totalEvents - specialEventsCount },
+            { name: "Special", value: specialEventsCount },
+          ] : []}
+          dataKey="value"
+          nameKey="name"
+          isLoading={isAnalyticsLoading}
+          showLegend
+        />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.6 }}
-        className="bg-card p-6 rounded-lg mb-6"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium flex items-center gap-2">
+      <Card>
+        <CardHeader>
+          <CardTitle>
             <Target className="h-5 w-5 text-accent" />
             Detailed Goal Analysis
-          </h3>
-        </div>
-
-        <div className="space-y-6">
-          {isAnalyticsLoading ? (
-            <div className="space-y-4 animate-pulse">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between">
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {isAnalyticsLoading ? (
+              <div className="space-y-4 animate-pulse">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="space-y-2">
                     <div className="h-4 w-32 bg-secondary rounded"></div>
-                    <div className="h-4 w-8 bg-secondary rounded"></div>
+                    <div className="h-2 w-full bg-secondary rounded"></div>
                   </div>
-                  <div className="h-2 w-full bg-secondary rounded"></div>
-                </div>
-              ))}
-            </div>
-          ) : goals && goals.length > 0 ? (
-            goals.map((goal) => {
-              const totalSteps = goal.steps.length;
-              const completedSteps = goal.steps.filter(
-                (s) => s.isCompleted,
-              ).length;
-              const progress =
-                totalSteps > 0
-                  ? Math.round((completedSteps / totalSteps) * 100)
-                  : 0;
+                ))}
+              </div>
+            ) : goals && goals.length > 0 ? (
+              goals.map((goal) => <GoalAnalysisItem key={goal.id} goal={goal} />)
+            ) : (
+              <div className="text-center py-8 text-muted-foreground bg-secondary/10 rounded-lg">
+                <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No goals set yet. Create a goal to see detailed analytics.</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-              const createdAt = new Date(goal.createdAt);
-              const deadline = new Date(
-                createdAt.getTime() + goal.totalDays * 24 * 60 * 60 * 1000,
-              );
-              const daysLeft = Math.max(
-                0,
-                Math.ceil(
-                  (deadline.getTime() - new Date().getTime()) /
-                    (1000 * 60 * 60 * 24),
-                ),
-              );
-
-              let status = "On Track";
-              let statusColor = "text-success";
-
-              if (progress < 50 && daysLeft < goal.totalDays / 2) {
-                status = "Behind";
-                statusColor = "text-warning";
-              }
-              if (daysLeft === 0 && progress < 100) {
-                status = "Overdue";
-                statusColor = "text-destructive";
-              }
-              if (progress === 100) {
-                status = "Completed";
-                statusColor = "text-success";
-              }
-
-              return (
-                <div
-                  key={goal.id}
-                  className="p-4 border border-border rounded-lg bg-secondary/10"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-semibold text-lg">{goal.title}</h4>
-                      <p className="text-xs text-foreground/60">
-                        {completedSteps} of {totalSteps} steps completed
-                      </p>
-                    </div>
-                    <div
-                      className={`px-2 py-1 rounded-full text-xs font-medium bg-card border border-border ${statusColor}`}
-                    >
-                      {status}
-                    </div>
-                  </div>
-
-                  <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-2">
-                    <div
-                      className="h-full bg-accent rounded-full transition-all duration-500"
-                      style={{ width: `${progress}%` }}
-                    ></div>
-                  </div>
-
-                  <div className="flex justify-between text-xs text-foreground/70">
-                    <span>{daysLeft} days left</span>
-                    <span>{progress}%</span>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="text-center py-8 text-muted-foreground bg-secondary/20 rounded-lg">
-              <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No goals set yet. Create a goal to see detailed analytics.</p>
-            </div>
-          )}
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.7 }}
-        className="bg-card p-6 rounded-lg"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-accent" />
-            AI Insights
-          </h3>
-          <span className="text-xs font-medium bg-accent/10 text-accent px-2 py-1 rounded-full">
-            {user?.aiCredits ?? 0}/3 Credits
-          </span>
-        </div>
-
-        <div className="space-y-4">
-          {suggestions && suggestions.length > 0 ? (
-            suggestions.map(
-              (
-                suggestion: { type: string; message: string },
-                index: number,
-              ) => (
-                <div key={index} className="p-4 bg-secondary rounded-md">
-                  <h4 className="font-medium mb-2">
-                    {" "}
-                    {suggestion.type === "schedule" && (
-                      <Calendar className="h-5 w-5 text-accent shrink-0" />
-                    )}
-                    {suggestion.type === "goal" && (
-                      <Target className="h-5 w-5 text-accent shrink-0" />
-                    )}
-                    {suggestion.type === "focus" && (
-                      <Activity className="h-5 w-5 text-accent shrink-0" />
-                    )}
-                    {suggestion.type === "description" && (
-                      <InfoIcon className="h-5 w-5 text-accent shrink-0" />
-                    )}
-                  </h4>
-                  <p className="text-sm">{suggestion.message}</p>
-                </div>
-              ),
-            )
-          ) : (
-            <div className="p-4 bg-secondary rounded-md text-center text-muted-foreground">
-              <p>No AI insights available. Click below to generate some!</p>
-            </div>
-          )}
-        </div>
-
-        <button
-          onClick={() => {
-            if (
-              (!analyticsData?.totalEvents ||
-                analyticsData.totalEvents === 0) &&
-              (!analyticsData?.goalProgressData ||
-                analyticsData.goalProgressData.length === 0)
-            ) {
-              toast.info(
-                "Add some events or goals first to generate insights!",
-              );
-              return;
-            }
-
-            if ((user?.aiCredits || 0) <= 0) {
-              toast.error("You have reached your daily limit of 3 AI credits.");
-              return;
-            }
-
-            if (insightsError) {
-              toast.error(
-                "Failed to generate insights. Please try again later.",
-              );
-              return;
-            }
-
-            generateInsights();
-          }}
-          disabled={isGenerating || (user?.aiCredits || 0) <= 0}
-          className="w-full mt-4 py-2 text-sm bg-accent/10 text-accent rounded-md hover:bg-accent/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isGenerating ? (
-            <Loader2 className="w-5 h-5 animate-spin inline-block" />
-          ) : (user?.aiCredits || 0) <= 0 ? (
-            "Daily Limit Reached"
-          ) : (
-            "Generate New Insights"
-          )}
-        </button>
-      </motion.div>
+      <AiInsights
+        suggestions={suggestions || []}
+        aiCredits={user?.aiCredits ?? 0}
+        isGenerating={isGenerating}
+        onGenerate={handleGenerateInsights}
+        canGenerate={(user?.aiCredits || 0) > 0}
+      />
     </div>
   );
 };
