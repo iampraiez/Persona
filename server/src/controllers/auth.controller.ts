@@ -15,35 +15,33 @@ const FRONTEND_URL = env.data?.CLIENT_URL || "http://localhost:5173";
  * Returns FRONTEND_URL if returnTo is unsafe or malformed.
  */
 function validateReturnTo(returnTo: string | undefined): string {
-  if (!returnTo || typeof returnTo !== "string") return FRONTEND_URL;
+  if (!returnTo || typeof returnTo !== "string") return "/";
 
   const trimmed = returnTo.trim();
-
-  // Allow only safe relative paths (starts with / but not //)
-  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
-    // Regex barrier to satisfy static analysis
-    if (/^\/[a-zA-Z0-9/\-_?&=]*$/.test(trimmed)) {
-      return trimmed;
-    }
-  }
 
   // If it's an absolute URL, verify it matches our frontend origin exactly
   try {
     const url = new URL(trimmed);
     const allowed = new URL(FRONTEND_URL);
 
-    // Explicit origin check with regex as a second layer to convince the tracker
-    const originRegex = new RegExp(
-      `^${allowed.origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
-    );
-    if (originRegex.test(url.origin) && url.origin === allowed.origin) {
-      return trimmed;
+    // Explicit origin check
+    if (url.origin === allowed.origin) {
+      // Return only the path + search + hash to be used as a relative redirect
+      return url.pathname + url.search + url.hash;
     }
   } catch {
-    // Malformed URL
+    // Not a valid absolute URL, check if it's a safe relative path
   }
 
-  return FRONTEND_URL;
+  // Allow only safe relative paths (starts with / but not //)
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
+    // Regex barrier for relative paths
+    if (/^\/[a-zA-Z0-9/\-_?&=]*$/.test(trimmed)) {
+      return trimmed;
+    }
+  }
+
+  return "/";
 }
 
 export class AuthController {
