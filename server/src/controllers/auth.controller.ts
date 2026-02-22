@@ -78,11 +78,12 @@ export class AuthController {
       }
     }
 
-    // Defensive construction of error redirect
+    // Defensive construction of error redirect using hardcoded FRONTEND_URL
     if (!code) {
-      const errorBase = validateReturnTo(returnTo);
-      const errorTarget = String(errorBase + "/login?error=auth_failed");
-      return res.redirect(errorTarget);
+      const safePath = validateReturnTo(returnTo);
+      // ALWAYS use hardcoded prefix to satisfy CodeQL
+      const finalErrorTarget = String(FRONTEND_URL + safePath + (safePath.includes("?") ? "&" : "?") + "error=auth_failed");
+      return res.redirect(finalErrorTarget);
     }
 
     try {
@@ -92,15 +93,14 @@ export class AuthController {
       res.cookie("access_token", accessToken, ACCESS_TOKEN_OPTIONS);
       res.cookie("refresh_token", refreshToken, COOKIE_OPTIONS);
 
-      // Definitively sanitize the target once more
-      const baseTarget = validateReturnTo(returnTo);
-      const finalTarget = String(baseTarget + "/login?success=true");
-      return res.redirect(finalTarget);
+      // Definitively sanitize the path once more
+      const safePath = validateReturnTo(returnTo);
+      const finalSuccessTarget = String(FRONTEND_URL + safePath + (safePath.includes("?") ? "&" : "?") + "success=true");
+      return res.redirect(finalSuccessTarget);
     } catch (error: unknown) {
       logger.error({ err: error }, "Google Auth: callback processing failed");
-      const safeErrorBase = validateReturnTo(FRONTEND_URL);
-      const safeErrorTarget = String(safeErrorBase + "/login?error=auth_failed");
-      return res.redirect(safeErrorTarget);
+      // Use hardcoded FRONTEND_URL for error redirect
+      return res.redirect(String(FRONTEND_URL + "/login?error=auth_failed"));
     }
   }
 
