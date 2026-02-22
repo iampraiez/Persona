@@ -23,7 +23,7 @@ interface ActivityChartProps {
   isLoading?: boolean;
 }
 
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; fill: string }[]; label?: string }) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; color: string }[]; label?: string }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-card p-3 border border-border rounded-md shadow-md">

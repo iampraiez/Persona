@@ -113,7 +113,7 @@ const Timetable = () => {
             setSelectedDate={setSelectedDate}
             weekDays={weekDays}
             navigateWeek={navigateWeek}
-            events={events}
+            events={events || undefined}
           />
         </div>
         
@@ -193,7 +193,6 @@ const Timetable = () => {
 
         <div className="relative min-h-[1920px] ml-2">
           <TimelineGrid 
-            selectedDate={selectedDate}
             onSlotClick={(hour) => {
               const date = new Date(selectedDate);
               date.setHours(hour, 0, 0, 0);
