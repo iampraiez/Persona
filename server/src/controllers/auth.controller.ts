@@ -79,14 +79,12 @@ export class AuthController {
     // Defensive construction of error redirect using hardcoded FRONTEND_URL
     if (!code) {
       const safePath = validateReturnTo(returnTo);
-      // ALWAYS use hardcoded prefix to satisfy CodeQL
-      const finalErrorTarget = String(
-        FRONTEND_URL +
-          safePath +
-          (safePath.includes("?") ? "&" : "?") +
-          "error=auth_failed",
-      );
-      return res.redirect(finalErrorTarget);
+      const finalErrorTarget = new URL(`${FRONTEND_URL}/login`);
+      finalErrorTarget.searchParams.set("error", "auth_failed");
+      if (safePath !== "/") {
+        finalErrorTarget.searchParams.set("returnTo", safePath);
+      }
+      return res.redirect(finalErrorTarget.toString());
     }
 
     try {
@@ -98,13 +96,12 @@ export class AuthController {
 
       // Definitively sanitize the path once more
       const safePath = validateReturnTo(returnTo);
-      const finalSuccessTarget = String(
-        FRONTEND_URL +
-          safePath +
-          (safePath.includes("?") ? "&" : "?") +
-          "success=true",
-      );
-      return res.redirect(finalSuccessTarget);
+      const finalSuccessTarget = new URL(`${FRONTEND_URL}/login`);
+      finalSuccessTarget.searchParams.set("success", "true");
+      if (safePath !== "/") {
+        finalSuccessTarget.searchParams.set("returnTo", safePath);
+      }
+      return res.redirect(finalSuccessTarget.toString());
     } catch (error: unknown) {
       logger.error({ err: error }, "Google Auth: callback processing failed");
       // Use hardcoded FRONTEND_URL for error redirect

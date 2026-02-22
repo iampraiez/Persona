@@ -24,17 +24,23 @@ const Login = () => {
     const params = new URLSearchParams(window.location.search);
     const success = params.get("success");
     const errorParam = params.get("error");
+    const returnTo = params.get("returnTo") || "/dashboard";
 
     if (success === "true") {
       setIsLoading(true);
       refetch().then(() => {
         setIsLoading(false);
+        navigate(returnTo);
       });
     } else if (errorParam) {
-      setError("Authentication failed. Please try again.");
-      setTimeout(() => setError(null), 3000);
+      setError(
+        errorParam === "auth_failed"
+          ? "Authentication failed. Please try again or use another account."
+          : "An error occurred during login.",
+      );
+      setTimeout(() => setError(null), 5000);
     }
-  }, [refetch]);
+  }, [refetch, navigate]);
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);

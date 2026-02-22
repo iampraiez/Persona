@@ -91,6 +91,7 @@ const PATHS = {
 const STATUS_CODES = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
+  TOO_MANY_REQUESTS: 429,
   SERVER_ERROR: 500,
 } as const;
 
@@ -167,6 +168,18 @@ export class ApiService {
           // Suppress daily limit errors if they are just background checks
           if (errorMessage !== ERROR_MESSAGES.DAILY_LIMIT) {
             toast.error(errorMessage);
+          }
+          return Promise.reject(error);
+        }
+
+        if (status === STATUS_CODES.TOO_MANY_REQUESTS) {
+          const url = originalRequest.url || "";
+          // Only toast rate limits for user-initiated actions, not background polls
+          if (
+            !url.includes("/analytics") &&
+            !url.includes("/events/upcoming")
+          ) {
+            toast.error(errorMessage || "Too many requests. Please slow down.");
           }
           return Promise.reject(error);
         }
