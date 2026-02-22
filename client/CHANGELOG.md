@@ -1,0 +1,48 @@
+# Changelog
+
+## [0.2.0](https://github.com/iampraiez/Persona/compare/persona-v0.1.0...persona-v0.2.0) (2026-02-22)
+
+
+### Features
+
+* add BuyCredits page and integrate payment processing; update user credits handling ([9654c45](https://github.com/iampraiez/Persona/commit/9654c45d7567c1dce06b8f2d76528fcb7f9e9c50))
+* add controllers and services for feedback, goals, notifications, payments, and user management ([9871c18](https://github.com/iampraiez/Persona/commit/9871c1841b1edec3d4fd5994f5a3f2c6c982a8b0))
+* add ErrorBoundary component for improved error handling; update environment variable configuration and dependencies ([fc86d42](https://github.com/iampraiez/Persona/commit/fc86d42e566eb114089dc1fad70b9585977ecbd0))
+* Add event skipping functionality with API integration. ([abdc84d](https://github.com/iampraiez/Persona/commit/abdc84d8e132addf447141b0361a7ccd49970af0))
+* add FocusSession page and integrate with Dashboard and Timetable; include focus duration tracking in events ([c7158a4](https://github.com/iampraiez/Persona/commit/c7158a465738261e3302252d934e9ea9561f927b))
+* Add loading indicators to buttons for asynchronous operations and implement chunk load error handling in the error boundary. ([3cf7eaa](https://github.com/iampraiez/Persona/commit/3cf7eaa5790c9fc16cc6b1d046a4980794342fa0))
+* Add payment cancellation and failure handling, expand ambient sound options with categories, implement tab visibility-based session pausing, and refine responsive layout. ([1c2b991](https://github.com/iampraiez/Persona/commit/1c2b991742c16eec18dabe8ed127cb8e39d5ae88))
+* add user AI credits display and limit checks in Analytics and Dashboard; improve VAPID key validation in push utility ([246e1da](https://github.com/iampraiez/Persona/commit/246e1da61b74872f2d21e5eb992b1cdc8e31d4ff))
+* **ai:** implement timetable generation logic in AI service ([ecf7536](https://github.com/iampraiez/Persona/commit/ecf75363d46ce3bd28cf7fb8c5c3686c68729308))
+* **api:** implement event copying and range deletion endpoints ([ecf7536](https://github.com/iampraiez/Persona/commit/ecf75363d46ce3bd28cf7fb8c5c3686c68729308))
+* **api:** increase request timeout to 30 seconds and add new timetable generation endpoint ([ecf7536](https://github.com/iampraiez/Persona/commit/ecf75363d46ce3bd28cf7fb8c5c3686c68729308))
+* Display total event and goal counts in settings and refactor event status UI in timetable. ([d03cdc5](https://github.com/iampraiez/Persona/commit/d03cdc581661769ff7016c1b155ecf25ed4b9e58))
+* Enhance BuyCredits and Timetable functionality with demo mode support ([5da12fd](https://github.com/iampraiez/Persona/commit/5da12fd85a7b2b84a0dc1db4ffb2bf58d7401f34))
+* Enhance FeaturesSection with detailed feature descriptions and icons ([74336cc](https://github.com/iampraiez/Persona/commit/74336cc5500b96ffb6941a4a3e6a24d106e9d2d5))
+* enhance Google login flow with returnTo parameter for better redirection handling ([877dca2](https://github.com/iampraiez/Persona/commit/877dca20f898332b6011f03b00a713eb1fd82b1f))
+* Enhance payment verification to return detailed statuses and update client to process them, alongside a minor UI height adjustment. ([862c48b](https://github.com/iampraiez/Persona/commit/862c48b0e0ef92353e1fcde6c1bcfd587f92dad9))
+* enhance production environment detection and enable React Router v7 future flags. ([17d298c](https://github.com/iampraiez/Persona/commit/17d298c52b6c5fb43b2dcf257f2e8924103f9fc6))
+* Enhance timetable event card styling and detail modal actions, and adjust notification display order. ([f3efdf4](https://github.com/iampraiez/Persona/commit/f3efdf4d46ea556452c9011634c718af06234a20))
+* Enhance Timetable UI, update dependencies, and establish comprehensive CI/CD and security workflows. ([9064be0](https://github.com/iampraiez/Persona/commit/9064be01b92dc945849bf392da6832d0683f126b))
+* **events:** add bulk event deletion and copying functionality ([ecf7536](https://github.com/iampraiez/Persona/commit/ecf75363d46ce3bd28cf7fb8c5c3686c68729308))
+* Implement a user feedback widget, enhance the 404 page, and bolster server security and performance. ([963a4ca](https://github.com/iampraiez/Persona/commit/963a4cada0c3eac6b102f081b65c4975f7e70392))
+* implement code splitting with React.lazy and Suspense for improved performance; update Vite config for manual chunking of additional libraries ([6c89a87](https://github.com/iampraiez/Persona/commit/6c89a87f5b5e24f4b6e5341442af7caaa02552fc))
+* Implement data export in settings, add week navigation to timetable, and enhance goal/event action button UI. ([871eb03](https://github.com/iampraiez/Persona/commit/871eb03636dca327e4b6d67e58582a1670e77a12))
+* Implement detailed goal analysis in analytics, add logout loading state, optimize timetable data refresh with query invalidation, and enhance notification subscription handling. ([759ebb5](https://github.com/iampraiez/Persona/commit/759ebb5648e38c609a4018ab543930624f2248be))
+* Implement mark all notifications as read functionality with an unread count badge. ([ddf4f3c](https://github.com/iampraiez/Persona/commit/ddf4f3c76d05260cc39900afdb9c689397a6cc70))
+* Implement user feedback submission system with client-side widget, dedicated API endpoint, and email notification. ([99ecfd8](https://github.com/iampraiez/Persona/commit/99ecfd8d902aaadb52dacbb0561f15618281846e))
+* **notification:** add utility function for URL base64 to Uint8Array conversion ([ecf7536](https://github.com/iampraiez/Persona/commit/ecf75363d46ce3bd28cf7fb8c5c3686c68729308))
+* **push:** integrate VAPID key for push notifications ([ecf7536](https://github.com/iampraiez/Persona/commit/ecf75363d46ce3bd28cf7fb8c5c3686c68729308))
+* **rate-limiter:** add rate limiting middleware for AI and event operations ([ecf7536](https://github.com/iampraiez/Persona/commit/ecf75363d46ce3bd28cf7fb8c5c3686c68729308))
+* update push notification handling; improve subscription management and error logging ([922bf20](https://github.com/iampraiez/Persona/commit/922bf20dcb9b26540f7724f9c2ffc80eadfc94b2))
+* update README with enhanced feature descriptions, remove NotificationManager component, and improve notification handling in Header; refactor push utility for better key management ([8220bd3](https://github.com/iampraiez/Persona/commit/8220bd33fa44bdcaea3f5d4c5e37d2a79dc33f48))
+
+
+### Bug Fixes
+
+* **auth:** improve cookie options for production environment ([ecf7536](https://github.com/iampraiez/Persona/commit/ecf75363d46ce3bd28cf7fb8c5c3686c68729308))
+* Close event details modal on button click and update styling for completed and skipped event buttons. ([9cf08b3](https://github.com/iampraiez/Persona/commit/9cf08b32966ece8e09dee72c643abd03c4e09da3))
+* correct dashboard route on sidebar ([0f50977](https://github.com/iampraiez/Persona/commit/0f509778b73faa3de785b3491c0d5f8b2f07b1ed))
+* Improve error handling in Login component with timeout for error messages ([74336cc](https://github.com/iampraiez/Persona/commit/74336cc5500b96ffb6941a4a3e6a24d106e9d2d5))
+* update destination path in vercel.json rewrites to point to root index.html ([3db8350](https://github.com/iampraiez/Persona/commit/3db8350dc44ab1d39264f372eead4044352f5961))
+* Update push subscription utility to correctly use public key structure ([74336cc](https://github.com/iampraiez/Persona/commit/74336cc5500b96ffb6941a4a3e6a24d106e9d2d5))
