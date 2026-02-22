@@ -89,7 +89,10 @@ export class NotificationService {
     return prisma.notification.deleteMany({ where: { userId } });
   }
 
-  static async saveSubscription(userId: string, subscription: webpush.PushSubscription | string) {
+  static async saveSubscription(
+    userId: string,
+    subscription: webpush.PushSubscription | string,
+  ) {
     const sub =
       typeof subscription === "string"
         ? JSON.parse(subscription)

@@ -42,12 +42,16 @@ export class UserController {
         error: null,
       });
     } catch (error: unknown) {
-      logger.error(`Error requesting account deletion: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(
+        `Error requesting account deletion: ${error instanceof Error ? error.message : String(error)}`,
+      );
       res.status(500).json({
         data: null,
         error: errorWrapper(
           error,
-          error instanceof Error ? error.message : "Failed to request account deletion",
+          error instanceof Error
+            ? error.message
+            : "Failed to request account deletion",
         ),
       });
     }
@@ -68,10 +72,15 @@ export class UserController {
         error: null,
       });
     } catch (error: unknown) {
-      logger.error(`Error deleting account: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(
+        `Error deleting account: ${error instanceof Error ? error.message : String(error)}`,
+      );
       res.status(500).json({
         data: null,
-        error: errorWrapper(error, error instanceof Error ? error.message : "Failed to delete account"),
+        error: errorWrapper(
+          error,
+          error instanceof Error ? error.message : "Failed to delete account",
+        ),
       });
     }
   }

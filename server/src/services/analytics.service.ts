@@ -1,5 +1,9 @@
 import { prisma } from "../lib/prisma";
-import { Event as PrismaEvent, Goal as PrismaGoal, Step as PrismaStep } from "@prisma/client";
+import {
+  Event as PrismaEvent,
+  Goal as PrismaGoal,
+  Step as PrismaStep,
+} from "@prisma/client";
 import {
   startOfDay,
   endOfDay,

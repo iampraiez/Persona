@@ -97,7 +97,15 @@ export class AiService {
     return suggestions;
   }
 
-  static async generateGoalSteps(userId: string, data: { goal: PrismaGoal; totalDays: number; stepCount?: number; currentSteps?: PrismaStep[] }) {
+  static async generateGoalSteps(
+    userId: string,
+    data: {
+      goal: PrismaGoal;
+      totalDays: number;
+      stepCount?: number;
+      currentSteps?: PrismaStep[];
+    },
+  ) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("User not found");
 
@@ -118,7 +126,10 @@ export class AiService {
     return steps;
   }
 
-  static async generateTimetable(userId: string, data: { description: string; range: { start: string; end: string } }) {
+  static async generateTimetable(
+    userId: string,
+    data: { description: string; range: { start: string; end: string } },
+  ) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("User not found");
 
@@ -134,17 +145,24 @@ export class AiService {
     }
 
     const createdEvents = await Promise.all(
-      generatedEvents.map((event: { title: string; description?: string; startTime: string; endTime: string; notifyBefore?: number }) =>
-        prisma.event.create({
-          data: {
-            title: event.title,
-            description: event.description,
-            startTime: toUTCDate(event.startTime) as Date,
-            endTime: toUTCDate(event.endTime) as Date,
-            notifyBefore: event.notifyBefore || 15,
-            userId,
-          },
-        }),
+      generatedEvents.map(
+        (event: {
+          title: string;
+          description?: string;
+          startTime: string;
+          endTime: string;
+          notifyBefore?: number;
+        }) =>
+          prisma.event.create({
+            data: {
+              title: event.title,
+              description: event.description,
+              startTime: toUTCDate(event.startTime) as Date,
+              endTime: toUTCDate(event.endTime) as Date,
+              notifyBefore: event.notifyBefore || 15,
+              userId,
+            },
+          }),
       ),
     );
 
@@ -198,7 +216,9 @@ export class AiService {
     return cleanJSON(response);
   }
 
-  private static async generateGoalSuggestions(goals: (PrismaGoal & { steps: PrismaStep[] })[]) {
+  private static async generateGoalSuggestions(
+    goals: (PrismaGoal & { steps: PrismaStep[] })[],
+  ) {
     if (!GEMINI_API_KEY || goals.length === 0) return null;
     const goalsText = goals
       .map(
@@ -221,7 +241,10 @@ export class AiService {
     return cleanJSON(response);
   }
 
-  private static async _generateTimetableAI(description: string, range: { start: string; end: string }) {
+  private static async _generateTimetableAI(
+    description: string,
+    range: { start: string; end: string },
+  ) {
     if (!GEMINI_API_KEY) return null;
     const prompt = `Create schedule: "${description}". Range: ${range.start} to ${range.end}. Return JSON array of event objects: [{"title": "brief title", "description": "optional", "startTime": "ISO", "endTime": "ISO", "notifyBefore": number}]`;
     const response = await generateContent(prompt);

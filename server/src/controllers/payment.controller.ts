@@ -28,7 +28,9 @@ export class PaymentController {
       );
       res.status(200).json({ data, error: null });
     } catch (error: unknown) {
-      logger.error(`Initialize Error: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(
+        `Initialize Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to initialize payment"),
@@ -60,7 +62,9 @@ export class PaymentController {
         error: null,
       });
     } catch (error: unknown) {
-      logger.error(`Verify Error: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(
+        `Verify Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
       res.status(500).json({
         data: null,
         error: errorWrapper(error, "Failed to verify payment"),
@@ -84,7 +88,9 @@ export class PaymentController {
       await PaymentService.handleWebhook(req.body);
       res.sendStatus(200);
     } catch (error: unknown) {
-      logger.error(`Webhook Error: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(
+        `Webhook Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
       res.sendStatus(500);
     }
   }

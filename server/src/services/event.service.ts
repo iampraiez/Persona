@@ -59,7 +59,16 @@ export class EventService {
     });
   }
 
-  static async createEvent(userId: string, data: { title: string; description?: string; startTime: string; endTime: string; notifyBefore?: number | string }) {
+  static async createEvent(
+    userId: string,
+    data: {
+      title: string;
+      description?: string;
+      startTime: string;
+      endTime: string;
+      notifyBefore?: number | string;
+    },
+  ) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("User not found");
 
@@ -73,14 +82,29 @@ export class EventService {
         endTime: toUTCDate(endTime) as Date,
         notifyBefore:
           notifyBefore !== undefined
-            ? typeof notifyBefore === "string" ? parseInt(notifyBefore) : notifyBefore
+            ? typeof notifyBefore === "string"
+              ? parseInt(notifyBefore)
+              : notifyBefore
             : user.defaultNotifyBefore,
         userId: user.id,
       },
     });
   }
 
-  static async updateEvent(userId: string, eventId: string, data: { title?: string; description?: string; startTime?: string; endTime?: string; isCompleted?: boolean; skippedIsImportant?: boolean; skippedReason?: string; focusDuration?: number | string }) {
+  static async updateEvent(
+    userId: string,
+    eventId: string,
+    data: {
+      title?: string;
+      description?: string;
+      startTime?: string;
+      endTime?: string;
+      isCompleted?: boolean;
+      skippedIsImportant?: boolean;
+      skippedReason?: string;
+      focusDuration?: number | string;
+    },
+  ) {
     const event = await prisma.event.findFirst({
       where: { id: eventId, userId },
     });
@@ -109,12 +133,20 @@ export class EventService {
         skippedIsImportant,
         skippedReason,
         focusDuration:
-          focusDuration !== undefined ? typeof focusDuration === "string" ? parseInt(focusDuration) : focusDuration : undefined,
+          focusDuration !== undefined
+            ? typeof focusDuration === "string"
+              ? parseInt(focusDuration)
+              : focusDuration
+            : undefined,
       },
     });
   }
 
-  static async skipEvent(userId: string, eventId: string, data: { skippedReason?: string; skippedIsImportant?: boolean }) {
+  static async skipEvent(
+    userId: string,
+    eventId: string,
+    data: { skippedReason?: string; skippedIsImportant?: boolean },
+  ) {
     const event = await prisma.event.findFirst({
       where: { id: eventId, userId },
     });
@@ -158,7 +190,10 @@ export class EventService {
     });
   }
 
-  static async copyEvents(userId: string, data: { sourceStart: string; sourceEnd: string; targetStart: string }) {
+  static async copyEvents(
+    userId: string,
+    data: { sourceStart: string; sourceEnd: string; targetStart: string },
+  ) {
     const { sourceStart, sourceEnd, targetStart } = data;
 
     const sStart = new Date(sourceStart);

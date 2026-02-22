@@ -16,12 +16,30 @@ export class GoalService {
     });
   }
 
-  static async createGoal(userId: string, data: { title: string; description?: string; totalDays: number; createdAt: string; steps: { title: string; description?: string; dueDate: string }[] }) {
+  static async createGoal(
+    userId: string,
+    data: {
+      title: string;
+      description?: string;
+      totalDays: number;
+      createdAt: string;
+      steps: { title: string; description?: string; dueDate: string }[];
+    },
+  ) {
     const { title, description, totalDays, createdAt, steps } = data;
-    const steps_edited = steps.map(({ dueDate, ...rest }: { title: string; description?: string; dueDate: string }) => ({
-      ...rest,
-      dueDate: toUTCDate(dueDate),
-    }));
+    const steps_edited = steps.map(
+      ({
+        dueDate,
+        ...rest
+      }: {
+        title: string;
+        description?: string;
+        dueDate: string;
+      }) => ({
+        ...rest,
+        dueDate: toUTCDate(dueDate),
+      }),
+    );
 
     return prisma.goal.create({
       data: {
@@ -44,7 +62,21 @@ export class GoalService {
     });
   }
 
-  static async updateGoal(userId: string, goalId: string, data: { title?: string; description?: string; totalDays?: number; steps?: { title: string; description?: string; dueDate: string; isCompleted?: boolean }[] }) {
+  static async updateGoal(
+    userId: string,
+    goalId: string,
+    data: {
+      title?: string;
+      description?: string;
+      totalDays?: number;
+      steps?: {
+        title: string;
+        description?: string;
+        dueDate: string;
+        isCompleted?: boolean;
+      }[];
+    },
+  ) {
     const goal = await prisma.goal.findFirst({
       where: { id: goalId, userId },
     });
@@ -56,7 +88,14 @@ export class GoalService {
       title?: string;
       description?: string;
       totalDays?: number;
-      steps?: { create: { title: string; description?: string; dueDate: Date; isCompleted: boolean }[] };
+      steps?: {
+        create: {
+          title: string;
+          description?: string;
+          dueDate: Date;
+          isCompleted: boolean;
+        }[];
+      };
     } = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
@@ -68,7 +107,17 @@ export class GoalService {
       });
 
       const stepsToCreate = steps.map(
-        ({ title, description, dueDate, isCompleted }: { title: string; description?: string; dueDate: string; isCompleted?: boolean }) => ({
+        ({
+          title,
+          description,
+          dueDate,
+          isCompleted,
+        }: {
+          title: string;
+          description?: string;
+          dueDate: string;
+          isCompleted?: boolean;
+        }) => ({
           title,
           description,
           dueDate: toUTCDate(dueDate),

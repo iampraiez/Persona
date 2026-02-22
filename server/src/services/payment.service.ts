@@ -83,10 +83,13 @@ export class PaymentService {
   }
 
   private static async fulfillOrder(data: unknown) {
-    const { userId, credits } = (data as { metadata: { userId: string; credits: string | number } }).metadata;
+    const { userId, credits } = (
+      data as { metadata: { userId: string; credits: string | number } }
+    ).metadata;
     const reference = (data as { reference: string }).reference;
     const amount = (data as { amount: number }).amount / 100;
-    const purchaseAmount = typeof credits === "string" ? parseInt(credits) : credits;
+    const purchaseAmount =
+      typeof credits === "string" ? parseInt(credits) : credits;
 
     await prisma.$transaction(async (tx) => {
       const existing = await tx.transaction.findUnique({
@@ -111,10 +114,7 @@ export class PaymentService {
         },
       });
 
-      logger.info(
-        { purchaseAmount, reference },
-        "Payment fulfilled",
-      );
+      logger.info({ purchaseAmount, reference }, "Payment fulfilled");
     });
   }
 }

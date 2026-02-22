@@ -19,7 +19,12 @@ import { shutdown } from "./lib/prisma";
 import { errorHandler } from "./utils/error.util";
 import { startScheduler } from "./scheduler";
 import { env } from "./config/env";
-import { globalRateLimiter, authRateLimiter, aiRateLimiter, eventWriteRateLimiter } from "./middleware/rateLimiter";
+import {
+  globalRateLimiter,
+  authRateLimiter,
+  aiRateLimiter,
+  eventWriteRateLimiter,
+} from "./middleware/rateLimiter";
 
 const app: Express = express();
 app.set("trust proxy", 1);

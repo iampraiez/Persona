@@ -119,7 +119,9 @@ const FocusSession = () => {
   const handleToggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch((e) => {
-        toast.error(`Error attempting to enable full-screen mode: ${e.message}`);
+        toast.error(
+          `Error attempting to enable full-screen mode: ${e.message}`,
+        );
       });
       setIsFullscreen(true);
     } else {
@@ -162,13 +164,15 @@ const FocusSession = () => {
       resetInactivityTimeout();
     } else {
       setIsInterfaceVisible(true);
-      if (inactivityTimeoutRef.current) clearTimeout(inactivityTimeoutRef.current);
+      if (inactivityTimeoutRef.current)
+        clearTimeout(inactivityTimeoutRef.current);
     }
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("touchstart", handleTouchStart);
-      if (inactivityTimeoutRef.current) clearTimeout(inactivityTimeoutRef.current);
+      if (inactivityTimeoutRef.current)
+        clearTimeout(inactivityTimeoutRef.current);
     };
   }, [isActive, resetInactivityTimeout]);
 

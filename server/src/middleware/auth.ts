@@ -15,8 +15,14 @@ export function authMiddleware(
 
     // Hyper-explicit validation to satisfy CodeQL taint tracking
     // We only allow tokens that match a JWT-like pattern (header.payload.signature)
-    if (typeof rawToken !== "string" || !/^[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+$/.test(rawToken)) {
-      res.status(401).json({ error: "Unauthorized: Missing or malformed token", data: null });
+    if (
+      typeof rawToken !== "string" ||
+      !/^[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+$/.test(rawToken)
+    ) {
+      res.status(401).json({
+        error: "Unauthorized: Missing or malformed token",
+        data: null,
+      });
       return;
     }
 
@@ -24,14 +30,22 @@ export function authMiddleware(
     const cleansedToken = rawToken.trim();
     const payload = verifyAccessToken(cleansedToken);
 
-    if (!payload || typeof payload !== "object" || typeof payload.email !== "string") {
-      res.status(401).json({ error: "Unauthorized: Invalid or expired token", data: null });
+    if (
+      !payload ||
+      typeof payload !== "object" ||
+      typeof payload.email !== "string"
+    ) {
+      res
+        .status(401)
+        .json({ error: "Unauthorized: Invalid or expired token", data: null });
       return;
     }
 
     // Explicitly validate the email format to ensure it's not a generic taint source
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-      res.status(401).json({ error: "Unauthorized: Invalid user context", data: null });
+      res
+        .status(401)
+        .json({ error: "Unauthorized: Invalid user context", data: null });
       return;
     }
 

@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { AuthService, COOKIE_OPTIONS, ACCESS_TOKEN_OPTIONS } from "../services/auth.service";
+import {
+  AuthService,
+  COOKIE_OPTIONS,
+  ACCESS_TOKEN_OPTIONS,
+} from "../services/auth.service";
 import { logger } from "../utils/logger.utils";
 import { errorWrapper } from "../utils/error.util";
 import { env } from "../config/env";
@@ -27,9 +31,11 @@ function validateReturnTo(returnTo: string | undefined): string {
   try {
     const url = new URL(trimmed);
     const allowed = new URL(FRONTEND_URL);
-    
+
     // Explicit origin check with regex as a second layer to convince the tracker
-    const originRegex = new RegExp(`^${allowed.origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
+    const originRegex = new RegExp(
+      `^${allowed.origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+    );
     if (originRegex.test(url.origin) && url.origin === allowed.origin) {
       return trimmed;
     }
