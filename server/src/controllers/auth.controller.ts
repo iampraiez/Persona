@@ -80,7 +80,12 @@ export class AuthController {
     if (!code) {
       const safePath = validateReturnTo(returnTo);
       // ALWAYS use hardcoded prefix to satisfy CodeQL
-      const finalErrorTarget = String(FRONTEND_URL + safePath + (safePath.includes("?") ? "&" : "?") + "error=auth_failed");
+      const finalErrorTarget = String(
+        FRONTEND_URL +
+          safePath +
+          (safePath.includes("?") ? "&" : "?") +
+          "error=auth_failed",
+      );
       return res.redirect(finalErrorTarget);
     }
 
@@ -93,7 +98,12 @@ export class AuthController {
 
       // Definitively sanitize the path once more
       const safePath = validateReturnTo(returnTo);
-      const finalSuccessTarget = String(FRONTEND_URL + safePath + (safePath.includes("?") ? "&" : "?") + "success=true");
+      const finalSuccessTarget = String(
+        FRONTEND_URL +
+          safePath +
+          (safePath.includes("?") ? "&" : "?") +
+          "success=true",
+      );
       return res.redirect(finalSuccessTarget);
     } catch (error: unknown) {
       logger.error({ err: error }, "Google Auth: callback processing failed");
