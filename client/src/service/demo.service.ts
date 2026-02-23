@@ -608,6 +608,10 @@ class DemoService {
   async deleteEventsRange(start: string, end: string): Promise<void> {
     console.log("Demo: Deleting events range", start, end);
   }
+
+  async exportData(): Promise<{ message: string }> {
+    return { message: "Demo: Export started! (No email actually sent)" };
+  }
 }
 
 export const demoApi = new DemoService();

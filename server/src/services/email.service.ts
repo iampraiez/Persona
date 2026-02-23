@@ -123,4 +123,39 @@ export class EmailService {
       fromName: "Persona Feedback Bot",
     });
   }
+
+  static async sendUserDataExport(email: string, data: unknown): Promise<void> {
+    const subject = "Your Persona Data Export";
+    const text =
+      "Attached is the data export you requested from Persona. This includes your profile, goals, and events.";
+    const jsonStr = JSON.stringify(data, null, 2);
+    const attachment = {
+      content: Buffer.from(jsonStr).toString("base64"),
+      filename: "persona_data.json",
+      type: "application/json",
+      disposition: "attachment",
+    };
+
+    if (!SENDGRID_API_KEY || !SENDER_EMAIL) {
+      logger.error("Cannot send email: SendGrid not configured");
+      throw new Error("Email service not configured");
+    }
+
+    try {
+      await sgMail.send({
+        to: email,
+        from: {
+          email: SENDER_EMAIL,
+          name: "Persona Data",
+        },
+        subject,
+        text,
+        attachments: [attachment],
+      });
+      logger.info(`Data export sent to ${email}`);
+    } catch (error) {
+      logger.error(`Error sending data export: ${error}`);
+      throw error;
+    }
+  }
 }

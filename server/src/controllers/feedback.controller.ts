@@ -16,7 +16,13 @@ export class FeedbackController {
       const { message } = feedbackSchema.parse(req.body);
       const userEmail = req.user || "Anonymous";
 
-      await FeedbackService.sendFeedback(userEmail as string, message);
+      // Fire and forget feedback email
+      FeedbackService.sendFeedback(userEmail as string, message).catch(
+        (err) => {
+          logger.error(`Background feedback sending failed: ${err}`);
+        },
+      );
+
       res.status(200).json({ data: { success: true }, error: null });
     } catch (error: unknown) {
       if (error instanceof z.ZodError) {

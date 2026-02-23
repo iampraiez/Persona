@@ -7,5 +7,6 @@ router.get("/", UserController.getProfile);
 router.put("/", UserController.updateProfile);
 router.post("/request-delete", UserController.requestDelete);
 router.post("/delete-account", UserController.deleteAccount);
+router.post("/export", UserController.exportData);
 
 export default router;

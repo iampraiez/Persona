@@ -31,6 +31,8 @@ interface UseSettingsReturn {
   handleSaveProfile: () => Promise<void>;
   handleRequestDelete: () => Promise<void>;
   handleDeleteAccount: () => Promise<void>;
+  handleExportData: () => Promise<void>;
+  isExporting: boolean;
 }
 
 export const useSettings = (): UseSettingsReturn => {
@@ -48,6 +50,7 @@ export const useSettings = (): UseSettingsReturn => {
   const [timeRemaining, setTimeRemaining] = useState(300);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const getApi = useCallback(() => (isDemo ? demoApi : api), [isDemo]);
 
@@ -160,6 +163,20 @@ export const useSettings = (): UseSettingsReturn => {
     }
   };
 
+  const handleExportData = async () => {
+    setIsExporting(true);
+    try {
+      const res = await getApi().exportData();
+      toast.success(
+        res.message || "Export started! You will receive an email shortly.",
+      );
+    } catch {
+      toast.error("Failed to start export");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return {
     theme,
     setTheme,
@@ -185,5 +202,7 @@ export const useSettings = (): UseSettingsReturn => {
     handleSaveProfile,
     handleRequestDelete,
     handleDeleteAccount,
+    handleExportData,
+    isExporting,
   };
 };

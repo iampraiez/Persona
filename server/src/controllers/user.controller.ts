@@ -66,9 +66,15 @@ export class UserController {
           .json({ data: null, error: "Verification code required" });
       }
 
-      await UserService.deleteAccount(req.user as string, code);
+      // Fire and forget account deletion
+      UserService.deleteAccount(req.user as string, code).catch((err) => {
+        logger.error(
+          `Background account deletion failed for ${req.user}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      });
+
       res.status(200).json({
-        data: { message: "Account deleted successfully" },
+        data: { message: "Account deletion started" },
         error: null,
       });
     } catch (error: unknown) {
@@ -81,6 +87,19 @@ export class UserController {
           error,
           error instanceof Error ? error.message : "Failed to delete account",
         ),
+      });
+    }
+  }
+
+  static async exportData(req: Request, res: Response) {
+    try {
+      const result = await UserService.exportData(req.user as string);
+      res.status(200).json({ data: result, error: null });
+    } catch (error: unknown) {
+      logger.error(`Export Error: ${error}`);
+      res.status(500).json({
+        data: null,
+        error: errorWrapper(error, "Failed to export data"),
       });
     }
   }

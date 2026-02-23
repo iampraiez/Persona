@@ -465,6 +465,10 @@ export class ApiService {
     );
   }
 
+  async exportData(): Promise<{ message: string }> {
+    return this.request("post", "/users/export");
+  }
+
   async sendFeedback(message: string): Promise<void> {
     await this.request("post", "/feedback", { message });
   }

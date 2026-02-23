@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import Layout from "./components/Layout";
@@ -10,16 +10,16 @@ import { LazyMotion, domAnimation } from "framer-motion";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import "react-toastify/dist/ReactToastify.css";
 
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Login = lazy(() => import("./pages/Login"));
-const Timetable = lazy(() => import("./pages/Timetable"));
-const Goals = lazy(() => import("./pages/Goals"));
-const Analytics = lazy(() => import("./pages/Analytics"));
-const Settings = lazy(() => import("./pages/Settings"));
-const LandingPage = lazy(() => import("./pages/LandingPage"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const FocusSession = lazy(() => import("./pages/FocusSession"));
-const BuyCredits = lazy(() => import("./pages/BuyCredits"));
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Timetable from "./pages/Timetable";
+import Goals from "./pages/Goals";
+import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
+import LandingPage from "./pages/LandingPage";
+import NotFound from "./pages/NotFound";
+import FocusSession from "./pages/FocusSession";
+import BuyCredits from "./pages/BuyCredits";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -46,14 +46,7 @@ function App() {
                     </Suspense>
                   }
                 />
-                <Route
-                  path="/login"
-                  element={
-                    <Suspense fallback={<Loader />}>
-                      <Login />
-                    </Suspense>
-                  }
-                />
+                <Route path="/login" element={<Login />} />
                 <Route
                   element={
                     <ProtectedRoute isAuthenticated={isAuthenticated}>

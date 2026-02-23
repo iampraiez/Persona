@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { EmailService } from "./email.service";
+import { logger } from "../utils/logger.utils";
 
 export class UserService {
   static async getProfile(email: string) {
@@ -234,5 +235,31 @@ export class UserService {
     return prisma.user.delete({
       where: { id: user.id },
     });
+  }
+
+  static async exportData(email: string) {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        events: true,
+        goals: {
+          include: {
+            steps: true,
+          },
+        },
+        notifications: true,
+      },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    // Fire and forget email export
+    EmailService.sendUserDataExport(email, user).catch((err) => {
+      logger.error(`Background data export failed for ${email}: ${err}`);
+    });
+
+    return {
+      message: "Data export started. You will receive an email shortly.",
+    };
   }
 }

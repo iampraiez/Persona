@@ -259,7 +259,7 @@ export const useGoalsPage = () => {
         setGeneratingSteps(false);
       }
     },
-    [newGoal, newGoal.description, newGoal.steps.length],
+    [newGoal.description, newGoal.steps],
   );
 
   const toggleExpandGoal = useCallback((goalId: string | null) => {

@@ -37,9 +37,11 @@ const Settings = () => {
     isDeleting,
     isSendingCode,
     isLoggingOut,
+    isExporting,
     handleSaveProfile,
     handleRequestDelete,
     handleDeleteAccount,
+    handleExportData,
   } = useSettings();
 
   // ... (skipping lines, need to target button area differently)
@@ -235,27 +237,34 @@ const Settings = () => {
             <div className="space-y-4">
               <p className="text-sm text-foreground/70">
                 Export your data (events, goals, and profile settings) as a JSON
-                file.
+                file sent to your email.
               </p>
               <button
-                className="btn bg-secondary hover:bg-secondary/80 w-full sm:w-auto flex items-center justify-center gap-2"
-                onClick={() => {
-                  if (!user) return;
-                  const dataStr =
-                    "data:text/json;charset=utf-8," +
-                    encodeURIComponent(JSON.stringify(user, null, 2));
-                  const downloadAnchorNode = document.createElement("a");
-                  downloadAnchorNode.setAttribute("href", dataStr);
-                  downloadAnchorNode.setAttribute(
-                    "download",
-                    "persona_data.json",
-                  );
-                  document.body.appendChild(downloadAnchorNode); // required for firefox
-                  downloadAnchorNode.click();
-                  downloadAnchorNode.remove();
-                }}
+                className="btn bg-secondary hover:bg-secondary/80 w-full sm:w-auto flex items-center justify-center gap-2 disabled:opacity-50"
+                disabled={isExporting}
+                onClick={handleExportData}
               >
-                Download Data
+                {isExporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-accent"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" x2="12" y1="15" y2="3" />
+                  </svg>
+                )}
+                {isExporting ? "Exporting..." : "Export Data"}
               </button>
             </div>
           </motion.div>
