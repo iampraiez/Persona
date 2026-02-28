@@ -9,7 +9,6 @@ const Footer: React.FC = () => {
     <footer className="bg-secondary/50 py-12">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo and Description */}
           <div className="md:col-span-1">
             <a
               href="#"
@@ -31,18 +30,21 @@ const Footer: React.FC = () => {
               <a
                 href="https://www.linkedin.com/in/thepraiseolaoye"
                 className="text-foreground/50 hover:text-accent transition-colors"
+                target="_blank"
               >
                 <Linkedin size={20} />
               </a>
               <a
                 href="https://www.instagram.com/iampraiez_?igsh=enI4OWcxOHN1Yml3"
                 className="text-foreground/50 hover:text-accent transition-colors"
+                target="_blank"
               >
                 <Instagram size={20} />
               </a>
               <a
                 href="https://github.com/iampraiez/Persona"
                 className="text-foreground/50 hover:text-accent transition-colors"
+                target="_blank"
               >
                 <Github size={20} />
               </a>
@@ -63,8 +65,9 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="https://iampraiez.vercel.app/#contact"
+                  href="mailto:himpraise571@gmail.com"
                   className="text-foreground/70 hover:text-accent transition-colors"
+                  target="_blank"
                 >
                   Contact
                 </a>
@@ -73,6 +76,7 @@ const Footer: React.FC = () => {
                 <a
                   href="https://github.com/iampraiez/Persona"
                   className="text-foreground/70 hover:text-accent transition-colors"
+                  target="_blank"
                 >
                   Documentation
                 </a>
@@ -80,6 +84,7 @@ const Footer: React.FC = () => {
               <li>
                 <a
                   href="https://github.com/iampraiez"
+                  target="_blank"
                   className="text-foreground/70 hover:text-accent transition-colors"
                 >
                   About Me
@@ -92,7 +97,7 @@ const Footer: React.FC = () => {
         <div className="mt-12 pt-8 border-t border-border text-center text-foreground/50">
           <p>
             © {new Date().getFullYear()} Time Forge. All rights reserved. Employ
-            Praise and your life will be better.
+            Praise he's lowkey unemployed.
           </p>
         </div>
       </div>

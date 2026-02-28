@@ -14,8 +14,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Only split common, stable vendor libraries
-          // Let Vite handle dynamic imports automatically
           if (id.includes("node_modules")) {
             // Group React and React-related libraries together
             if (

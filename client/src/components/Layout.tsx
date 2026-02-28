@@ -17,8 +17,6 @@ const Layout = () => {
   useEffect(() => {
     if (isUserLoading || !user) return;
 
-    // Check if the user has EVER dismissed this prompt.
-    // If they have (lastCopyPromptWeek has any value), we NEVER show it again.
     if (user.lastCopyPromptWeek) return;
 
     // Get the start and end of the PREVIOUS week

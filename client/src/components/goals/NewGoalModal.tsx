@@ -112,9 +112,10 @@ const NewGoalModal: React.FC<NewGoalModalProps> = ({
                     <input
                       type="number"
                       className="input w-full bg-secondary/30 border-none ring-1 ring-border"
+                      placeholder="7"
                       min="1"
                       max="30"
-                      value={stepCount}
+                      value={stepCount || ""}
                       onChange={(e) =>
                         onStepCountChange(Number(e.target.value))
                       }
