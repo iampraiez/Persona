@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/iampraiez/Persona/compare/persona-v0.3.0...persona-v0.4.0) (2026-02-23)
+
+
+### Features
+
+* Implement user data background export functionality via email and update client-side lazy loading. ([3eda86e](https://github.com/iampraiez/Persona/commit/3eda86e0586dad35e69622160de9aefe79d91729))
+
 ## [0.3.0](https://github.com/iampraiez/Persona/compare/persona-v0.2.0...persona-v0.3.0) (2026-02-22)
 
 ### Features
