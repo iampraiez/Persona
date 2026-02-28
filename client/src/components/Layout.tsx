@@ -17,12 +17,47 @@ const Layout = () => {
   useEffect(() => {
     if (isUserLoading || !user) return;
 
-    const currentWeekStart = format(
-      startOfWeek(new Date(), { weekStartsOn: 0 }),
-      "yyyy-MM-dd",
+    // Check if the user has EVER dismissed this prompt.
+    // If they have (lastCopyPromptWeek has any value), we NEVER show it again.
+    if (user.lastCopyPromptWeek) return;
+
+    // Get the start and end of the PREVIOUS week
+    const now = new Date();
+    const currentWeekStart = startOfWeek(now, { weekStartsOn: 0 });
+    const prevWeekStart = new Date(currentWeekStart);
+    prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+    const prevWeekEnd = new Date(currentWeekStart);
+    prevWeekEnd.setDate(prevWeekEnd.getDate() - 1);
+
+    // Filter events to only those in the previous week
+    if (!user.events || user.events.length === 0) return;
+
+    const prevWeekEvents = user.events.filter((event) => {
+      const start = new Date(event.startTime);
+      return start >= prevWeekStart && start <= prevWeekEnd;
+    });
+
+    // Group by day and count
+    const eventsPerDay: Record<string, number> = {};
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(prevWeekStart);
+      d.setDate(d.getDate() + i);
+      eventsPerDay[format(d, "yyyy-MM-dd")] = 0;
+    }
+
+    prevWeekEvents.forEach((event) => {
+      const day = format(new Date(event.startTime), "yyyy-MM-dd");
+      if (eventsPerDay[day] !== undefined) {
+        eventsPerDay[day]++;
+      }
+    });
+
+    // Check if EVERY day has at least 5 events
+    const meetsThreshold = Object.values(eventsPerDay).every(
+      (count) => count >= 5,
     );
 
-    if (user.lastCopyPromptWeek !== currentWeekStart) {
+    if (meetsThreshold) {
       setShowCopyModal(true);
     }
   }, [user, isUserLoading]);

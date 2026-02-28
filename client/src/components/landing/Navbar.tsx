@@ -129,88 +129,35 @@ const Navbar: React.FC = () => {
 
       <AnimatePresence>
         {mobileMenuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 250 }}
-              className="fixed top-0 right-0 bottom-0 w-[320px] max-w-[85vw] bg-card/95 backdrop-blur-3xl border-l border-border z-50 shadow-2xl flex flex-col md:hidden"
-            >
-              <div className="p-6 flex justify-between items-center border-b border-border/50 bg-secondary/20">
-                <span className="font-bold text-xl flex items-center gap-1">
-                  <span className="text-accent">Time</span>forge
-                </span>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-full bg-secondary/50 hover:bg-secondary transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6 flex flex-col space-y-3 relative bg-gradient-to-br from-background via-background to-accent/5">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="md:hidden absolute top-full left-0 right-0 p-4 z-50"
+          >
+            <div className="bg-background/95 backdrop-blur-2xl border border-border/50 rounded-2xl shadow-xl p-6 flex flex-col space-y-6">
+              <div className="space-y-4">
                 <a
                   href="#features"
-                  className="flex items-center gap-4 p-4 rounded-xl text-lg font-medium bg-card border border-border/50 shadow-sm hover:shadow-md hover:border-accent/40 hover:text-accent transition-all"
+                  className="block text-lg font-medium hover:text-accent transition-colors px-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-accent/10 text-accent">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="m-auto mt-2.5"
-                    >
-                      <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                      <polyline points="2 17 12 22 22 17"></polyline>
-                      <polyline points="2 12 12 17 22 12"></polyline>
-                    </svg>
-                  </div>
                   Features
                 </a>
                 <a
                   href="#benefits"
-                  className="flex items-center gap-4 p-4 rounded-xl text-lg font-medium bg-card border border-border/50 shadow-sm hover:shadow-md hover:border-accent/40 hover:text-accent transition-all"
+                  className="block text-lg font-medium hover:text-accent transition-colors px-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-accent/10 text-accent">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="m-auto mt-2.5"
-                    >
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                  </div>
                   Benefits
                 </a>
               </div>
 
-              <div className="p-6 border-t border-border/40 bg-card/50">
+              <div className="pt-4 border-t border-border/40">
                 {isAuthenticated ? (
                   <button
-                    className="btn btn-accent w-full py-4 text-base shadow-lg shadow-accent/20"
+                    className="btn btn-accent w-full py-4 text-base"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       navigate("/dashboard");
@@ -220,7 +167,7 @@ const Navbar: React.FC = () => {
                   </button>
                 ) : (
                   <button
-                    className="btn btn-accent w-full py-4 text-base shadow-lg shadow-accent/20"
+                    className="btn btn-accent w-full py-4 text-base"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       navigate("/login");
@@ -230,8 +177,8 @@ const Navbar: React.FC = () => {
                   </button>
                 )}
               </div>
-            </motion.div>
-          </>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </nav>
