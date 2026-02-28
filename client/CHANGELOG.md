@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/iampraiez/Persona/compare/persona-v0.4.0...persona-v0.5.0) (2026-02-28)
+
+
+### Features
+
+* Implement user data background export, refine event copy prompt display logic, and redesign the mobile navigation menu. ([194b8f1](https://github.com/iampraiez/Persona/commit/194b8f10d805706ecccf17783185df03897dddb1))
+* Implement weekly copy prompt tracking and integrate Vercel Analytics. ([eb519c2](https://github.com/iampraiez/Persona/commit/eb519c23e540eaaada322da47438b7f82a322c83))
+
 ## [0.4.0](https://github.com/iampraiez/Persona/compare/persona-v0.3.0...persona-v0.4.0) (2026-02-23)
 
 ### Features
