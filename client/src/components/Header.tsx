@@ -62,11 +62,37 @@ const Header = ({ openSidebar }: HeaderProps) => {
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setNotificationsOpen(false);
+        setProfileOpen(false);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        setNotificationsOpen(false);
+        setProfileOpen(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
+
+  // Auto-mark as read when modal is open and new notifications arrive
+  useEffect(() => {
+    if (notificationsOpen && unreadCount > 0) {
+      markAllAsRead();
+    }
+  }, [notificationsOpen, unreadCount, markAllAsRead]);
 
   const isActive = (path: string) => location.pathname === path;
 

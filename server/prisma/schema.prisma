@@ -25,6 +25,7 @@ model User {
   lastInsightsDate        DateTime?
   notificationsEnabled    Boolean            @default(true)
   purchasedAiCredits      Int                @default(0)
+  lastCopyPromptWeek      String?
   events                  Event[]
   goals                   Goal[]
   notifications           Notification[]

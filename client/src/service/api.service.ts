@@ -24,6 +24,7 @@ export interface User {
   defaultNotifyBefore: number | 5;
   totalEvents?: number;
   totalGoals?: number;
+  lastCopyPromptWeek?: string | null;
 }
 
 export interface Notification {
@@ -467,6 +468,10 @@ export class ApiService {
 
   async exportData(): Promise<{ message: string }> {
     return this.request("post", "/users/export");
+  }
+
+  async updateLastCopyPromptWeek(week: string): Promise<void> {
+    await this.request("post", "/users/update-last-copy-prompt-week", { week });
   }
 
   async sendFeedback(message: string): Promise<void> {

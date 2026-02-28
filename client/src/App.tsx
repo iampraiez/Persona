@@ -8,7 +8,10 @@ import { useThemeStore } from "./store/theme.store";
 import Loader from "./components/Loader";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { inject } from "@vercel/analytics";
 import "react-toastify/dist/ReactToastify.css";
+
+inject();
 
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";

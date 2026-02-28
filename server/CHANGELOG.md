@@ -2,10 +2,9 @@
 
 ## [0.3.0](https://github.com/iampraiez/Persona/compare/persona-server-v0.2.0...persona-server-v0.3.0) (2026-02-22)
 
-
 ### Features
 
-* Implement robust Google OAuth redirect handling with `returnTo` parameter, refined error messages, and client-side rate limit notifications. ([36af39a](https://github.com/iampraiez/Persona/commit/36af39a031bd40cf86bcc47633bda889e8dd6161))
+- Implement robust Google OAuth redirect handling with `returnTo` parameter, refined error messages, and client-side rate limit notifications. ([36af39a](https://github.com/iampraiez/Persona/commit/36af39a031bd40cf86bcc47633bda889e8dd6161))
 
 ## [0.2.0](https://github.com/iampraiez/Persona/compare/persona-server-v0.1.0...persona-server-v0.2.0) (2026-02-22)
 

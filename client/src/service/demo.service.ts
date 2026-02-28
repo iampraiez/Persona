@@ -13,6 +13,7 @@ class DemoService {
     notifications: [],
     notificationsEnabled: true,
     defaultNotifyBefore: 15,
+    lastCopyPromptWeek: null,
   };
 
   private events: Event[] = [
@@ -611,6 +612,23 @@ class DemoService {
 
   async exportData(): Promise<{ message: string }> {
     return { message: "Demo: Export started! (No email actually sent)" };
+  }
+
+  // Assuming 'this.user' is defined elsewhere in the class,
+  // and 'lastCopyPromptWeek' is added to its initial structure.
+  // For example:
+  // private user = {
+  //   id: "1",
+  //   name: "Demo User",
+  //   email: "demo@example.com",
+  //   image: "https://example.com/avatar.jpg",
+  //   notificationsEnabled: true,
+  //   defaultNotifyBefore: 15,
+  //   lastCopyPromptWeek: null, // Added this line
+  // };
+
+  async updateLastCopyPromptWeek(week: string): Promise<void> {
+    this.user.lastCopyPromptWeek = week;
   }
 }
 

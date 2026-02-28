@@ -2,13 +2,12 @@
 
 ## [0.3.0](https://github.com/iampraiez/Persona/compare/persona-v0.2.0...persona-v0.3.0) (2026-02-22)
 
-
 ### Features
 
-* Enhance event status management in timetable and refactor analytics charts into a dedicated directory. ([ecece21](https://github.com/iampraiez/Persona/commit/ecece21c87262e649d27df6ab72dd6d4a986c971))
-* Implement comprehensive goal management with new components for creating, editing, displaying, and analyzing goals. ([3f6e5db](https://github.com/iampraiez/Persona/commit/3f6e5db3209be9380e259338742ad895a3bfcb8f))
-* Implement robust Google OAuth redirect handling with `returnTo` parameter, refined error messages, and client-side rate limit notifications. ([36af39a](https://github.com/iampraiez/Persona/commit/36af39a031bd40cf86bcc47633bda889e8dd6161))
-* Introduce new UI components for timetable and analytics features, and refactor timetable event management logic into `useTimetable` hook. ([8225fad](https://github.com/iampraiez/Persona/commit/8225fad4f3bda11a06594616af54e6b700b24d23))
+- Enhance event status management in timetable and refactor analytics charts into a dedicated directory. ([ecece21](https://github.com/iampraiez/Persona/commit/ecece21c87262e649d27df6ab72dd6d4a986c971))
+- Implement comprehensive goal management with new components for creating, editing, displaying, and analyzing goals. ([3f6e5db](https://github.com/iampraiez/Persona/commit/3f6e5db3209be9380e259338742ad895a3bfcb8f))
+- Implement robust Google OAuth redirect handling with `returnTo` parameter, refined error messages, and client-side rate limit notifications. ([36af39a](https://github.com/iampraiez/Persona/commit/36af39a031bd40cf86bcc47633bda889e8dd6161))
+- Introduce new UI components for timetable and analytics features, and refactor timetable event management logic into `useTimetable` hook. ([8225fad](https://github.com/iampraiez/Persona/commit/8225fad4f3bda11a06594616af54e6b700b24d23))
 
 ## [0.2.0](https://github.com/iampraiez/Persona/compare/persona-v0.1.0...persona-v0.2.0) (2026-02-22)
 

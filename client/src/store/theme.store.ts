@@ -9,30 +9,44 @@ interface ThemeState {
   initTheme: () => void;
 }
 
-export const useThemeStore = create<ThemeState>((set, get) => ({
-  theme: "dark",
+export const useThemeStore = create<ThemeState>((set, get) => {
+  // Direct initialization to prevent flicker
+  const savedTheme = (
+    typeof window !== "undefined" ? localStorage.getItem("theme") : null
+  ) as Theme | null;
 
-  // this just handles the actual chaning of theme
-  setTheme: (theme: Theme) => {
-    localStorage.setItem("theme", theme);
-    set({ theme });
+  const prefersDark =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
+
+  // Apply immediately if in browser
+  if (typeof window !== "undefined") {
     document.documentElement.classList.remove("light", "dark");
-    document.documentElement.classList.add(theme);
-  },
+    document.documentElement.classList.add(initialTheme);
+  }
 
-  toggleTheme: () => {
-    const newTheme = get().theme === "dark" ? "light" : "dark";
-    get().setTheme(newTheme);
-  },
+  return {
+    theme: initialTheme,
 
-  // gets theme or sets it
-  initTheme: () => {
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
+    setTheme: (theme: Theme) => {
+      localStorage.setItem("theme", theme);
+      set({ theme });
+      document.documentElement.classList.remove("light", "dark");
+      document.documentElement.classList.add(theme);
+    },
 
-    const theme = savedTheme || (prefersDark ? "dark" : "light");
-    get().setTheme(theme);
-  },
-}));
+    toggleTheme: () => {
+      const newTheme = get().theme === "dark" ? "light" : "dark";
+      get().setTheme(newTheme);
+    },
+
+    initTheme: () => {
+      // Logic now handles everything in constructor and setTheme
+      // but keeping for compatibility if needed.
+      const theme = get().theme;
+      get().setTheme(theme);
+    },
+  };
+});

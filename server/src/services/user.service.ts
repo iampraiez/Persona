@@ -262,4 +262,11 @@ export class UserService {
       message: "Data export started. You will receive an email shortly.",
     };
   }
+
+  static async updateLastCopyPromptWeek(email: string, week: string) {
+    return prisma.user.update({
+      where: { email },
+      data: { lastCopyPromptWeek: week },
+    });
+  }
 }

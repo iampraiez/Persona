@@ -103,4 +103,22 @@ export class UserController {
       });
     }
   }
+
+  static async updateLastCopyPromptWeek(req: Request, res: Response) {
+    try {
+      const { week } = req.body;
+      if (!week) {
+        return res.status(400).json({ data: null, error: "Week is required" });
+      }
+
+      await UserService.updateLastCopyPromptWeek(req.user as string, week);
+      res.status(200).json({ data: { success: true }, error: null });
+    } catch (error: unknown) {
+      logger.error(`Update Last Copy Prompt Week Error: ${error}`);
+      res.status(500).json({
+        data: null,
+        error: errorWrapper(error, "Failed to update last copy prompt week"),
+      });
+    }
+  }
 }

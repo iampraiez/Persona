@@ -5,6 +5,7 @@ export interface User {
   image?: string;
   aiCredits: number;
   purchasedAiCredits: number;
+  lastCopyPromptWeek?: string;
 }
 
 export interface Event {

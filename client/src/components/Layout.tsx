@@ -7,30 +7,36 @@ import { startOfWeek, format } from "date-fns";
 import { useUser } from "../hooks/useUser";
 import Loader from "./Loader";
 import FeedbackWidget from "./FeedbackWidget";
+import { api } from "../service/api.service";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
-  const { isLoading: isUserLoading } = useUser();
+  const { data: user, isLoading: isUserLoading } = useUser();
 
   useEffect(() => {
-    const lastSeenWeek = localStorage.getItem("last_seen_week");
+    if (isUserLoading || !user) return;
+
     const currentWeekStart = format(
       startOfWeek(new Date(), { weekStartsOn: 0 }),
       "yyyy-MM-dd",
     );
 
-    if (lastSeenWeek !== currentWeekStart) {
+    if (user.lastCopyPromptWeek !== currentWeekStart) {
       setShowCopyModal(true);
     }
-  }, []);
+  }, [user, isUserLoading]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = async () => {
     const currentWeekStart = format(
       startOfWeek(new Date(), { weekStartsOn: 0 }),
       "yyyy-MM-dd",
     );
-    localStorage.setItem("last_seen_week", currentWeekStart);
+    try {
+      await api.updateLastCopyPromptWeek(currentWeekStart);
+    } catch (error) {
+      console.error("Failed to update last seen week", error);
+    }
     setShowCopyModal(false);
   };
 

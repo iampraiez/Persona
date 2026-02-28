@@ -8,5 +8,9 @@ router.put("/", UserController.updateProfile);
 router.post("/request-delete", UserController.requestDelete);
 router.post("/delete-account", UserController.deleteAccount);
 router.post("/export", UserController.exportData);
+router.post(
+  "/update-last-copy-prompt-week",
+  UserController.updateLastCopyPromptWeek,
+);
 
 export default router;

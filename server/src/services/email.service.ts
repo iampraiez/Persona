@@ -47,49 +47,74 @@ export class EmailService {
     }
   }
 
+  private static generateBaseTemplate(content: string, title: string) {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${title}</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 0;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 20px;">
+          <tr>
+            <td align="center">
+              <table width="100%" max-width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e2e8f0;">
+                <tr>
+                  <td style="padding: 40px; text-align: center; background-color: #ffffff;">
+                    <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #8b5cf6;">Timeforge Persona</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 0 40px 40px 40px;">
+                    ${content}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 30px; background-color: #f1f5f9; text-align: center;">
+                    <p style="margin: 0; font-size: 12px; color: #64748b;">
+                      &copy; ${new Date().getFullYear()} Timeforge Persona. All rights reserved.
+                    </p>
+                    <p style="margin: 8px 0 0 0; font-size: 11px; color: #94a3b8;">
+                      Empowering your productivity with AI-driven scheduling.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+  }
+
   static async sendDeleteAccountCode(
     email: string,
     code: string,
   ): Promise<void> {
     const subject = "Verify your account deletion";
-    const text = `Your verification code to delete your Persona account is: ${code}\n\nThis code will expire in 5 minutes.\n\nIf you did not request this, please ignore this email.`;
+    const text = `Your verification code to delete your Persona account is: ${code}\n\nThis code will expire in 5 minutes.`;
 
-    // Improved HTML Template
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Delete Account Verification</title>
-      </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #0f172a; margin-bottom: 10px;">Persona</h1>
-        </div>
-        <div style="background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
-          <h2 style="margin-top: 0; color: #0f172a;">Confirm Account Deletion</h2>
-          <p>You requested to delete your Persona account. Use the code below to confirm this action:</p>
-          
-          <div style="background-color: #f1f5f9; padding: 20px; text-align: center; border-radius: 6px; margin: 25px 0;">
-            <span style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #0f172a; font-family: monospace;">${code}</span>
-          </div>
-          
-          <p style="font-size: 14px; color: #64748b;">This code will expire in 5 minutes.</p>
-          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
-          <p style="font-size: 13px; color: #94a3b8; margin-bottom: 0;">If you did not request this, please ignore this email. Your account remains secure.</p>
-        </div>
-        <div style="text-align: center; margin-top: 20px;">
-          <p style="font-size: 12px; color: #94a3b8;">&copy; ${new Date().getFullYear()} Timeforge Persona. All rights reserved.</p>
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2 style="margin-top: 0; color: #0f172a; font-size: 20px; font-weight: 700;">Confirm Account Deletion</h2>
+      <p style="color: #475569; font-size: 16px;">You requested to delete your Persona account. Use the code below to confirm this action:</p>
+      
+      <div style="background-color: #f1f5f9; padding: 24px; text-align: center; border-radius: 8px; margin: 32px 0; border: 1px solid #e2e8f0;">
+        <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">${code}</span>
+      </div>
+      
+      <p style="font-size: 14px; color: #64748b; margin-top: 24px;">This code will expire in <strong>5 minutes</strong>.</p>
+      <div style="height: 1px; background-color: #e2e8f0; margin: 32px 0;"></div>
+      <p style="font-size: 13px; color: #94a3b8; margin-bottom: 0;">If you did not request this, please ignore this email. Your account remains secure.</p>
     `;
 
     await this.sendMail({
       to: email,
       subject,
       text,
-      html,
+      html: this.generateBaseTemplate(content, "Delete Account Verification"),
       fromName: "Persona Security",
     });
   }
@@ -99,27 +124,29 @@ export class EmailService {
     message: string,
   ): Promise<void> {
     const ADMIN_EMAIL = "himpraise571@gmail.com";
-    const subject = `[Persona Feedback] New User Feedback`;
+    const subject = `[Feedback] New message from ${userEmail}`;
     const text = `User Feedback Received\n\nFrom: ${userEmail}\nMessage: ${message}`;
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <body style="font-family: sans-serif; line-height: 1.5; color: #333; padding: 20px;">
-        <div style="border-left: 4px solid #3b82f6; padding-left: 15px;">
-            <h2 style="margin-top: 0; color: #1e293b;">New User Feedback</h2>
-            <p><strong>From:</strong> ${userEmail}</p>
-            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; white-space: pre-wrap; border: 1px solid #e2e8f0;">${message}</div>
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2 style="margin-top: 0; color: #0f172a; font-size: 20px; font-weight: 700;">New User Feedback</h2>
+      <p style="color: #475569; font-size: 15px; margin-bottom: 24px;">You have received a new feedback message from a user.</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+        <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">From User</p>
+        <p style="margin: 0 0 20px 0; font-size: 16px; color: #0f172a; font-weight: 500;">${userEmail}</p>
+        
+        <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Message</p>
+        <div style="font-size: 15px; color: #334155; line-height: 1.6; white-space: pre-wrap;">${message}</div>
+      </div>
+
+      <p style="font-size: 12px; color: #94a3b8; margin-top: 32px;">This is an automated message from the Persona Feedback System.</p>
     `;
 
     await this.sendMail({
       to: ADMIN_EMAIL,
       subject,
       text,
-      html,
+      html: this.generateBaseTemplate(content, "New User Feedback"),
       fromName: "Persona Feedback Bot",
     });
   }
