@@ -44,25 +44,22 @@ const Goals: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-20">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
-            Your Goals
-          </h1>
-          <p className="text-foreground/40 mt-1 text-sm">
-            Transform your ambitions into structured roadmaps.
-          </p>
-        </div>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between mb-6"
+      >
+        <h1 className="text-2xl font-bold">Goals</h1>
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="btn btn-accent flex items-center gap-2 shadow-lg shadow-accent/20"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="btn btn-accent flex items-center gap-2"
           onClick={() => setShowNewGoalModal(true)}
         >
           <Plus className="h-5 w-5" />
-          Add New Goal
+          New Goal
         </motion.button>
-      </div>
+      </motion.div>
 
       <div className="grid gap-6 grid-cols-1">
         {goals && goals.length > 0 ? (
@@ -85,23 +82,23 @@ const Goals: React.FC = () => {
           ))
         ) : (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-16 rounded-3xl bg-card border-2 border-dashed border-border/50 text-center shadow-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-12 rounded-xl bg-card border-2 border-dashed border-border text-center"
           >
-            <div className="w-20 h-20 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Target className="h-10 w-10 text-accent" />
+            <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Target className="h-8 w-8 text-accent" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">No goals active</h3>
-            <p className="text-foreground/40 mb-8 max-w-sm mx-auto leading-relaxed">
-              Start your journey today. Create a goal and let our AI help you
-              break it down into manageable steps.
+            <h3 className="text-xl font-semibold mb-2">No goals found</h3>
+            <p className="text-foreground/60 mb-6 max-w-sm mx-auto">
+              You haven't set any goals yet. Start by creating a new goal and
+              let AI help you break it down!
             </p>
             <button
-              className="btn btn-accent px-8"
+              className="btn btn-accent"
               onClick={() => setShowNewGoalModal(true)}
             >
-              Start Your First Goal
+              Create Your First Goal
             </button>
           </motion.div>
         )}

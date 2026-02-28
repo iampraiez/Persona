@@ -9,6 +9,8 @@ import {
   Sparkles,
   Copy,
   Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
@@ -107,17 +109,28 @@ const Timetable = () => {
   return (
     <div className="pb-20">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex-1">
-          <WeekSelector
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            weekDays={weekDays}
-            navigateWeek={navigateWeek}
-            events={events || undefined}
-          />
+        <div>
+          <h1 className="text-2xl font-bold">Weekly Timetable</h1>
+          <div className="flex items-center gap-2 mt-1">
+            <button
+              onClick={() => navigateWeek("prev")}
+              className="p-1 hover:bg-secondary rounded-full"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <p className="text-foreground/70 text-sm">
+              {format(weekDays[0], "MMM d")} - {format(weekDays[6], "yyyy")}
+            </p>
+            <button
+              onClick={() => navigateWeek("next")}
+              className="p-1 hover:bg-secondary rounded-full"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex gap-2 relative h-fit mt-12" ref={menuRef}>
+        <div className="flex gap-2 relative h-fit" ref={menuRef}>
           <button
             className="btn btn-accent flex items-center gap-2 shadow-lg shadow-accent/20"
             onClick={() => setShowNewEventModal(true)}
@@ -178,6 +191,16 @@ const Timetable = () => {
             )}
           </AnimatePresence>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <WeekSelector
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          weekDays={weekDays}
+          navigateWeek={navigateWeek}
+          events={events || undefined}
+        />
       </div>
 
       {/* Time grid Container */}
