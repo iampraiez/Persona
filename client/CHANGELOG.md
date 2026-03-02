@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/iampraiez/Persona/compare/persona-v0.5.0...persona-v0.6.0) (2026-02-28)
+
+
+### Features
+
+* Rework mobile navigation, add `target="_blank"` to external footer links, and improve goal step input field. ([39aab02](https://github.com/iampraiez/Persona/commit/39aab026438d9c82dcff5230a96930ada1707290))
+
 ## [0.5.0](https://github.com/iampraiez/Persona/compare/persona-v0.4.0...persona-v0.5.0) (2026-02-28)
 
 ### Features
