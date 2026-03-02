@@ -35,7 +35,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^4.2.1",
-    "pg": "^8.18.0",
+    "pg": "^8.19.0",
     "pino": "^10.3.1",
     "web-push": "^3.6.7",
     "zod": "^4.3.6"
@@ -51,7 +51,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^25.2.3",
     "@types/node-cron": "^3.0.11",
-    "@types/pg": "^8.16.0",
+    "@types/pg": "^8.18.0",
     "@types/web-push": "^3.6.4",
     "eslint": "^10.0.1",
     "eslint-config-prettier": "^10.1.8",
