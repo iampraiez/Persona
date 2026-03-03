@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/iampraiez/Persona/compare/persona-server-v0.5.0...persona-server-v0.6.0) (2026-03-03)
+
+
+### Features
+
+* Implement authentication rate limit handling by redirecting to the login page with a specific error message. ([ac93919](https://github.com/iampraiez/Persona/commit/ac93919b5be71c5046f797cbd43467e7968a9b07))
+
 ## [0.5.0](https://github.com/iampraiez/Persona/compare/persona-server-v0.4.0...persona-server-v0.5.0) (2026-02-28)
 
 ### Features
