@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/iampraiez/Persona/compare/persona-v0.6.0...persona-v0.6.1) (2026-03-03)
+
+
+### Performance Improvements
+
+* Lazy load multiple page components and optimize Vite dependency pre-bundling for `lucide-react`. ([a4a3ffc](https://github.com/iampraiez/Persona/commit/a4a3ffc8722e1db350d63e86dab9d01a71ae6530))
+
 ## [0.6.0](https://github.com/iampraiez/Persona/compare/persona-v0.5.0...persona-v0.6.0) (2026-02-28)
 
 
