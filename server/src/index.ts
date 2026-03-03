@@ -65,7 +65,7 @@ app.use(cors(corsOptions));
 app.use("/api", globalRateLimiter);
 
 // ... Routes
-app.use("/api/auth", authRateLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/users", authMiddleware, eventWriteRateLimiter, userRoutes);
 app.use("/api/events", authMiddleware, eventWriteRateLimiter, eventRoutes);
 app.use("/api/goals", authMiddleware, eventWriteRateLimiter, goalRoutes);

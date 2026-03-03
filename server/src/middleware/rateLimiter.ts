@@ -1,5 +1,8 @@
 import rateLimit from "express-rate-limit";
+import { env } from "../config/env";
 import { logger } from "../utils/logger.utils";
+
+const FRONTEND_URL = env.data?.CLIENT_URL || "http://localhost:5173";
 
 export const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -21,6 +24,13 @@ export const authRateLimiter = rateLimit({
   },
   handler: (req, res, _next, options) => {
     logger.warn(`Auth Rate limit exceeded for IP: ${req.ip}`);
+
+    // Only redirect if it's a browser navigation request
+    const isNavigation = req.headers["sec-fetch-mode"] === "navigate";
+    if (isNavigation && req.method === "GET") {
+      return res.redirect(`${FRONTEND_URL}/login?error=rate_limit`);
+    }
+
     res.status(options.statusCode).json(options.message);
   },
   standardHeaders: true,

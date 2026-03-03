@@ -33,11 +33,15 @@ const Login = () => {
         navigate(returnTo);
       });
     } else if (errorParam) {
-      setError(
-        errorParam === "auth_failed"
-          ? "Authentication failed. Please try again or use another account."
-          : "An error occurred during login.",
-      );
+      let displayError = "An error occurred during login.";
+      if (errorParam === "auth_failed") {
+        displayError =
+          "Authentication failed. Please try again or use another account.";
+      } else if (errorParam === "rate_limit") {
+        displayError =
+          "Too many login attempts. Please try again after 15 minutes.";
+      }
+      setError(displayError);
       setTimeout(() => setError(null), 5000);
     }
   }, [refetch, navigate]);
